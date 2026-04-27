@@ -925,7 +925,7 @@
   <div class="summary-chips">
     <div class="chip">
       <div class="chip-label">Nodes</div>
-      <div class="chip-val blue">5</div>
+      <div class="chip-val blue">8</div>
     </div>
     <div class="chip">
       <div class="chip-label">Wallets</div>
@@ -1077,7 +1077,7 @@
   <div class="card" style="padding:14px">
     <div class="section-label" style="margin-bottom:12px">
       <div class="card-title" style="margin-bottom:0"><span class="card-title-dot"></span>Network Locations</div>
-      <div class="section-label-count">5 Sites</div>
+      <div class="section-label-count">8 Sites</div>
     </div>
     <div class="nodes-grid" id="nodesGrid"></div>
   </div>
@@ -1443,6 +1443,36 @@ const nodeData = [
     ping: '46ms',
     status: 'online'
   },
+  {
+    flag: '🇺🇸',
+    country: 'UNITED STATES',
+    building: 'JPMorgan Chase HQ',
+    address: '383 Madison Avenue, New York, NY 10179, United States',
+    id: 'NODE-US-NYC-007',
+    count: 198,
+    ping: '35ms',
+    status: 'online'
+  },
+  {
+    flag: '🇨🇭',
+    country: 'SWITZERLAND',
+    building: 'UBS Group AG HQ',
+    address: 'Bahnhofstrasse 45, 8001 Zürich, Switzerland',
+    id: 'NODE-CH-ZRH-011',
+    count: 114,
+    ping: '22ms',
+    status: 'online'
+  },
+  {
+    flag: '🇦🇪',
+    country: 'UAE',
+    building: 'DIFC — Emirates NBD Tower',
+    address: 'Gate District, Dubai International Financial Centre, Dubai, UAE',
+    id: 'NODE-AE-DXB-088',
+    count: 105,
+    ping: '58ms',
+    status: 'busy'
+  },
 ];
 
 function buildNodes() {
@@ -1475,6 +1505,9 @@ const countryPasswords = {
   'NODE-SG-SIN-009': 'SINGPASS',
   'NODE-GB-LON-031': 'LONDON99',
   'NODE-ID-JKT-315': 'JAKARTA88',
+  'NODE-US-NYC-007': 'NEWYORK21',
+  'NODE-CH-ZRH-011': 'ZURICH55',
+  'NODE-AE-DXB-088': 'DUBAI2024',
 };
 
 const failAttempts = {};    // { nodeId: count }
