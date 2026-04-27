@@ -1,0 +1,25 @@
+{
+  "name": "MYTHOS V.2.1",
+  "short_name": "MYTHOS",
+  "description": "Mythos Secure Dashboard",
+  "start_url": "/Mythoscapybara/",
+  "scope": "/Mythoscapybara/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A0F2E",
+  "theme_color": "#0A0F2E",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
