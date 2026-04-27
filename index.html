@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MYTHOS V.2.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #0066FF;
+    --blue2: #0052CC;
+    --blue-light: #EBF2FF;
+    --blue-soft: #D6E8FF;
+    --accent: #FF6B35;
+    --accent2: #FF8C5A;
+    --green: #00B37D;
+    --green-bg: #E6F7F2;
+    --red: #E5303A;
+    --red-bg: #FDECEA;
+    --gold: #F5A623;
+    --gold-bg: #FFF4E0;
+    --bg: #F4F6FB;
+    --white: #FFFFFF;
+    --card: #FFFFFF;
+    --border: #E4E9F2;
+    --text: #1A1F36;
+    --text2: #525F7F;
+    --text3: #8898AA;
+    --shadow: 0 2px 12px rgba(0,70,180,0.08);
+    --shadow-hover: 0 8px 28px rgba(0,70,180,0.14);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-synthesis: none; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', 'Varela Round', 'Comic Sans MS', cursive, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── ACCESS GATE OVERLAY ─── */
+  #accessGate {
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    background: linear-gradient(135deg, #0A0F2E 0%, #0D1B4B 40%, #0A1628 100%);
+    overflow: hidden;
+  }
+  /* animated background orbs */
+  #accessGate::before {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,102,255,0.15) 0%, transparent 70%);
+    top: -100px; left: -100px;
+    animation: orbFloat 8s ease-in-out infinite;
+  }
+  #accessGate::after {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 70%);
+    bottom: -80px; right: -60px;
+    animation: orbFloat 10s ease-in-out infinite reverse;
+  }
+  @keyframes orbFloat {
+    0%,100%{transform:translate(0,0) scale(1)}
+    33%{transform:translate(30px,-20px) scale(1.05)}
+    66%{transform:translate(-15px,25px) scale(0.97)}
+  }
+
+  /* grid lines background */
+  .gate-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,102,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,102,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  .gate-card {
+    position: relative; z-index: 2;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 36px 28px 32px;
+    width: 100%; max-width: 360px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+    animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  @keyframes cardIn {
+    from { opacity:0; transform: translateY(30px) scale(0.95); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
+  }
+
+  /* top shine line */
+  .gate-card::before {
+    content: '';
+    position: absolute; top: 0; left: 20%; right: 20%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,102,255,0.8), rgba(255,107,53,0.6), transparent);
+    border-radius: 1px;
+  }
+
+  .gate-logo {
+    text-align: center; margin-bottom: 28px;
+  }
+  .gate-logo-icon {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #0066FF, #0033AA);
+    border-radius: 16px;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+    box-shadow: 0 8px 24px rgba(0,102,255,0.4);
+    font-size: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .gate-logo-icon::after {
+    content: '';
+    position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
+    animation: iconShine 3s infinite;
+  }
+  @keyframes iconShine { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+  .gate-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 22px; font-weight: 800;
+    color: #fff; letter-spacing: -0.3px;
+    margin-bottom: 4px;
+  }
+  .gate-subtitle {
+    font-size: 11px; color: rgba(255,255,255,0.4);
+    letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500;
+  }
+
+  .gate-label {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .gate-label::before {
+    content: '';
+    display: inline-block; width: 3px; height: 3px;
+    border-radius: 50%; background: #0066FF;
+  }
+
+  /* PIN dots row */
+  .pin-dots {
+    display: flex; justify-content: center; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .pin-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    background: transparent;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .pin-dot.filled {
+    background: #0066FF;
+    border-color: #0066FF;
+    box-shadow: 0 0 12px rgba(0,102,255,0.6);
+  }
+  .pin-dot.filled::after {
+    content: '';
+    position: absolute; inset: 3px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+  }
+  .pin-dot.error {
+    background: #E5303A;
+    border-color: #E5303A;
+    animation: shake 0.4s ease;
+    box-shadow: 0 0 12px rgba(229,48,58,0.6);
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-5px)}
+    40%{transform:translateX(5px)}
+    60%{transform:translateX(-5px)}
+    80%{transform:translateX(3px)}
+  }
+
+  /* numpad */
+  .numpad {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  .num-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px 10px;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px; font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    position: relative; overflow: hidden;
+  }
+  .num-btn:active, .num-btn.pressed {
+    background: rgba(0,102,255,0.25);
+    border-color: rgba(0,102,255,0.5);
+    transform: scale(0.95);
+    box-shadow: 0 0 16px rgba(0,102,255,0.3);
+  }
+  .num-btn::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, transparent 70%);
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .num-btn:active::after { opacity: 1; }
+  .num-btn.del-btn {
+    font-size: 14px; color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.03);
+  }
+  .num-btn.ok-btn {
+    background: linear-gradient(135deg, #0066FF, #0044CC);
+    border-color: transparent;
+    box-shadow: 0 4px 16px rgba(0,102,255,0.4);
+    font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
+  }
+  .num-btn.ok-btn:active { background: linear-gradient(135deg, #0055DD, #0033BB); }
+
+  .gate-error {
+    text-align: center; margin-top: 14px;
+    font-size: 11px; color: #FF6B6B; font-weight: 600;
+    letter-spacing: 0.06em;
+    height: 16px;
+    transition: opacity 0.3s;
+  }
+
+  /* unlock animation */
+  #accessGate.unlocking {
+    animation: gateOut 0.7s cubic-bezier(0.4,0,0.2,1) forwards;
+  }
+  @keyframes gateOut {
+    0%   { opacity:1; }
+    60%  { opacity:1; transform: scale(1.02); }
+    100% { opacity:0; pointer-events:none; }
+  }
+
+  /* main content hidden until unlocked */
+  #mainContent { display: none; }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 18px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 1px 8px rgba(0,70,180,0.06);
+  }
+  .header-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  .logo {
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--blue);
+    letter-spacing: -0.5px;
+    display: flex; align-items: center; gap: 8px;
+    white-space: nowrap;
+  }
+  .logo-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+    animation: dotPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes dotPulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.7} }
+  .logo span { color: var(--text3); font-size: 11px; font-weight: 500; letter-spacing: 0; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .live-badge {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--green-bg);
+    color: var(--green);
+    font-size: 10px; font-weight: 700;
+    padding: 4px 10px; border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    animation: dotPulse 1.2s infinite;
+  }
+  .clock-badge {
+    background: var(--blue-light);
+    color: var(--blue2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    padding: 4px 10px; border-radius: 20px;
+  }
+
+  /* ─── TICKER ─── */
+  .ticker-wrap {
+    background: var(--blue);
+    overflow: hidden;
+    padding: 7px 0;
+  }
+  .ticker-inner {
+    display: flex; gap: 36px;
+    white-space: nowrap;
+    animation: tickerMove 25s linear infinite;
+    font-size: 11px; font-weight: 600;
+  }
+  @keyframes tickerMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+  .ticker-item { display: inline-flex; align-items: center; gap: 6px; }
+  .ticker-sym { color: rgba(255,255,255,0.7); letter-spacing: 0.08em; }
+  .ticker-val { color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+  .ticker-chg.up { color: #6FFFCA; }
+  .ticker-chg.dn { color: #FFB3B3; }
+  .ticker-sep { color: rgba(255,255,255,0.2); }
+
+  /* ─── DASHBOARD ─── */
+  .dashboard { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* ─── CARD BASE ─── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .card-title {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card-title-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--blue);
+    opacity: 0.5;
+  }
+
+  /* ─── WALLET PANEL ─── */
+  .wallet-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .btc-amount {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(28px, 8vw, 40px);
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.1;
+    display: flex; align-items: baseline; gap: 6px;
+    white-space: nowrap;
+    letter-spacing: -0.02em;
+  }
+  .btc-sym {
+    font-size: 0.48em;
+    color: var(--gold);
+    background: var(--gold-bg);
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-weight: 700;
+    vertical-align: middle;
+  }
+  .usd-value {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(15px, 4vw, 20px);
+    font-weight: 700;
+    color: var(--green);
+    margin-top: 6px;
+  }
+  .usd-sub {
+    font-size: 10px; color: var(--text3); margin-top: 3px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .btc-price-card {
+    background: var(--blue-light);
+    border: 1px solid var(--blue-soft);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    text-align: right;
+    min-width: 100px;
+  }
+  .btc-price-label { font-size: 9px; color: var(--blue2); font-weight: 700; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .btc-price-val {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--blue); font-size: 14px; font-weight: 600;
+  }
+  .btc-change { font-size: 10px; margin-top: 3px; font-weight: 600; }
+  .btc-change.up { color: var(--green); }
+  .btc-change.dn { color: var(--red); }
+  .wallet-accent {
+    position: absolute; top: 0; right: 0;
+    width: 90px; height: 90px;
+    background: radial-gradient(circle, rgba(0,102,255,0.06) 0%, transparent 70%);
+    border-radius: 0 16px 0 100%;
+  }
+
+  /* ─── YIELD PANEL ─── */
+  .yield-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .yield-pct {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(26px, 7vw, 36px);
+    font-weight: 900;
+    color: var(--blue);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+  .yield-sub { font-size: 10px; color: var(--text3); margin-top: 3px; font-weight: 500; }
+  .yield-meta-grid { display: flex; flex-direction: column; gap: 3px; text-align: right; }
+  .yield-meta-row { font-size: 10px; color: var(--text3); }
+  .yield-meta-row b { color: var(--text2); font-weight: 600; }
+  .progress-track {
+    height: 10px;
+    background: var(--blue-light);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--blue), var(--accent));
+    box-shadow: 0 0 10px rgba(0,102,255,0.3);
+    transition: width 1.5s cubic-bezier(.4,0,.2,1);
+    position: relative;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute; right: 0; top: 0; bottom: 0; width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5));
+    animation: shimmer 2s infinite;
+  }
+  @keyframes shimmer { 0%{opacity:0} 50%{opacity:1} 100%{opacity:0} }
+  .progress-labels { display: flex; justify-content: space-between; font-size: 9px; color: var(--text3); margin-top: 4px; }
+  .yield-badges { display: flex; gap: 8px; margin-top: 12px; }
+  .yield-badge {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .yield-badge-label { font-size: 9px; color: var(--text3); font-weight: 600; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .yield-badge-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--blue); font-weight: 600; }
+
+  /* ─── CONVERSION PROGRESS ─── */
+  .conv-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .conv-total-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700;
+    background: var(--blue-light); color: var(--blue2);
+    padding: 3px 10px; border-radius: 8px;
+    letter-spacing: 0.04em;
+  }
+  .conv-stat-row {
+    display: flex; gap: 8px; margin-bottom: 14px;
+  }
+  .conv-stat {
+    flex: 1; background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 9px 10px; text-align: center;
+  }
+  .conv-stat-label { font-size: 8px; font-weight: 700; letter-spacing: 0.09em; color: var(--text3); text-transform: uppercase; margin-bottom: 3px; }
+  .conv-stat-val   { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
+  .conv-stat-val.green { color: var(--green); }
+  .conv-stat-val.gold  { color: var(--gold); }
+  .conv-stat-val.blue  { color: var(--blue); }
+  .conv-stat-val.red   { color: var(--red); }
+
+  /* mini progress for conversion */
+  .conv-bar-wrap { margin-bottom: 14px; }
+  .conv-bar-labels { display: flex; justify-content: space-between; font-size: 9px; color: var(--text3); margin-bottom: 5px; font-weight: 600; }
+  .conv-bar-track { height: 12px; background: var(--blue-light); border-radius: 10px; overflow: hidden; position: relative; }
+  .conv-bar-fill {
+    height: 100%; border-radius: 10px;
+    background: linear-gradient(90deg, var(--green), #00D4A0);
+    box-shadow: 0 0 10px rgba(0,179,125,0.35);
+    transition: width 0.8s cubic-bezier(.4,0,.2,1);
+    position: relative;
+  }
+  .conv-bar-fill::after {
+    content: '';
+    position: absolute; right: 0; top: 0; bottom: 0; width: 24px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5));
+    animation: shimmer 2s infinite;
+  }
+  .conv-bar-pending {
+    position: absolute; top: 0; bottom: 0;
+    background: linear-gradient(90deg, var(--gold), #FFD060);
+    opacity: 0.7;
+    border-radius: 0 10px 10px 0;
+    transition: all 0.8s;
+  }
+
+  /* ─── WALLET STREAM ─── */
+  .stream-viewport {
+    height: 220px;
+    overflow-y: auto;
+    position: relative;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    scroll-behavior: auto;
+  }
+  .stream-viewport::-webkit-scrollbar { width: 3px; }
+  .stream-viewport::-webkit-scrollbar-thumb { background: var(--blue-soft); border-radius: 2px; }
+  .stream-spacer-top    { width: 100%; }
+  .stream-spacer-bottom { width: 100%; }
+  .stream-rows { position: relative; }
+  .wallet-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 10px;
+    border-bottom: 1px solid var(--border);
+    height: 26px;
+  }
+  .wallet-num  { color: var(--text3); font-size: 9px; width: 32px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
+  .wallet-addr { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wallet-pct  { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; width: 38px; text-align: right; flex-shrink: 0; }
+  .wallet-status {
+    font-size: 8px; font-weight: 700;
+    padding: 1px 6px; border-radius: 5px; flex-shrink: 0;
+  }
+  .wallet-status.active  { color: var(--green); background: var(--green-bg); }
+  .wallet-status.pending { color: var(--gold);  background: var(--gold-bg); }
+  .wallet-status.idle    { color: var(--text3); background: var(--bg); border: 1px solid var(--border); }
+  .wallet-status.done    { color: var(--blue);  background: var(--blue-light); }
+
+  .stream-fade-top {
+    position: sticky; top: 0; left: 0; right: 0; height: 24px;
+    background: linear-gradient(var(--bg), transparent);
+    pointer-events: none; z-index: 3; margin-bottom: -24px;
+  }
+  .stream-fade-bot {
+    position: sticky; bottom: 0; left: 0; right: 0; height: 24px;
+    background: linear-gradient(transparent, var(--bg));
+    pointer-events: none; z-index: 3; margin-top: -24px;
+  }
+
+  /* auto-scroll toggle */
+  .stream-controls {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .stream-label { font-size: 9px; color: var(--text3); font-weight: 600; letter-spacing: 0.06em; }
+  .stream-toggle {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 9px; font-weight: 700; color: var(--text3);
+    cursor: pointer; user-select: none;
+  }
+  .toggle-pill {
+    width: 28px; height: 15px; border-radius: 8px;
+    background: var(--blue); position: relative; transition: background 0.2s;
+  }
+  .toggle-pill::after {
+    content: ''; position: absolute; top: 2px; right: 2px;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: #fff; transition: transform 0.2s;
+  }
+  .toggle-pill.off { background: var(--border); }
+  .toggle-pill.off::after { transform: translateX(-13px); }
+
+
+
+  /* ─── NODES / LOCATION ─── */
+  .nodes-grid { display: flex; flex-direction: column; gap: 10px; }
+  .node-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    display: flex; align-items: flex-start; gap: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .node-card:hover {
+    box-shadow: var(--shadow-hover);
+    border-color: var(--blue-soft);
+  }
+  .node-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    border-radius: 4px 0 0 4px;
+  }
+  .node-card.online::before { background: var(--green); }
+  .node-card.busy::before { background: var(--gold); }
+  .node-card.offline::before { background: var(--border); }
+
+  .node-flag-wrap {
+    width: 38px; height: 38px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .node-body { flex: 1; min-width: 0; }
+  .node-country {
+    font-size: 12px; font-weight: 700; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .node-building {
+    font-size: 10px; color: var(--blue); font-weight: 600;
+    margin-top: 1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .node-address {
+    font-size: 9px; color: var(--text3);
+    margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .node-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--text3); margin-top: 3px;
+    letter-spacing: 0.03em;
+  }
+  .node-right { text-align: right; flex-shrink: 0; }
+  .node-status-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 8px;
+    letter-spacing: 0.06em;
+  }
+  .node-status-pill.online { color: var(--green); background: var(--green-bg); }
+  .node-status-pill.busy { color: var(--gold); background: var(--gold-bg); }
+  .node-status-pill.offline { color: var(--text3); background: var(--bg); }
+  .node-dot-sm {
+    width: 5px; height: 5px; border-radius: 50%;
+    animation: dotPulse 2s infinite;
+  }
+  .node-dot-sm.online { background: var(--green); }
+  .node-dot-sm.busy { background: var(--gold); }
+  .node-count { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--blue); font-weight: 600; margin-top: 5px; }
+  .node-count-label { font-size: 8px; color: var(--text3); margin-top: 1px; }
+  .node-ping { font-size: 9px; color: var(--text3); margin-top: 3px; }
+
+  /* ─── BOTTOM NAV / SECTION LABEL ─── */
+  .section-label {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0;
+  }
+  .section-label-text { font-size: 13px; font-weight: 700; color: var(--text); }
+  .section-label-count {
+    font-size: 10px; color: var(--text3); font-weight: 500;
+    background: var(--blue-light); color: var(--blue2);
+    padding: 2px 8px; border-radius: 8px;
+  }
+
+  /* ─── SUMMARY CHIPS ─── */
+  .summary-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+  .chip {
+    flex: 1; min-width: 70px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .chip-label { font-size: 9px; color: var(--text3); font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 4px; }
+  .chip-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--text); }
+  .chip-val.blue { color: var(--blue); }
+  .chip-val.green { color: var(--green); }
+  .chip-val.gold { color: var(--gold); }
+
+
+  /* ─── NODE DETAIL MODAL ─── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 5000;
+    background: rgba(4, 8, 24, 0.80);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px 16px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .modal-overlay.open {
+    opacity: 1; pointer-events: all;
+  }
+  .modal-sheet {
+    background: linear-gradient(170deg, #0D1B4B 0%, #0A1628 60%, #080F24 100%);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 24px;
+    width: 100%; max-width: 420px;
+    max-height: 88vh;
+    padding: 0;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07);
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .modal-overlay.open .modal-sheet {
+    transform: translateY(0) scale(1);
+  }
+  /* top shine line */
+  .modal-sheet::before {
+    content: '';
+    position: absolute; top: 0; left: 15%; right: 15%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,102,255,0.7), rgba(255,107,53,0.5), transparent);
+    z-index: 10; pointer-events: none;
+  }
+  /* subtle grid overlay */
+  .modal-sheet::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,102,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,102,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+  .modal-handle { display: none; }
+  .modal-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    background: linear-gradient(170deg, #0D1B4B 0%, #0a1a48 100%);
+    flex-shrink: 0;
+    position: relative; z-index: 5;
+  }
+  .modal-flag {
+    width: 48px; height: 48px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .modal-title { flex: 1; }
+  .modal-country {
+    font-size: 16px; font-weight: 800; color: #fff;
+    letter-spacing: -0.3px;
+  }
+  .modal-building {
+    font-size: 11px; color: rgba(100,160,255,0.9); font-weight: 600; margin-top: 2px;
+  }
+  .modal-status-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 9px; font-weight: 700; padding: 4px 10px;
+    border-radius: 8px; letter-spacing: 0.06em;
+  }
+  .modal-status-pill.online { color: #6FFFCA; background: rgba(0,179,125,0.18); border: 1px solid rgba(0,179,125,0.25); }
+  .modal-status-pill.busy   { color: #FFD580; background: rgba(245,166,35,0.18); border: 1px solid rgba(245,166,35,0.25); }
+  .modal-close {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; cursor: pointer; color: rgba(255,255,255,0.5);
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.13); color: #fff; }
+  .modal-body { padding: 14px 18px 24px; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 2; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+  .modal-body::-webkit-scrollbar { width: 3px; }
+  .modal-body::-webkit-scrollbar-track { background: transparent; }
+  .modal-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+  .modal-info-row {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius-sm);
+    padding: 11px 14px;
+  }
+  .modal-info-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 5px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .modal-info-label::before {
+    content: ''; display: inline-block;
+    width: 3px; height: 3px; border-radius: 50%;
+    background: #0066FF;
+  }
+  .modal-info-val {
+    font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 600; line-height: 1.5;
+  }
+  .modal-info-val.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: rgba(255,255,255,0.6);
+  }
+  .modal-pw-wrap { position: relative; }
+  .modal-pw-input {
+    width: 100%; padding: 11px 44px 11px 14px;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px; color: #fff;
+    background: rgba(255,255,255,0.06);
+    outline: none;
+    letter-spacing: 0.18em;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .modal-pw-input::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 0.08em; }
+  .modal-pw-input:focus { border-color: rgba(0,102,255,0.7); background: rgba(0,102,255,0.08); }
+  .modal-pw-input:disabled { opacity: 0.5; cursor: not-allowed; }
+  .modal-pw-eye {
+    position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    font-size: 16px; color: rgba(255,255,255,0.3); padding: 0;
+    line-height: 1; transition: color 0.15s;
+  }
+  .modal-pw-eye:hover { color: rgba(255,255,255,0.7); }
+  .modal-pw-hint {
+    font-size: 10px; margin-bottom: 8px; font-weight: 600;
+    color: rgba(100,160,255,0.9); display: flex; align-items: center; gap: 5px;
+    background: rgba(0,102,255,0.1); border: 1px solid rgba(0,102,255,0.2);
+    border-radius: 8px; padding: 7px 10px;
+  }
+  .modal-pw-hint::before { content: none; }
+  .modal-stats-row {
+    display: flex; gap: 8px;
+  }
+  .modal-stat {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius-sm); padding: 10px; text-align: center;
+  }
+  .modal-stat-label { font-size: 9px; color: rgba(255,255,255,0.3); font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; text-transform: uppercase; }
+  .modal-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #4D9FFF; font-weight: 700; }
+  .node-card { cursor: pointer; }
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--blue-soft); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════ ACCESS GATE ══════════ -->
+<div id="accessGate">
+  <div class="gate-grid"></div>
+  <div class="gate-card">
+    <div class="gate-logo">
+      <div class="gate-logo-icon">🔐</div>
+      <div class="gate-title">MYTHOS V.2.1</div>
+      <div class="gate-subtitle">Secure Access Required</div>
+    </div>
+    <div class="gate-label">Access Code</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+      <div class="pin-dot" id="dot4"></div>
+      <div class="pin-dot" id="dot5"></div>
+    </div>
+    <div class="numpad">
+      <button class="num-btn" onclick="numPress('1')">1</button>
+      <button class="num-btn" onclick="numPress('2')">2</button>
+      <button class="num-btn" onclick="numPress('3')">3</button>
+      <button class="num-btn" onclick="numPress('4')">4</button>
+      <button class="num-btn" onclick="numPress('5')">5</button>
+      <button class="num-btn" onclick="numPress('6')">6</button>
+      <button class="num-btn" onclick="numPress('7')">7</button>
+      <button class="num-btn" onclick="numPress('8')">8</button>
+      <button class="num-btn" onclick="numPress('9')">9</button>
+      <button class="num-btn del-btn" onclick="numDel()">⌫</button>
+      <button class="num-btn" onclick="numPress('0')">0</button>
+      <button class="num-btn ok-btn" onclick="numOk()">ENTER</button>
+    </div>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+</div>
+
+<!-- ══════════ MAIN CONTENT ══════════ -->
+<div id="mainContent">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-dot"></span>
+      MYTHOS<span style="margin-left:4px">V.2.1</span>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+      <div class="clock-badge" id="clock">--:--:-- UTC</div>
+    </div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner" id="tickerInner"></div>
+</div>
+
+<div class="dashboard">
+
+  <!-- SUMMARY CHIPS -->
+  <div class="summary-chips">
+    <div class="chip">
+      <div class="chip-label">Nodes</div>
+      <div class="chip-val blue">5</div>
+    </div>
+    <div class="chip">
+      <div class="chip-label">Wallets</div>
+      <div class="chip-val blue">1,000</div>
+    </div>
+    <div class="chip">
+      <div class="chip-label">Gold</div>
+      <div class="chip-val green" id="chipYield">92.00%</div>
+    </div>
+    <div class="chip">
+      <div class="chip-label">Status</div>
+      <div class="chip-val green">ONLINE</div>
+    </div>
+  </div>
+
+  <!-- WALLET BALANCE -->
+  <div class="card">
+    <div class="card-title"><span class="card-title-dot"></span>Primary Vault — BTC Holdings</div>
+    <div class="wallet-top">
+      <div>
+        <div class="btc-amount"><span class="btc-sym">₿</span>12,336.00</div>
+        <div class="usd-value" id="usdValue">Loading...</div>
+        <div class="usd-sub">Total USD Value <span id="lastUpdate" style="color:var(--blue);margin-left:4px;font-size:9px"></span></div>
+      </div>
+      <div class="btc-price-card">
+        <div class="btc-price-label">BTC / USD</div>
+        <div class="btc-price-val" id="btcPrice">—</div>
+        <div class="btc-change" id="btcChange">—</div>
+      </div>
+    </div>
+    <div class="wallet-accent"></div>
+  </div>
+
+  <!-- KONVERSI KE GOLD -->
+  <div class="card" style="position:relative;overflow:hidden">
+    <!-- gold shimmer accent -->
+    <div style="position:absolute;top:0;right:0;width:110px;height:110px;background:radial-gradient(circle,rgba(245,166,35,0.10) 0%,transparent 70%);border-radius:0 16px 0 100%;pointer-events:none"></div>
+    <div class="card-title"><span class="card-title-dot" style="background:var(--gold)"></span>Konversi ke Gold</div>
+    <div class="yield-top">
+      <div>
+        <div class="yield-pct" id="yieldPct" style="color:var(--gold)">29.00%</div>
+        <div class="yield-sub">PROGRESS KONVERSI GOLD</div>
+      </div>
+      <div class="yield-meta-grid">
+        <div class="yield-meta-row">Gain/hari: <b id="dailyGain" style="color:var(--gold)">+0.10–0.46%</b></div>
+        <div class="yield-meta-row">Update: <b id="nextUpdate" style="color:var(--blue)">--:--:--</b></div>
+        <div class="yield-meta-row">Sisa: <b id="goldRemain" style="color:var(--accent)">71.00%</b></div>
+      </div>
+    </div>
+    <div class="progress-track" style="background:#FFF4E0">
+      <div class="progress-fill" id="progressFill" style="width:29%;background:linear-gradient(90deg,var(--gold),#FFD060)"></div>
+    </div>
+    <div class="progress-labels">
+      <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100% 🏆</span>
+    </div>
+    <div class="yield-badges" style="margin-top:12px">
+      <div class="yield-badge">
+        <div class="yield-badge-label">Gain Hari Ini</div>
+        <div class="yield-badge-val" id="dayGainBadge" style="color:var(--gold)">+0.00%</div>
+      </div>
+      <div class="yield-badge">
+        <div class="yield-badge-label">📅 Est. Selesai</div>
+        <div class="yield-badge-val" id="goldEstDate" style="color:var(--green);font-size:11px">—</div>
+      </div>
+      <div class="yield-badge">
+        <div class="yield-badge-label">🗓 Sisa Hari</div>
+        <div class="yield-badge-val" id="goldEstDays" style="color:var(--accent)">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONVERSION PROGRESS + WALLET STREAM -->
+  <div class="card" style="padding:14px">
+    <!-- Header -->
+    <div class="conv-header">
+      <div class="card-title" style="margin-bottom:0"><span class="card-title-dot"></span>Progress Konversi</div>
+      <div class="conv-total-badge" id="convTotalBadge">1000 Wallets</div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="conv-stat-row">
+      <div class="conv-stat">
+        <div class="conv-stat-label">Selesai</div>
+        <div class="conv-stat-val green" id="convDone">0</div>
+      </div>
+      <div class="conv-stat">
+        <div class="conv-stat-label">Sisa</div>
+        <div class="conv-stat-val blue" id="convIdle">0</div>
+      </div>
+      <div class="conv-stat">
+        <div class="conv-stat-label">Konversi</div>
+        <div class="conv-stat-val green" id="convPct">0%</div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="conv-bar-wrap">
+      <div class="conv-bar-labels">
+        <span id="convBarLabel">Konversi: <b style="color:var(--green)">0%</b></span>
+        <span id="convBarRight" style="color:var(--text3)">Sisa: 1000 wallet</span>
+      </div>
+      <div class="conv-bar-track">
+        <div class="conv-bar-fill" id="convBarFill" style="width:0%"></div>
+        <div class="conv-bar-pending" id="convBarPending" style="left:0%;width:0%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--text3);margin-top:3px">
+        <span>0</span><span>250</span><span>500</span><span>750</span><span>1000</span>
+      </div>
+    </div>
+
+    <!-- Estimasi info row -->
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div class="conv-stat" style="flex:1.2">
+        <div class="conv-stat-label">⏱ Batch Berikutnya (+5)</div>
+        <div class="conv-stat-val blue" id="convNextBatch" style="font-size:12px;letter-spacing:0.05em">—</div>
+      </div>
+      <div class="conv-stat" style="flex:1">
+        <div class="conv-stat-label">📅 Est. Selesai</div>
+        <div class="conv-stat-val green" id="convEstDate" style="font-size:11px">—</div>
+      </div>
+      <div class="conv-stat">
+        <div class="conv-stat-label">🗓 Sisa Hari</div>
+        <div class="conv-stat-val gold" id="convEstDays">—</div>
+      </div>
+    </div>
+
+    <!-- Stream controls -->
+    <div class="stream-controls">
+      <span class="stream-label">📡 LIVE WALLET STREAM · 1,000 ADDRESSES</span>
+      <div class="stream-toggle" onclick="toggleAutoScroll()">
+        <span id="toggleLabel">AUTO-SCROLL</span>
+        <div class="toggle-pill" id="togglePill"></div>
+      </div>
+    </div>
+
+    <!-- Virtual scroll viewport -->
+    <div class="stream-fade-top"></div>
+    <div class="stream-viewport" id="streamViewport">
+      <div id="streamSpacerTop" class="stream-spacer-top"></div>
+      <div id="streamRows" class="stream-rows"></div>
+      <div id="streamSpacerBot" class="stream-spacer-bottom"></div>
+    </div>
+    <div class="stream-fade-bot"></div>
+  </div>
+
+
+
+  <!-- LOCATION NODES -->
+  <div class="card" style="padding:14px">
+    <div class="section-label" style="margin-bottom:12px">
+      <div class="card-title" style="margin-bottom:0"><span class="card-title-dot"></span>Network Locations</div>
+      <div class="section-label-count">5 Sites</div>
+    </div>
+    <div class="nodes-grid" id="nodesGrid"></div>
+  </div>
+
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+const BTC_HOLDINGS = 12336;
+let btcPrice = 0;
+
+// ── CLOCK ──────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getUTCHours()).padStart(2,'0');
+  const m = String(now.getUTCMinutes()).padStart(2,'0');
+  const s = String(now.getUTCSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s} UTC`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── BTC PRICE ───────────────────────────────────────────
+async function fetchBtcPrice() {
+  try {
+    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true', {cache:'no-store'});
+    const data = await res.json();
+    if (data.bitcoin) {
+      updateBtcUI(data.bitcoin.usd, data.bitcoin.usd_24h_change);
+    }
+  } catch(e) {
+    btcPrice = btcPrice || 94250 + (Math.random()-0.5)*2000;
+    btcPrice += (Math.random()-0.5)*200;
+    updateBtcUI(btcPrice, (Math.random()-0.5)*4);
+  }
+}
+
+function updateBtcUI(price, change) {
+  btcPrice = price;
+  const fmt = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+  const fmtDec = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('btcPrice').textContent = fmtDec.format(price);
+
+  const chEl = document.getElementById('btcChange');
+
+  const sign = change >= 0 ? '+' : '';
+  chEl.textContent = `${sign}${change.toFixed(2)}% 24h`;
+  chEl.className = `btc-change ${change >= 0 ? 'up' : 'dn'}`;
+
+
+  const total = price * BTC_HOLDINGS;
+  document.getElementById('usdValue').textContent = `$${total.toLocaleString('en-US',{maximumFractionDigits:0})}`;
+  const now = new Date();
+  document.getElementById('lastUpdate').textContent = `Updated ${now.getUTCHours().toString().padStart(2,'0')}:${now.getUTCMinutes().toString().padStart(2,'0')} UTC`;
+
+}
+
+
+
+// ── KONVERSI KE GOLD ────────────────────────────────────
+const GOLD_START      = 29.00;   // progress awal (saat ini)
+const GOLD_MIN_DAILY  = 0.10;    // % minimum per hari
+const GOLD_MAX_DAILY  = 0.46;    // % maksimum per hari
+const GOLD_AVG_DAILY  = (GOLD_MIN_DAILY + GOLD_MAX_DAILY) / 2; // 0.28%
+
+// Epoch — anggap sudah berjalan dari GOLD_START/AVG hari yang lalu
+const GOLD_EPOCH = Date.now() - (GOLD_START / GOLD_AVG_DAILY) * 86400000;
+
+let currentYield    = GOLD_START;
+let todayGain       = 0;
+
+// Seeded daily gain: konsisten per hari kalender UTC
+function getDailyGain(dayIndex) {
+  // simple deterministic pseudo-random berdasarkan hari
+  const seed = Math.sin(dayIndex * 9301 + 49297) * 233280;
+  const r    = (seed - Math.floor(seed));
+  return GOLD_MIN_DAILY + r * (GOLD_MAX_DAILY - GOLD_MIN_DAILY);
+}
+
+function formatGoldDate(msFromNow) {
+  const d = new Date(Date.now() + msFromNow);
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function calcYield() {
+  const now         = Date.now();
+  const elapsed     = now - GOLD_EPOCH;
+  const totalDays   = elapsed / 86400000;
+
+  // Hitung akumulasi yield dari epoch pakai seed per hari
+  let accumulated = 0;
+  const fullDays  = Math.floor(totalDays);
+  for (let d = 0; d < fullDays; d++) accumulated += getDailyGain(d);
+  // Partial hari ini
+  const fracDay  = totalDays - fullDays;
+  const todayMax = getDailyGain(fullDays);
+  accumulated   += fracDay * todayMax;
+
+  currentYield = Math.min(100, accumulated);
+  todayGain    = fracDay * todayMax;
+
+  // Countdown ke midnight UTC (reset harian)
+  const msUTC      = now % 86400000;
+  const msToMid    = 86400000 - msUTC;
+  const hh = String(Math.floor(msToMid / 3600000)).padStart(2,'0');
+  const mm = String(Math.floor((msToMid % 3600000) / 60000)).padStart(2,'0');
+  const ss = String(Math.floor((msToMid % 60000) / 1000)).padStart(2,'0');
+
+  // Estimasi selesai: sisa % dibagi avg harian
+  const remaining  = Math.max(0, 100 - currentYield);
+  const estDays    = remaining > 0 ? Math.ceil(remaining / GOLD_AVG_DAILY) : 0;
+  const estMs      = estDays * 86400000;
+
+  const pct = currentYield.toFixed(2);
+
+  document.getElementById('yieldPct').textContent      = pct + '%';
+  document.getElementById('chipYield').textContent     = pct + '%';
+  document.getElementById('progressFill').style.width  = Math.min(100, currentYield) + '%';
+  document.getElementById('dailyGain').textContent     = `+${GOLD_MIN_DAILY.toFixed(2)}–${GOLD_MAX_DAILY.toFixed(2)}%`;
+  document.getElementById('nextUpdate').textContent    = `${hh}:${mm}:${ss}`;
+  document.getElementById('goldRemain').textContent    = remaining.toFixed(2) + '%';
+  document.getElementById('dayGainBadge').textContent  = `+${todayGain.toFixed(3)}%`;
+  document.getElementById('goldEstDate').textContent   = remaining > 0 ? formatGoldDate(estMs) : '🏆 SELESAI';
+  document.getElementById('goldEstDays').textContent   = remaining > 0 ? estDays + ' hari' : '✓';
+}
+
+// ── CONVERSION PROGRESS + VIRTUAL WALLET STREAM ─────────
+const TOTAL_WALLETS = 1000;
+const RATE_PER_DAY  = 5;           // wallets selesai per 24 jam
+const DONE_START    = 105;         // sudah selesai sejak awal
+const ROW_H         = 26;          // px per row
+const OVERSCAN      = 8;
+
+// Timestamp "awal tracking" — anggap sudah berjalan sejak DONE_START/RATE_PER_DAY hari lalu
+const MS_PER_DAY    = 86400000;
+const EPOCH_START   = Date.now() - (DONE_START / RATE_PER_DAY) * MS_PER_DAY;
+
+function genWalletAddr() {
+  const prefix = Math.random() > 0.5 ? '1' : Math.random() > 0.5 ? '3' : 'bc1q';
+  let addr = prefix;
+  const pool = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789';
+  const len = prefix === 'bc1q' ? 38 : 33;
+  for (let i = addr.length; i < len; i++) addr += pool[Math.floor(Math.random() * pool.length)];
+  return addr;
+}
+
+// Build 1000 wallet — urutan: 105 DONE dulu, sisanya ANTRI (konsisten, tidak random)
+const walletData = [];
+(function() {
+  for (let i = 0; i < TOTAL_WALLETS; i++) {
+    walletData.push({
+      num:    i + 1,
+      addr:   genWalletAddr(),
+      status: i < DONE_START ? 'done' : 'idle',
+      pct:    i < DONE_START ? 100 : 0
+    });
+  }
+})();
+
+// Hitung done saat ini berdasarkan waktu nyata sejak EPOCH_START
+function calcDoneNow() {
+  const elapsed = Date.now() - EPOCH_START;
+  const days    = elapsed / MS_PER_DAY;
+  return Math.min(TOTAL_WALLETS, Math.floor(days * RATE_PER_DAY));
+}
+
+// Sync status walletData ke jumlah done saat ini
+function syncWalletStatuses() {
+  const doneNow = calcDoneNow();
+  for (let i = 0; i < TOTAL_WALLETS; i++) {
+    if (i < doneNow) {
+      walletData[i].status = 'done';
+      walletData[i].pct    = 100;
+    } else {
+      walletData[i].status = 'idle';
+      walletData[i].pct    = 0;
+    }
+  }
+}
+
+// Waktu menuju batch berikutnya (+5 wallet)
+function msUntilNextBatch() {
+  const elapsed  = Date.now() - EPOCH_START;
+  const daysDone = elapsed / MS_PER_DAY;
+  const nextDay  = Math.ceil(daysDone * RATE_PER_DAY) / RATE_PER_DAY; // hari ke-N berikutnya
+  return nextDay * MS_PER_DAY - elapsed;
+}
+
+// Virtual scroll state
+let vsScrollTop   = 0;
+let autoScroll    = true;
+let autoScrollRAF = null;
+const autoScrollSpeed = 0.6;
+
+function getStatusLabel(st) {
+  if (st === 'done')    return { cls: 'done',    label: 'DONE' };
+  if (st === 'active')  return { cls: 'active',  label: 'AKTIF' };
+  if (st === 'pending') return { cls: 'pending', label: 'PROSES' };
+  return { cls: 'idle', label: 'ANTRI' };
+}
+function getPctColor(st) {
+  if (st === 'done')    return 'color:var(--green)';
+  if (st === 'active')  return 'color:var(--blue)';
+  if (st === 'pending') return 'color:var(--gold)';
+  return 'color:var(--text3)';
+}
+
+function renderVirtualRows() {
+  const vp  = document.getElementById('streamViewport');
+  const vpH = vp.clientHeight || 220;
+  const startIdx = Math.max(0, Math.floor(vsScrollTop / ROW_H) - OVERSCAN);
+  const endIdx   = Math.min(TOTAL_WALLETS - 1, Math.ceil((vsScrollTop + vpH) / ROW_H) + OVERSCAN);
+
+  document.getElementById('streamSpacerTop').style.height = (startIdx * ROW_H) + 'px';
+  document.getElementById('streamSpacerBot').style.height = ((TOTAL_WALLETS - 1 - endIdx) * ROW_H) + 'px';
+
+  let html = '';
+  for (let i = startIdx; i <= endIdx; i++) {
+    const w = walletData[i];
+    const { cls, label } = getStatusLabel(w.status);
+    const pctStr = w.pct > 0 ? w.pct + '%' : '—';
+    html += `<div class="wallet-row">
+      <div class="wallet-num">${String(w.num).padStart(4,'0')}</div>
+      <div class="wallet-addr">${w.addr}</div>
+      <div class="wallet-pct" style="${getPctColor(w.status)}">${pctStr}</div>
+      <div class="wallet-status ${cls}">${label}</div>
+    </div>`;
+  }
+  document.getElementById('streamRows').innerHTML = html;
+}
+
+function autoScrollStep() {
+  if (!autoScroll) { autoScrollRAF = null; return; }
+  vsScrollTop += autoScrollSpeed;
+  const maxScroll = TOTAL_WALLETS * ROW_H - (document.getElementById('streamViewport').clientHeight || 220);
+  if (vsScrollTop >= maxScroll) vsScrollTop = 0;
+  document.getElementById('streamViewport').scrollTop = vsScrollTop;
+  renderVirtualRows();
+  autoScrollRAF = requestAnimationFrame(autoScrollStep);
+}
+
+function toggleAutoScroll() {
+  autoScroll = !autoScroll;
+  const pill = document.getElementById('togglePill');
+  const lbl  = document.getElementById('toggleLabel');
+  if (autoScroll) {
+    pill.classList.remove('off');
+    lbl.textContent = 'AUTO-SCROLL';
+    autoScrollRAF   = requestAnimationFrame(autoScrollStep);
+  } else {
+    pill.classList.add('off');
+    lbl.textContent = 'MANUAL';
+    if (autoScrollRAF) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = null; }
+  }
+}
+
+// Format tanggal estimasi selesai
+function formatEstDate(msFromNow) {
+  const d = new Date(Date.now() + msFromNow);
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function updateConvStats() {
+  syncWalletStatuses();
+
+  const done    = walletData.filter(w => w.status === 'done').length;
+  const idle    = TOTAL_WALLETS - done;
+  const donePct = (done / TOTAL_WALLETS * 100).toFixed(1);
+
+  // Countdown ke batch berikutnya
+  const msNext = msUntilNextBatch();
+  const hh = String(Math.floor(msNext / 3600000)).padStart(2,'0');
+  const mm = String(Math.floor((msNext % 3600000) / 60000)).padStart(2,'0');
+  const ss = String(Math.floor((msNext % 60000) / 1000)).padStart(2,'0');
+  const nextBatchStr = `${hh}:${mm}:${ss}`;
+
+  // Estimasi selesai semua
+  const remaining    = TOTAL_WALLETS - done;
+  const msToDone     = (remaining / RATE_PER_DAY) * MS_PER_DAY;
+  const estDateStr   = formatEstDate(msToDone);
+  const estDays      = Math.ceil(remaining / RATE_PER_DAY);
+
+  document.getElementById('convDone').textContent    = done;
+  document.getElementById('convIdle').textContent    = idle;
+  document.getElementById('convPct').textContent     = donePct + '%';
+  document.getElementById('convBarLabel').innerHTML  = `Konversi: <b style="color:var(--green)">${donePct}%</b>`;
+  document.getElementById('convBarRight').textContent = `Sisa: ${idle} wallet`;
+  document.getElementById('convBarFill').style.width  = donePct + '%';
+  document.getElementById('convBarPending').style.width = '0%';
+
+  // Update info baris bawah
+  document.getElementById('convNextBatch').textContent = nextBatchStr;
+  document.getElementById('convEstDate').textContent   = estDateStr;
+  document.getElementById('convEstDays').textContent   = estDays + ' hari';
+}
+
+function buildWalletList() {
+  const vp = document.getElementById('streamViewport');
+  vp.addEventListener('scroll', () => {
+    if (!autoScroll) { vsScrollTop = vp.scrollTop; renderVirtualRows(); }
+  });
+
+  updateConvStats();
+  renderVirtualRows();
+
+  setTimeout(() => { autoScrollRAF = requestAnimationFrame(autoScrollStep); }, 600);
+
+  // Update stats setiap detik (untuk countdown)
+  setInterval(updateConvStats, 1000);
+}
+
+// ── NODES — LOCATION-BASED ─────────────────────────────
+const nodeData = [
+  {
+    flag: '🇯🇵',
+    country: 'JAPAN',
+    building: 'SoftBank Corp. HQ',
+    address: '〒105-0022 Tokyo, Minato City, Kaigan 1-7-1 東京ポートシティ竹芝オフィスタワー',
+    id: 'NODE-JP-TYO-004',
+    count: 87,
+    ping: '12ms',
+    status: 'online'
+  },
+  {
+    flag: '🇩🇪',
+    country: 'GERMANY',
+    building: 'Deutsche Bank AG HQ',
+    address: 'Taunusanlage 12, 60325 Frankfurt am Main, Germany',
+    id: 'NODE-DE-FRA-022',
+    count: 74,
+    ping: '18ms',
+    status: 'online'
+  },
+  {
+    flag: '🇸🇬',
+    country: 'SINGAPORE',
+    building: 'DBS Bank Tower',
+    address: '12 Marina Boulevard, Marina Bay Financial Centre, Singapore 018982',
+    id: 'NODE-SG-SIN-009',
+    count: 62,
+    ping: '21ms',
+    status: 'online'
+  },
+  {
+    flag: '🇬🇧',
+    country: 'UNITED KINGDOM',
+    building: 'Barclays PLC HQ',
+    address: '1 Churchill Place, Canary Wharf, London E14 5HP, UK',
+    id: 'NODE-GB-LON-031',
+    count: 45,
+    ping: '29ms',
+    status: 'busy'
+  },
+  {
+    flag: '🇮🇩',
+    country: 'INDONESIA',
+    building: 'Bank Mandiri Menara',
+    address: 'Jl. Gatot Subroto Kav. 36-38, Jakarta Selatan 12190',
+    id: 'NODE-ID-JKT-315',
+    count: 315,
+    ping: '46ms',
+    status: 'online'
+  },
+];
+
+function buildNodes() {
+  const grid = document.getElementById('nodesGrid');
+  grid.innerHTML = nodeData.map((n, i) => `
+    <div class="node-card ${n.status}" onclick="openNodeModal(${i})">
+      <div class="node-flag-wrap">${n.flag}</div>
+      <div class="node-body">
+        <div class="node-country">${n.country}</div>
+        <div class="node-building">${n.building}</div>
+        <div class="node-id">${n.id} &nbsp;·&nbsp; ⬡ ${n.ping}</div>
+      </div>
+      <div class="node-right">
+        <div class="node-status-pill ${n.status}">
+          <span class="node-dot-sm ${n.status}"></span>
+          ${n.status.toUpperCase()}
+        </div>
+        <div class="node-count">${n.count}</div>
+        <div class="node-count-label">WALLETS</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:3px">Tap for detail ›</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── COUNTRY PASSWORDS & LOCKOUT SYSTEM ─────────────────
+const countryPasswords = {
+  'NODE-JP-TYO-004': 'JAPAN2024',
+  'NODE-DE-FRA-022': 'FRANKFURT7',
+  'NODE-SG-SIN-009': 'SINGPASS',
+  'NODE-GB-LON-031': 'LONDON99',
+  'NODE-ID-JKT-315': 'JAKARTA88',
+};
+
+const failAttempts = {};    // { nodeId: count }
+const lockedNodes  = {};    // { nodeId: true }
+const removedNodes = {};    // { nodeId: true } — asset cleared
+
+let currentModalIdx = null;
+
+// ── NODE MODAL ──────────────────────────────────────────
+function openNodeModal(idx) {
+  const n = nodeData[idx];
+  currentModalIdx = idx;
+
+  document.getElementById('mFlag').textContent = n.flag;
+  document.getElementById('mCountry').textContent = n.country;
+  document.getElementById('mBuilding').textContent = n.building;
+  document.getElementById('mAddress').textContent = n.address;
+  document.getElementById('mCount').textContent = removedNodes[n.id] ? '—' : n.count;
+  document.getElementById('mPing').textContent = n.ping;
+  document.getElementById('mId').textContent = n.id;
+
+  const pwInput = document.getElementById('mPwInput');
+  pwInput.value = '';
+  pwInput.type = 'password';
+  pwInput.disabled = false;
+
+  const pill = document.getElementById('mStatusPill');
+  pill.textContent = n.status.toUpperCase();
+  pill.className = 'modal-status-pill ' + n.status;
+
+  const hint = document.getElementById('mPwHint');
+  const pwSection = document.getElementById('mPwSection');
+  const verifyBtn = document.getElementById('mVerifyBtn');
+  const pwError   = document.getElementById('mPwError');
+  const pwSuccess = document.getElementById('mPwSuccess');
+  const assetRemoved = document.getElementById('mAssetRemoved');
+
+  pwError.textContent = '';
+  pwSuccess.style.display = 'none';
+  assetRemoved.style.display = 'none';
+
+  if (removedNodes[n.id]) {
+    // Asset already removed
+    hint.style.display = 'none';
+    pwSection.style.display = 'none';
+    assetRemoved.style.display = 'flex';
+  } else if (lockedNodes[n.id]) {
+    // Locked after 4 fails
+    hint.style.display = 'none';
+    pwSection.style.display = 'none';
+    assetRemoved.style.display = 'flex';
+  } else {
+    // Normal country with password
+    const attempts = failAttempts[n.id] || 0;
+    const remaining = 4 - attempts;
+    hint.textContent = `🔑 Masukkan password untuk mengakses aset · Sisa percobaan: ${remaining}`;
+    hint.style.display = 'flex';
+    pwSection.style.display = 'block';
+    verifyBtn.style.display = 'block';
+    pwInput.disabled = false;
+    pwInput.placeholder = '••••••••••••';
+  }
+
+  document.getElementById('nodeModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function verifyNodePassword() {
+  const idx = currentModalIdx;
+  if (idx === null) return;
+  const n = nodeData[idx];
+  const input = document.getElementById('mPwInput').value.trim();
+  const correctPw = countryPasswords[n.id];
+  const pwError   = document.getElementById('mPwError');
+  const pwSuccess = document.getElementById('mPwSuccess');
+  const hint      = document.getElementById('mPwHint');
+  const assetRemoved = document.getElementById('mAssetRemoved');
+  const pwSection = document.getElementById('mPwSection');
+  const verifyBtn = document.getElementById('mVerifyBtn');
+
+  if (!correctPw) return; // Germany or unknown
+
+  if (input === correctPw) {
+    // SUCCESS
+    failAttempts[n.id] = 0;
+    pwError.textContent = '';
+    pwSuccess.style.display = 'flex';
+    document.getElementById('mPwInput').disabled = true;
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = '✓ VERIFIED';
+    verifyBtn.style.background = 'var(--green)';
+    hint.style.display = 'none';
+    document.getElementById('mCount').textContent = n.count;
+    // Show barcode
+    const barcodePanel = document.getElementById('mBarcodePanel');
+    barcodePanel.style.display = 'flex';
+    // Seed from node id + password for uniqueness
+    generateBarcode(n.id + '-' + correctPw + '-MYTHOS');
+  } else {
+    // FAIL
+    failAttempts[n.id] = (failAttempts[n.id] || 0) + 1;
+    const attempts = failAttempts[n.id];
+    const remaining = 4 - attempts;
+
+    // shake input
+    const pwInput = document.getElementById('mPwInput');
+    pwInput.value = '';
+    pwInput.style.borderColor = 'var(--red)';
+    pwInput.style.animation = 'none';
+    setTimeout(() => { pwInput.style.animation = 'pwShake 0.4s ease'; }, 10);
+    setTimeout(() => { pwInput.style.borderColor = ''; pwInput.style.animation = ''; }, 600);
+
+    if (attempts >= 4) {
+      // LOCKOUT — remove asset
+      lockedNodes[n.id] = true;
+      removedNodes[n.id] = true;
+      pwError.textContent = '';
+      pwSection.style.display = 'none';
+      hint.style.display = 'none';
+      verifyBtn.style.display = 'none';
+      assetRemoved.style.display = 'flex';
+      // Update count in node card list
+      buildNodes();
+    } else {
+      pwError.textContent = `❌ Password salah! ${remaining} percobaan tersisa sebelum aset dihapus.`;
+      hint.textContent = `🔑 Masukkan password yang benar · Sisa percobaan: ${remaining}`;
+    }
+  }
+}
+
+// ── ACCESS CODE GENERATOR ────────────────────────────────
+function generateBarcode(seed) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0;
+  }
+  const rng = () => {
+    hash = Math.imul(hash ^ (hash >>> 16), 0x45d9f3b) | 0;
+    return Math.abs(hash);
+  };
+  let code = '';
+  for (let i = 0; i < 20; i++) code += chars[rng() % chars.length];
+  // Format: XXXXX-XXXXX-XXXXX-XXXXX
+  const fmt = code.match(/.{1,5}/g).join('-');
+  document.getElementById('mAccessCode').textContent = fmt;
+}
+
+function closeNodeModal() {
+  document.getElementById('nodeModal').classList.remove('open');
+  document.body.style.overflow = '';
+  currentModalIdx = null;
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('nodeModal')) closeNodeModal();
+}
+
+function togglePw() {
+  const inp = document.getElementById('mPwInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ── TICKER ─────────────────────────────────────────────
+const tickerSyms = ['BTC','ETH','SOL','XRP','BNB','DOGE','ADA','AVAX','DOT','LINK'];
+const tickerPrices = { BTC:94250,ETH:3420,SOL:185,XRP:0.62,BNB:612,DOGE:0.18,ADA:0.52,AVAX:38,DOT:8.4,LINK:17.2 };
+const tickerChanges = {};
+tickerSyms.forEach(s => tickerChanges[s] = (Math.random()-0.5)*8);
+
+function buildTicker() {
+  const inner = document.getElementById('tickerInner');
+  let html = '';
+  for (let pass = 0; pass < 2; pass++) {
+    tickerSyms.forEach(sym => {
+      const p = tickerPrices[sym];
+      const c = tickerChanges[sym];
+      const sign = c >= 0 ? '+' : '';
+      html += `<div class="ticker-item">
+        <span class="ticker-sym">${sym}</span>
+        <span class="ticker-val">${p < 1 ? p.toFixed(4) : p < 100 ? p.toFixed(2) : p.toLocaleString()}</span>
+        <span class="ticker-chg ${c>=0?'up':'dn'}">${sign}${c.toFixed(2)}%</span>
+      </div><span class="ticker-sep">|</span>`;
+    });
+  }
+  inner.innerHTML = html;
+}
+
+function updateTicker() {
+  tickerSyms.forEach(sym => {
+    tickerPrices[sym] *= (1 + (Math.random()-0.5)*0.002);
+    tickerChanges[sym] += (Math.random()-0.5)*0.1;
+  });
+  buildTicker();
+}
+
+// ── INIT ────────────────────────────────────────────────
+buildWalletList();
+buildNodes();
+buildTicker();
+calcYield();
+fetchBtcPrice();
+
+setInterval(fetchBtcPrice, 30000);
+setInterval(calcYield, 1000);
+setInterval(updateTicker, 5000);
+
+
+// ── ACCESS GATE LOGIC ──────────────────────────────────
+const ACCESS_CODE = '250315'; // Default code — change as needed
+let pinInput = '';
+const PIN_LENGTH = 6;
+
+function numPress(val) {
+  if (pinInput.length >= PIN_LENGTH) return;
+  pinInput += val;
+  updateDots();
+  if (pinInput.length === PIN_LENGTH) {
+    setTimeout(numOk, 180);
+  }
+}
+
+function numDel() {
+  if (pinInput.length === 0) return;
+  pinInput = pinInput.slice(0, -1);
+  updateDots();
+  document.getElementById('gateError').textContent = '';
+}
+
+function updateDots() {
+  for (let i = 0; i < PIN_LENGTH; i++) {
+    const dot = document.getElementById('dot' + i);
+    dot.className = 'pin-dot' + (i < pinInput.length ? ' filled' : '');
+  }
+}
+
+function numOk() {
+  if (pinInput.length === 0) return;
+  if (pinInput === ACCESS_CODE) {
+    // Success
+    const gate = document.getElementById('accessGate');
+    gate.classList.add('unlocking');
+    setTimeout(() => {
+      gate.style.display = 'none';
+      const main = document.getElementById('mainContent');
+      main.style.display = 'block';
+      main.style.animation = 'fadeInMain 0.5s ease both';
+    }, 650);
+  } else {
+    // Error
+    for (let i = 0; i < PIN_LENGTH; i++) {
+      const dot = document.getElementById('dot' + i);
+      if (dot.classList.contains('filled')) dot.classList.add('error');
+    }
+    document.getElementById('gateError').textContent = 'Kode akses salah. Coba lagi.';
+    setTimeout(() => {
+      pinInput = '';
+      updateDots();
+    }, 700);
+  }
+}
+
+// keyboard support
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('accessGate').style.display === 'none') return;
+  if (e.key >= '0' && e.key <= '9') numPress(e.key);
+  else if (e.key === 'Backspace') numDel();
+  else if (e.key === 'Enter') numOk();
+});
+</script>
+<style>
+@keyframes fadeInMain {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pwShake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+</style>
+<!-- NODE DETAIL MODAL -->
+<div class="modal-overlay" id="nodeModal" onclick="closeModal(event)">
+  <div class="modal-sheet" id="modalSheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-flag" id="mFlag"></div>
+      <div class="modal-title">
+        <div class="modal-country" id="mCountry"></div>
+        <div class="modal-building" id="mBuilding"></div>
+      </div>
+      <div class="modal-status-pill" id="mStatusPill"></div>
+      <div class="modal-close" onclick="closeNodeModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stats-row">
+        <div class="modal-stat">
+          <div class="modal-stat-label">WALLETS</div>
+          <div class="modal-stat-val" id="mCount"></div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-label">PING</div>
+          <div class="modal-stat-val" id="mPing"></div>
+        </div>
+        <div class="modal-stat">
+          <div class="modal-stat-label">NODE ID</div>
+          <div class="modal-stat-val" style="font-size:9px;color:var(--text3)" id="mId"></div>
+        </div>
+      </div>
+      <div class="modal-info-row">
+        <div class="modal-info-label">Alamat Lengkap</div>
+        <div class="modal-info-val" id="mAddress"></div>
+      </div>
+      <!-- ASSET REMOVED PANEL -->
+      <div id="mAssetRemoved" style="display:none;background:rgba(229,48,58,0.1);border:1.5px solid rgba(229,48,58,0.3);border-radius:12px;padding:20px 14px;flex-direction:column;align-items:center;gap:8px;text-align:center;">
+        <div style="font-size:32px;filter:drop-shadow(0 0 12px rgba(229,48,58,0.5))">🚫</div>
+        <div style="font-size:13px;font-weight:800;color:#FF6B6B;letter-spacing:0.08em;text-transform:uppercase">Aset Dihapus</div>
+        <div style="font-size:11px;color:rgba(255,150,150,0.8);font-weight:600;line-height:1.6">Node ini telah dikunci permanen.<br>Aset di negara ini telah dihapus akibat<br>4x percobaan password gagal.</div>
+      </div>
+      <!-- PASSWORD SECTION -->
+      <div id="mPwSection" class="modal-info-row">
+        <div class="modal-info-label">Password Akses</div>
+        <div id="mPwHint" class="modal-pw-hint" style="margin-bottom:8px;display:none"></div>
+        <!-- Success banner -->
+        <div id="mPwSuccess" style="display:none;background:rgba(0,179,125,0.12);border:1px solid rgba(0,179,125,0.3);border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:11px;font-weight:700;color:#6FFFCA;align-items:center;gap:6px;">
+          ✅ Akses Berhasil — Aset terverifikasi!
+        </div>
+        <!-- Access Code Panel -->
+        <div id="mBarcodePanel" style="display:none;margin-bottom:10px;background:rgba(0,179,125,0.05);border:1px solid rgba(0,179,125,0.25);border-radius:12px;padding:16px 14px;flex-direction:column;align-items:center;gap:10px;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:0.14em;color:rgba(0,179,125,0.8);text-transform:uppercase;">🔑 Kode Akses</div>
+          <div id="mAccessCode" style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:#6FFFCA;letter-spacing:0.22em;text-align:center;line-height:1.8;word-break:break-all;"></div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.06em;">VALID · ENCRYPTED · 20-DIGIT</div>
+        </div>
+        <div class="modal-pw-wrap">
+          <input class="modal-pw-input" type="password" id="mPwInput" placeholder="••••••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')verifyNodePassword()">
+          <button class="modal-pw-eye" onclick="togglePw()">👁</button>
+        </div>
+        <div id="mPwError" style="margin-top:8px;font-size:11px;font-weight:700;color:#FF6B6B;min-height:16px;line-height:1.4;"></div>
+        <button id="mVerifyBtn" onclick="verifyNodePassword()" style="margin-top:10px;width:100%;padding:12px;background:linear-gradient(135deg,#0066FF,#0044CC);color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;cursor:pointer;transition:all 0.15s;box-shadow:0 4px 20px rgba(0,102,255,0.4);text-transform:uppercase;">Verifikasi Password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end #mainContent -->
+</body>
+</html>
