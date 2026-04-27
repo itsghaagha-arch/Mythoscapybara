@@ -59,113 +59,55 @@
     position: fixed; inset: 0; z-index: 9999;
     display: flex; align-items: center; justify-content: center;
     padding: 24px;
-    background: linear-gradient(135deg, #0A0F2E 0%, #0D1B4B 40%, #0A1628 100%);
+    background: #F0F4FF;
     overflow: hidden;
   }
-  /* animated background orbs */
   #accessGate::before {
     content: '';
     position: absolute;
-    width: 400px; height: 400px;
+    width: 500px; height: 500px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,102,255,0.15) 0%, transparent 70%);
-    top: -100px; left: -100px;
-    animation: orbFloat 8s ease-in-out infinite;
+    background: radial-gradient(circle, rgba(0,102,255,0.08) 0%, transparent 65%);
+    top: -160px; right: -120px;
+    pointer-events: none;
   }
   #accessGate::after {
     content: '';
     position: absolute;
-    width: 300px; height: 300px;
+    width: 380px; height: 380px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 70%);
-    bottom: -80px; right: -60px;
-    animation: orbFloat 10s ease-in-out infinite reverse;
-  }
-  @keyframes orbFloat {
-    0%,100%{transform:translate(0,0) scale(1)}
-    33%{transform:translate(30px,-20px) scale(1.05)}
-    66%{transform:translate(-15px,25px) scale(0.97)}
-  }
-
-  /* grid lines background */
-  .gate-grid {
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(0,102,255,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,102,255,0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
+    background: radial-gradient(circle, rgba(0,102,255,0.06) 0%, transparent 65%);
+    bottom: -120px; left: -100px;
     pointer-events: none;
   }
 
+  .gate-grid { display: none; }
+
   .gate-card {
     position: relative; z-index: 2;
-    background: rgba(255,255,255,0.04);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: #ffffff;
+    border: 1px solid #E4EDFF;
     border-radius: 24px;
-    padding: 36px 28px 32px;
+    padding: 32px 24px 28px;
     width: 100%; max-width: 360px;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
-    animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
+    box-shadow: 0 8px 40px rgba(0,80,200,0.10), 0 1px 4px rgba(0,80,200,0.06);
+    animation: cardIn 0.45s cubic-bezier(0.16,1,0.3,1) both;
   }
   @keyframes cardIn {
-    from { opacity:0; transform: translateY(30px) scale(0.95); }
+    from { opacity:0; transform: translateY(24px) scale(0.97); }
     to   { opacity:1; transform: translateY(0) scale(1); }
   }
-
-  /* top shine line */
-  .gate-card::before {
-    content: '';
-    position: absolute; top: 0; left: 20%; right: 20%; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0,102,255,0.8), rgba(255,107,53,0.6), transparent);
-    border-radius: 1px;
-  }
-
-  .gate-logo {
-    text-align: center; margin-bottom: 28px;
-  }
-  .gate-logo-icon {
-    width: 56px; height: 56px;
-    background: linear-gradient(135deg, #0066FF, #0033AA);
-    border-radius: 16px;
-    display: inline-flex; align-items: center; justify-content: center;
-    margin: 0 auto 14px;
-    box-shadow: 0 8px 24px rgba(0,102,255,0.4);
-    font-size: 24px;
-    position: relative;
-    overflow: hidden;
-  }
-  .gate-logo-icon::after {
-    content: '';
-    position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-    background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
-    animation: iconShine 3s infinite;
-  }
-  @keyframes iconShine { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-  .gate-title {
-    font-family: 'Nunito', sans-serif;
-    font-size: 22px; font-weight: 800;
-    color: #fff; letter-spacing: -0.3px;
-    margin-bottom: 4px;
-  }
-  .gate-subtitle {
-    font-size: 11px; color: rgba(255,255,255,0.4);
-    letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500;
-  }
+  .gate-card::before { display: none; }
 
   .gate-label {
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
-    margin-bottom: 10px;
-    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: #8898AA;
+    margin-bottom: 12px;
+    text-align: center;
+    display: block;
   }
-  .gate-label::before {
-    content: '';
-    display: inline-block; width: 3px; height: 3px;
-    border-radius: 50%; background: #0066FF;
-  }
+  .gate-label::before { display: none; }
 
   /* PIN dots row */
   .pin-dots {
@@ -173,28 +115,28 @@
     margin-bottom: 24px;
   }
   .pin-dot {
-    width: 14px; height: 14px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.2);
+    width: 13px; height: 13px; border-radius: 50%;
+    border: 2px solid #D0DCFF;
     background: transparent;
-    transition: all 0.2s ease;
+    transition: all 0.18s ease;
     position: relative;
   }
   .pin-dot.filled {
     background: #0066FF;
     border-color: #0066FF;
-    box-shadow: 0 0 12px rgba(0,102,255,0.6);
+    box-shadow: 0 0 10px rgba(0,102,255,0.35);
   }
   .pin-dot.filled::after {
     content: '';
     position: absolute; inset: 3px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.55);
   }
   .pin-dot.error {
     background: #E5303A;
     border-color: #E5303A;
     animation: shake 0.4s ease;
-    box-shadow: 0 0 12px rgba(229,48,58,0.6);
+    box-shadow: 0 0 10px rgba(229,48,58,0.4);
   }
   @keyframes shake {
     0%,100%{transform:translateX(0)}
@@ -206,63 +148,86 @@
 
   /* numpad */
   .numpad {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px;
   }
   .num-btn {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #F4F7FF;
+    border: 1px solid #E4EDFF;
     border-radius: 14px;
-    padding: 14px 10px;
-    color: #fff;
+    padding: 15px 10px;
+    color: #1A1F36;
     font-family: 'Nunito', sans-serif;
-    font-size: 18px; font-weight: 600;
+    font-size: 19px; font-weight: 700;
     cursor: pointer;
     text-align: center;
-    transition: all 0.15s ease;
+    transition: all 0.12s ease;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     position: relative; overflow: hidden;
   }
   .num-btn:active, .num-btn.pressed {
-    background: rgba(0,102,255,0.25);
-    border-color: rgba(0,102,255,0.5);
+    background: #E0EAFF;
+    border-color: #B3CFFF;
     transform: scale(0.95);
-    box-shadow: 0 0 16px rgba(0,102,255,0.3);
   }
-  .num-btn::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, transparent 70%);
-    opacity: 0; transition: opacity 0.15s;
-  }
-  .num-btn:active::after { opacity: 1; }
   .num-btn.del-btn {
-    font-size: 14px; color: rgba(255,255,255,0.5);
-    background: rgba(255,255,255,0.03);
+    font-size: 16px; color: #8898AA;
+    background: #F8FAFF;
+    border-color: #EDF1FF;
   }
   .num-btn.ok-btn {
     background: linear-gradient(135deg, #0066FF, #0044CC);
     border-color: transparent;
-    box-shadow: 0 4px 16px rgba(0,102,255,0.4);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0,102,255,0.3);
     font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
   }
   .num-btn.ok-btn:active { background: linear-gradient(135deg, #0055DD, #0033BB); }
 
   .gate-error {
-    text-align: center; margin-top: 14px;
-    font-size: 11px; color: #FF6B6B; font-weight: 600;
-    letter-spacing: 0.06em;
+    text-align: center; margin-top: 12px;
+    font-size: 11px; color: #E5303A; font-weight: 600;
+    letter-spacing: 0.04em;
     height: 16px;
-    transition: opacity 0.3s;
   }
 
-  /* unlock animation */
-  #accessGate.unlocking {
+  @keyframes scanMove {
+    0%   { top: -2px; opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  @keyframes ringRotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes aiPulse {
+    0%,100% { opacity: 0.3; }
+    50%     { opacity: 0.8; }
+  }
+  .user-btn {
+    flex: 1;
+    background: #F4F7FF;
+    border: 1.5px solid #E4EDFF;
+    border-radius: 14px;
+    padding: 11px 10px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .user-btn.active {
+    background: #EBF2FF;
+    border-color: #0066FF;
+    box-shadow: 0 0 0 2px rgba(0,102,255,0.12);
+  }
+  .user-btn:active { transform: scale(0.97); }
+  .unlocking {
     animation: gateOut 0.7s cubic-bezier(0.4,0,0.2,1) forwards;
   }
   @keyframes gateOut {
     0%   { opacity:1; }
-    60%  { opacity:1; transform: scale(1.02); }
+    60%  { opacity:1; transform: scale(1.01); }
     100% { opacity:0; pointer-events:none; }
   }
 
@@ -341,7 +306,7 @@
   .ticker-sep { color: rgba(255,255,255,0.2); }
 
   /* ─── DASHBOARD ─── */
-  .dashboard { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .dashboard { padding: 16px; display: flex; flex-direction: column; gap: 20px; }
 
   /* ─── CARD BASE ─── */
   .card {
@@ -677,18 +642,18 @@
   }
 
   /* ─── SUMMARY CHIPS ─── */
-  .summary-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+  .summary-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 2px; }
   .chip {
     flex: 1; min-width: 70px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 10px 12px;
+    padding: 14px 12px;
     text-align: center;
     box-shadow: var(--shadow);
   }
-  .chip-label { font-size: 9px; color: var(--text3); font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 4px; }
-  .chip-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--text); }
+  .chip-label { font-size: 9px; color: var(--text3); font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 6px; }
+  .chip-val { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--text); }
   .chip-val.blue { color: var(--blue); }
   .chip-val.green { color: var(--green); }
   .chip-val.gold { color: var(--gold); }
@@ -864,12 +829,41 @@
 <!-- ══════════ ACCESS GATE ══════════ -->
 <div id="accessGate">
   <div class="gate-grid"></div>
+
   <div class="gate-card">
-    <div class="gate-logo">
-      <div class="gate-logo-icon">🔐</div>
-      <div class="gate-title">MYTHOS V.2.1</div>
-      <div class="gate-subtitle">Secure Access Required</div>
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="display:inline-flex;align-items:center;gap:9px;margin-bottom:8px;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#0066FF,#0044CC);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,102,255,0.3);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/></svg>
+        </div>
+        <span style="font-size:20px;font-weight:900;color:#1A1F36;letter-spacing:-0.5px;">MYTHOS</span>
+        <span style="font-size:9px;color:#8898AA;font-weight:600;letter-spacing:0.08em;align-self:flex-end;margin-bottom:3px;">v2.1</span>
+      </div>
+      <div style="font-size:12px;color:#8898AA;font-weight:500;">Masukkan kode akses Anda</div>
     </div>
+
+    <!-- User Selector -->
+    <div style="margin-bottom:20px;">
+      <div style="font-size:10px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px;text-align:center;">Pilih Akun</div>
+      <div style="display:flex;gap:8px;">
+        <div class="user-btn active" id="userGavin" onclick="selectUser('gavin')" style="display:flex;align-items:center;gap:8px;justify-content:center;padding:11px 12px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#EBF2FF,#D6E8FF);border:1.5px solid #B3CFFF;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0066FF;flex-shrink:0;">G</div>
+          <div style="text-align:left;">
+            <div style="font-size:12px;font-weight:700;color:#1A1F36;">GAVIN</div>
+            <div style="font-size:9px;color:#8898AA;">User 01</div>
+          </div>
+        </div>
+        <div class="user-btn" id="userLSS" onclick="selectUser('lss')" style="display:flex;align-items:center;gap:8px;justify-content:center;padding:11px 12px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:#F4F7FF;border:1.5px solid #E4EDFF;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0066FF;flex-shrink:0;">L</div>
+          <div style="text-align:left;">
+            <div style="font-size:12px;font-weight:700;color:#1A1F36;">LSS</div>
+            <div style="font-size:9px;color:#8898AA;">User 02</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="gate-label">Access Code</div>
     <div class="pin-dots" id="pinDots">
       <div class="pin-dot" id="dot0"></div>
@@ -919,10 +913,1549 @@
   <div class="ticker-inner" id="tickerInner"></div>
 </div>
 
-<div class="dashboard">
+<!-- GREETING BANNER -->
+<div id="greetingBanner" style="padding:14px 16px 0;">
+  <div style="background:linear-gradient(135deg,#EBF2FF 0%,#F0F7FF 100%);border:1px solid #D6E8FF;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+    <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#0066FF,#0044CC);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,102,255,0.25);">
+      <span id="greetEmoji" style="font-size:18px;">☀️</span>
+    </div>
+    <div>
+      <div id="greetText" style="font-size:15px;font-weight:800;color:#1A1F36;letter-spacing:-0.2px;"></div>
+      <div id="greetSub" style="font-size:11px;color:#525F7F;margin-top:1px;font-weight:500;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK MENU -->
+<div style="padding:18px 16px 16px;">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+
+    <!-- Black Parade -->
+    <div onclick="openMenuModal('parade')" class="menu-card" style="border:1px solid #E4EDFF;">
+      <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#1A1F36,#2D3561);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 14px rgba(26,31,54,0.28);">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="13" width="20" height="6" rx="3" fill="rgba(255,255,255,0.9)"/>
+          <rect x="5" y="10" width="11" height="5" rx="2" fill="rgba(255,255,255,0.7)"/>
+          <circle cx="6.5" cy="19.5" r="2" fill="#4A90D9"/>
+          <circle cx="17.5" cy="19.5" r="2" fill="#4A90D9"/>
+          <rect x="16" y="11" width="4" height="3" rx="1" fill="rgba(255,255,255,0.5)"/>
+        </svg>
+      </div>
+      <div style="font-size:12px;font-weight:800;color:#1A1F36;letter-spacing:0.01em;line-height:1.4;">Black<br>Parade</div>
+    </div>
+
+    <!-- Private Jet -->
+    <div onclick="openMenuModal('jet')" class="menu-card" style="border:1px solid #E4EDFF;">
+      <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#0066FF,#0044CC);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 14px rgba(0,102,255,0.30);">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M21 14l-8-4V5a2 2 0 0 0-4 0v5L2 13l1 2 7-1.5V18l-2 1.5V21l3.5-1 3.5 1v-1.5L13 18v-4.5L21 15l-1-1z" fill="rgba(255,255,255,0.95)"/>
+        </svg>
+      </div>
+      <div style="font-size:12px;font-weight:800;color:#1A1F36;letter-spacing:0.01em;line-height:1.4;">Private<br>Jet</div>
+    </div>
+
+    <!-- Helicopter -->
+    <div onclick="openMenuModal('heli')" class="menu-card" style="border:1px solid #E4EDFF;">
+      <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#00B37D,#007A56);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 14px rgba(0,179,125,0.30);">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="11" width="20" height="2" rx="1" fill="rgba(255,255,255,0.9)"/>
+          <rect x="9" y="8" width="6" height="7" rx="2" fill="rgba(255,255,255,0.85)"/>
+          <rect x="11" y="6" width="2" height="3" rx="1" fill="rgba(255,255,255,0.7)"/>
+          <rect x="7" y="15" width="2" height="3" rx="1" fill="rgba(255,255,255,0.6)"/>
+          <rect x="6" y="18" width="4" height="1.5" rx="0.75" fill="rgba(255,255,255,0.6)"/>
+          <rect x="21" y="9" width="1.5" height="5" rx="0.75" fill="rgba(255,255,255,0.5)"/>
+        </svg>
+      </div>
+      <div style="font-size:12px;font-weight:800;color:#1A1F36;letter-spacing:0.01em;line-height:1.4;">Heli<br>copter</div>
+    </div>
+
+    <!-- SOS Help -->
+    <div onclick="openMenuModal('sos')" class="menu-card" style="border:1px solid #FFE0E0;">
+      <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#E5303A,#B71C1C);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 14px rgba(229,48,58,0.32);">
+        <span style="font-size:17px;font-weight:900;color:#fff;letter-spacing:-0.5px;font-family:'Nunito',sans-serif;">SOS</span>
+      </div>
+      <div style="font-size:12px;font-weight:800;color:#1A1F36;letter-spacing:0.01em;line-height:1.4;">SOS<br>Help</div>
+    </div>
+
+    <!-- Call Doctor -->
+    <div onclick="openMenuModal('doctor')" class="menu-card" style="border:1px solid #E0F7EF;">
+      <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#00B37D,#007A56);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 14px rgba(0,179,125,0.30);">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="4" fill="rgba(255,255,255,0.9)"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round"/>
+          <rect x="10" y="14" width="4" height="1.5" rx="0.75" fill="rgba(255,255,255,0.5)"/>
+          <path d="M15 3h3v3M15 3v3h3" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div style="font-size:12px;font-weight:800;color:#1A1F36;letter-spacing:0.01em;line-height:1.4;">Call<br>Doctor</div>
+    </div>
+
+    <!-- Request Weapon -->
+    <div onclick="openMenuModal('weapon')" class="menu-card" style="border:1px solid #FFF0E0;">
+      <div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#F5A623,#C07800);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 14px rgba(245,166,35,0.32);">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="10" width="14" height="4" rx="1.5" fill="rgba(255,255,255,0.9)"/>
+          <rect x="14" y="11" width="6" height="2" rx="1" fill="rgba(255,255,255,0.7)"/>
+          <rect x="6" y="14" width="4" height="3" rx="1" fill="rgba(255,255,255,0.6)"/>
+          <rect x="9" y="8" width="3" height="2" rx="1" fill="rgba(255,255,255,0.5)"/>
+        </svg>
+      </div>
+      <div style="font-size:12px;font-weight:800;color:#1A1F36;letter-spacing:0.01em;line-height:1.4;">Request<br>Weapon</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     UPCOMING MISSIONS
+════════════════════════════════════════════════════ -->
+<div style="padding:0 16px 4px;margin-top:14px;">
+  <div style="background:#fff;border:1px solid #E4E9F2;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,70,180,0.08);">
+
+    <!-- Header -->
+    <div style="padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F0F4FB;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#0066FF;opacity:0.5;"></div>
+        <span style="font-size:10px;font-weight:700;letter-spacing:0.12em;color:#8898AA;text-transform:uppercase;">Upcoming Missions</span>
+      </div>
+      <div style="background:#EBF2FF;color:#0066FF;font-size:9px;font-weight:700;padding:3px 9px;border-radius:8px;letter-spacing:0.06em;">10 OPS</div>
+    </div>
+
+    <!-- Mission List -->
+    <div id="missionList" style="display:flex;flex-direction:column;"></div>
+
+  </div>
+</div>
+
+<style>
+.mission-item{padding:14px 16px;display:flex;flex-direction:column;gap:6px;transition:background 0.15s;-webkit-tap-highlight-color:transparent;}
+.mission-num{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;color:#8898AA;letter-spacing:0.1em;}
+.mission-date{font-size:10px;font-weight:700;color:#0066FF;letter-spacing:0.04em;}
+.mission-location{font-size:13px;font-weight:900;color:#1A1F36;letter-spacing:-0.2px;display:flex;align-items:center;gap:6px;}
+.mission-desc{font-size:11px;color:#525F7F;font-weight:600;line-height:1.5;}
+.mission-status-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:2px;}
+.mission-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;letter-spacing:0.1em;padding:3px 9px;border-radius:6px;text-transform:uppercase;}
+.badge-mandatory{background:linear-gradient(135deg,#E5303A,#B71C1C);color:#fff;box-shadow:0 2px 8px rgba(229,48,58,0.25);}
+.badge-optional{background:linear-gradient(135deg,#F5A623,#C07800);color:#fff;box-shadow:0 2px 8px rgba(245,166,35,0.22);}
+.badge-accepted{background:linear-gradient(135deg,#00B37D,#007A56);color:#fff;box-shadow:0 2px 8px rgba(0,179,125,0.28);}
+.badge-rejected{background:linear-gradient(135deg,#8898AA,#525F7F);color:#fff;}
+.mission-action-btn{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;letter-spacing:0.07em;padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;transition:transform 0.1s,opacity 0.1s;-webkit-tap-highlight-color:transparent;text-transform:uppercase;}
+.mission-action-btn:active{transform:scale(0.93);}
+.btn-accept{background:linear-gradient(135deg,#0066FF,#0044CC);color:#fff;box-shadow:0 3px 10px rgba(0,102,255,0.28);}
+.btn-reject{background:#F4F6FB;color:#525F7F;border:1.5px solid #E4E9F2;}
+.mission-divider{height:1px;background:#F0F4FB;margin:0 16px;}
+</style>
+
+<script>
+const MISSIONS = [
+  {num:'01',date:'01 – 04 May 2026',flag:'🇭🇺',city:'Budapest',country:'Hungary',mission:'Extract ASML blueprints & inject Capybara protocol.',type:'MANDATORY',
+   pw:'CAPYBARA01',
+   detail:{codename:'OP-CAPYBARA',assets:'ASML HQ Server Room B-7',contact:'Asset VIPER — László Kovács',exfil:'Vienna airport 04:30L',risk:'HIGH',clearance:'ALPHA-7'}},
+  {num:'02',date:'08 – 10 May 2026',flag:'🇹🇼',city:'Taipei',country:'Taiwan',mission:'Infiltrate TSMC supply-chain network. Retrieve Phantom-7 encryption keys.',type:'MANDATORY',
+   pw:'PHANTOM702',
+   detail:{codename:'OP-PHANTOM',assets:'TSMC Fab 18 — Network Core',contact:'Asset JADE — Lin Wei-Chen',exfil:'Taoyuan Airport Gate C',risk:'CRITICAL',clearance:'ALPHA-9'}},
+  {num:'03',date:'14 – 16 May 2026',flag:'🇸🇬',city:'Singapore',country:'Singapore',mission:'Monitor Meridian financial hub. Tag and trace Vortex shell accounts.',type:'OPTIONAL',
+   pw:'VORTEX2026',
+   detail:{codename:'OP-MERIDIAN',assets:'Raffles Place Financial District',contact:'Asset MARINA — Tan Hui Lin',exfil:'Changi Airport T3 23:00L',risk:'MEDIUM',clearance:'BETA-4'}},
+  {num:'04',date:'20 – 23 May 2026',flag:'🇹🇭',city:'Bangkok',country:'Thailand',mission:'Rendezvous with Asset ORCHID. Secure transfer of Delta manifest files.',type:'MANDATORY',
+   pw:'ORCHID2026',
+   detail:{codename:'OP-DELTA',assets:'Sukhumvit Safe House 14-A',contact:'Asset ORCHID — Classified',exfil:'Suvarnabhumi Airport 02:15L',risk:'HIGH',clearance:'ALPHA-6'}},
+  {num:'05',date:'28 – 30 May 2026',flag:'🇻🇳',city:'Ho Chi Minh City',country:'Vietnam',mission:'Intercept Red Lotus courier route. Confiscate biometric data cache.',type:'OPTIONAL',
+   pw:'REDLOTUS05',
+   detail:{codename:'OP-LOTUS',assets:'District 7 Courier Hub',contact:'Asset PHOENIX — Nguyen Duc',exfil:'Tan Son Nhat Airport Dawn',risk:'MEDIUM',clearance:'BETA-3'}},
+  {num:'06',date:'04 – 07 Jun 2026',flag:'🇯🇵',city:'Tokyo',country:'Japan',mission:'Compromise Kurosawa Labs server farm. Deploy Specter-9 payload silently.',type:'MANDATORY',
+   pw:'SPECTER906',
+   detail:{codename:'OP-SPECTER',assets:'Kurosawa Labs Shibuya Tower F22',contact:'Asset KITSUNE — Classified',exfil:'Haneda Airport VIP Terminal',risk:'CRITICAL',clearance:'ALPHA-9'}},
+  {num:'07',date:'12 – 14 Jun 2026',flag:'🇰🇷',city:'Seoul',country:'South Korea',mission:'Extract double agent ECLIPSE. Destroy Nightfall listening station.',type:'MANDATORY',
+   pw:'ECLIPSE707',
+   detail:{codename:'OP-NIGHTFALL',assets:'Gangnam Listening Station Grid-7',contact:'Asset ECLIPSE — Song Ji-Ho',exfil:'Incheon Airport Terminal 2',risk:'CRITICAL',clearance:'ALPHA-8'}},
+  {num:'08',date:'20 – 22 Jun 2026',flag:'🇻🇳',city:'Hanoi',country:'Vietnam',mission:'Map underground tunnel network. Tag entry points for Ghost Squad.',type:'OPTIONAL',
+   pw:'GHOST2608',
+   detail:{codename:'OP-GHOST',assets:'Ba Dinh District Subsurface Grid',contact:'Asset SHADOW — Classified',exfil:'Noi Bai Airport 03:40L',risk:'MEDIUM',clearance:'BETA-5'}},
+  {num:'09',date:'28 – 30 Jun 2026',flag:'🇯🇵',city:'Osaka',country:'Japan',mission:'Neutralize Trident sleeper cell. Recover stolen Prometheus drive.',type:'MANDATORY',
+   pw:'TRIDENT909',
+   detail:{codename:'OP-TRIDENT',assets:'Namba Underground Cell HQ',contact:'Asset PROMETHEUS — Classified',exfil:'Kansai Airport Dawn Charter',risk:'CRITICAL',clearance:'ALPHA-9'}},
+  {num:'10',date:'10 – 13 Jul 2026',flag:'🇸🇬',city:'Singapore',country:'Singapore',mission:'Final phase: Purge Mythos ghost nodes. Activate Blackout failsafe.',type:'MANDATORY',
+   pw:'BLACKOUT10',
+   detail:{codename:'OP-BLACKOUT',assets:'MYTHOS Node Cluster — Marina Bay',contact:'Asset ZERO — Classified',exfil:'Classified — Protocol Omega',risk:'CRITICAL',clearance:'OMEGA-1'}},
+];
+const cityIcons={'Budapest':'🏰','Taipei':'🖥️','Singapore':'🦁','Bangkok':'🛕','Ho Chi Minh City':'🌿','Tokyo':'⛩️','Seoul':'🗼','Hanoi':'🏯','Osaka':'🏯'};
+const missionState={};
+const missionUnlocked={};
+const missionFails={};
+
+function acceptMission(i){missionState[i]='accepted';renderMissionItem(i);}
+function rejectMission(i){missionState[i]='rejected';renderMissionItem(i);}
+
+function verifyMissionPw(i) {
+  const inp = document.getElementById('mpw-'+i);
+  if (!inp) return;
+  const val = inp.value.trim().toUpperCase();
+  const correct = MISSIONS[i].pw;
+  if (val === correct) {
+    missionUnlocked[i] = true;
+    missionFails[i] = 0;
+    renderMissionItem(i);
+  } else {
+    missionFails[i] = (missionFails[i]||0) + 1;
+    inp.value = '';
+    inp.style.borderColor = '#E5303A';
+    inp.style.animation = 'none';
+    const errEl = document.getElementById('mpwerr-'+i);
+    if (errEl) errEl.textContent = `❌ Password salah. Percobaan ${missionFails[i]}/4`;
+    setTimeout(()=>{ inp.style.borderColor=''; inp.style.animation=''; },600);
+  }
+}
+
+function renderMissionItem(i){
+  const el=document.getElementById('mop-'+i);
+  if(!el)return;
+  const m=MISSIONS[i];
+  const state=missionState[i]||null;
+  const isMand=m.type==='MANDATORY';
+  const locIcon=cityIcons[m.city]||'🎯';
+  const isUnlocked=!!missionUnlocked[i];
+  const starSvg=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="rgba(255,255,255,0.95)"/></svg>`;
+  const clkSvg=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.9)" stroke-width="2"/><path d="M12 7v5l3 3" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round"/></svg>`;
+  const typeBadge=`<span class="mission-badge ${isMand?'badge-mandatory':'badge-optional'}">${isMand?starSvg:clkSvg}&nbsp;${m.type}</span>`;
+  const statBadge=state==='accepted'?`<span class="mission-badge badge-accepted">✓&nbsp;ACCEPTED</span>`:state==='rejected'?`<span class="mission-badge badge-rejected">✕&nbsp;REJECTED</span>`:'';
+  const btns=!state?(isMand
+    ?`<div style="display:flex;gap:8px;margin-top:4px;"><button class="mission-action-btn btn-accept" onclick="acceptMission(${i})">✓ Accept</button></div>`
+    :`<div style="display:flex;gap:8px;margin-top:4px;"><button class="mission-action-btn btn-accept" onclick="acceptMission(${i})">✓ Accept</button><button class="mission-action-btn btn-reject" onclick="rejectMission(${i})">✕ Reject</button></div>`
+  ):'';
+
+  const riskColor={'HIGH':'#E5303A','CRITICAL':'#8B0000','MEDIUM':'#F5A623'}[m.detail.risk]||'#525F7F';
+  const clearColor = m.detail.clearance.startsWith('OMEGA')?'#9B59B6':m.detail.clearance.startsWith('ALPHA')?'#E5303A':'#0066FF';
+
+  const detailBox = isUnlocked ? `
+    <div style="margin-top:10px;background:linear-gradient(135deg,#0D1B4B,#0a1438);border:1px solid rgba(0,102,255,0.25);border-radius:12px;padding:12px 14px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#4D9FFF;animation:dotPulse 1.2s infinite;"></div>
+        <span style="font-size:9px;font-weight:800;color:#4D9FFF;letter-spacing:0.14em;">MISSION INTEL — CLASSIFIED</span>
+        <span style="margin-left:auto;font-size:9px;font-weight:800;color:${clearColor};background:rgba(255,255,255,0.07);padding:2px 7px;border-radius:4px;letter-spacing:0.06em;">${m.detail.clearance}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 10px;">
+          <div style="font-size:8px;color:rgba(255,255,255,0.35);font-weight:600;letter-spacing:0.08em;margin-bottom:3px;">CODENAME</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#4D9FFF;">${m.detail.codename}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 10px;">
+          <div style="font-size:8px;color:rgba(255,255,255,0.35);font-weight:600;letter-spacing:0.08em;margin-bottom:3px;">RISK LEVEL</div>
+          <div style="font-size:11px;font-weight:800;color:${riskColor};">● ${m.detail.risk}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:8px 10px;">
+          <div style="font-size:8px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:0.08em;margin-bottom:2px;">🎯 TARGET ASSETS</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.85);font-weight:600;">${m.detail.assets}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:8px 10px;">
+          <div style="font-size:8px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:0.08em;margin-bottom:2px;">🤝 FIELD CONTACT</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.85);font-weight:600;">${m.detail.contact}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:8px 10px;">
+          <div style="font-size:8px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:0.08em;margin-bottom:2px;">🚀 EXFIL ROUTE</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.85);font-weight:600;">${m.detail.exfil}</div>
+        </div>
+      </div>
+    </div>` :
+    `<div style="margin-top:10px;background:#F8FAFF;border:1.5px solid #E4EDFF;border-radius:12px;padding:10px 12px;">
+      <div style="font-size:9px;font-weight:700;color:#8898AA;letter-spacing:0.1em;margin-bottom:8px;">🔒 MISSION DETAIL — PASSWORD REQUIRED</div>
+      <div style="position:relative;display:flex;gap:6px;">
+        <input id="mpw-${i}" type="password" placeholder="Enter mission password..." maxlength="20"
+          style="flex:1;padding:9px 12px;background:#fff;border:1.5px solid #D0DCFF;border-radius:9px;
+            font-family:'JetBrains Mono',monospace;font-size:12px;color:#1A1F36;outline:none;
+            letter-spacing:0.12em;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#0066FF'"
+          onblur="this.style.borderColor='#D0DCFF'"
+          onkeydown="if(event.key==='Enter')verifyMissionPw(${i})">
+        <button onclick="verifyMissionPw(${i})"
+          style="padding:9px 14px;background:linear-gradient(135deg,#0066FF,#0044CC);color:#fff;border:none;
+            border-radius:9px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;
+            white-space:nowrap;box-shadow:0 3px 10px rgba(0,102,255,0.3);">
+          UNLOCK
+        </button>
+      </div>
+      <div id="mpwerr-${i}" style="font-size:10px;color:#E5303A;font-weight:700;min-height:14px;margin-top:5px;"></div>
+    </div>`;
+
+  el.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span class="mission-num">OP-${m.num}</span>
+      <span class="mission-date">${m.date}</span>
+    </div>
+    <div class="mission-location">${m.flag} ${locIcon} ${m.city} <span style="font-size:10px;color:#8898AA;font-weight:600;">${m.country}</span></div>
+    <div class="mission-desc">MISSION: ${m.mission}</div>
+    <div class="mission-status-row">${typeBadge}${statBadge}</div>
+    ${detailBox}
+    ${btns}`;
+}
+
+(function(){
+  const c=document.getElementById('missionList');
+  let h='';
+  MISSIONS.forEach((_,i)=>{
+    h+=`<div class="mission-item" id="mop-${i}"></div>`;
+    if(i<MISSIONS.length-1)h+=`<div class="mission-divider"></div>`;
+  });
+  c.innerHTML=h;
+  MISSIONS.forEach((_,i)=>renderMissionItem(i));
+})();
+</script>
+
+<!-- MENU MODAL -->
+<div id="menuModal" onclick="closeMenuModal(event)" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:5000;background:rgba(10,15,46,0.65);">
+  <div id="menuSheet" style="position:absolute;top:16px;left:16px;right:16px;background:#fff;border-radius:24px;width:calc(100% - 32px);max-width:420px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:5001;margin:0 auto;">
+    <div style="width:36px;height:4px;background:#E4EDFF;border-radius:2px;margin:14px auto 0;"></div>
+    <div id="menuModalContent" style="padding:20px 20px 0;"></div>
+    <div id="menuBottomBtn" style="padding:12px 20px 20px;background:#fff;">
+      <button onclick="sendMenuRequest()" style="width:100%;padding:14px;background:linear-gradient(135deg,#0066FF,#0044CC);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;cursor:pointer;box-shadow:0 6px 20px rgba(0,102,255,0.35);">KIRIM REQUEST</button>
+      <button onclick="closeMenuModalBtn()" style="width:100%;padding:12px;background:none;border:none;color:#8898AA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;">Batal</button>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+</style>
+
+<script>
+// Global selectedUser reference
+window._currentUser = 'gavin';
+window._currentMenuType = '';
+
+const HELI_AREAS = ['Jakarta','Depok','Bogor','Bekasi','Tangerang','Merak','Palembang'];
+
+function openModal() {
+  const m = document.getElementById('menuModal');
+  m.style.display = 'block';
+}
+function closeModalMenu() {
+  const m = document.getElementById('menuModal');
+  m.style.display = 'none';
+}
+function closeMenuModalBtn() { closeModalMenu(); }
+function closeMenuModal(e) {
+  if (e.target === document.getElementById('menuModal')) closeModalMenu();
+}
+
+const menuConfig = {
+  parade: {
+    icon: '🚗', color: '#1A1F36', label: 'Request Black Parade',
+    desc: 'Kirim permintaan kendaraan tempur lapis baja.',
+    fields: ['Lokasi Penjemputan','Tujuan','Jumlah Unit','Catatan Tambahan']
+  },
+  jet: {
+    icon: '✈️', color: '#0066FF', label: 'Request Private Jet',
+    desc: 'Kirim permintaan penerbangan jet pribadi.',
+    fields: ['Bandara Keberangkatan','Destinasi','Tanggal & Waktu','Jumlah Penumpang']
+  },
+  heli: {
+    icon: '🚁', color: '#00B37D', label: 'Request Helicopter',
+    desc: 'Kirim permintaan helikopter.',
+    fields: ['Lokasi Landing','Destinasi','Tanggal & Waktu','Keperluan']
+  },
+  sos: {
+    icon: '🆘', color: '#E5303A', label: 'SOS Help',
+    desc: 'Kirim sinyal bantuan darurat segera.',
+    fields: ['Lokasi Anda','Jenis Darurat','Jumlah Orang','Deskripsi Situasi']
+  },
+  doctor: {
+    icon: '🩺', color: '#00B37D', label: 'Call Doctor',
+    desc: 'Kirim permintaan dokter pribadi.',
+    fields: ['Lokasi Pasien','Keluhan Utama','Tingkat Urgensi','Nama Pasien']
+  },
+  weapon: {
+    icon: '🔫', color: '#F5A623', label: 'Request Weapon',
+    desc: 'Kirim permintaan senjata & perlengkapan.',
+    fields: ['Jenis Senjata','Jumlah','Lokasi Pengiriman','Otorisasi Kode']
+  }
+};
+
+function openMenuModal(type) {
+  if (window._currentUser === 'lss') {
+    document.getElementById('accessDeniedPopup').style.display = 'flex';
+    return;
+  }
+  window._currentMenuType = type;
+
+  if (type === 'sos') {
+    triggerSOS();
+    return;
+  }
+
+  if (type === 'parade' || type === 'heli') {
+    showDestinationForm(type);
+    return;
+  }
+  if (type === 'jet') {
+    showJetForm();
+    return;
+  }
+
+  if (type === 'weapon') {
+    showWeaponList();
+    return;
+  }
+
+  if (type === 'doctor') {
+    showDoctorList();
+    return;
+  }
+
+  const cfg = menuConfig[type];
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+      <div style="width:48px;height:48px;border-radius:14px;background:${cfg.color};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${cfg.icon}</div>
+      <div>
+        <div style="font-size:16px;font-weight:800;color:#1A1F36;">${cfg.label}</div>
+        <div style="font-size:11px;color:#8898AA;margin-top:2px;">${cfg.desc}</div>
+      </div>
+    </div>
+    ${cfg.fields.map(f => `
+      <div style="margin-bottom:12px;">
+        <div style="font-size:10px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">${f}</div>
+        <input type="text" placeholder="${f}..." style="width:100%;padding:11px 14px;background:#F4F7FF;border:1px solid #E4EDFF;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;color:#1A1F36;outline:none;" onfocus="this.style.borderColor='#0066FF';this.style.background='#EBF2FF'" onblur="this.style.borderColor='#E4EDFF';this.style.background='#F4F7FF'">
+      </div>`).join('')}
+  `;
+  document.getElementById('menuBottomBtn').innerHTML = `
+    <button onclick="sendMenuRequest()" style="width:100%;padding:14px;background:linear-gradient(135deg,#0066FF,#0044CC);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;cursor:pointer;box-shadow:0 6px 20px rgba(0,102,255,0.35);">KIRIM REQUEST</button>
+    <button onclick="closeModalMenu()" style="width:100%;padding:12px;background:none;border:none;color:#8898AA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;">Batal</button>
+  `;
+  openModal();
+}
+
+
+function triggerSOS() {
+  // Create flash overlay
+  const flash = document.createElement('div');
+  flash.id = 'sosFlash';
+  flash.style.cssText = 'position:fixed;inset:0;z-index:99999;pointer-events:none;';
+  document.body.appendChild(flash);
+
+  let count = 0;
+  const colors = ['rgba(229,48,58,0.85)', 'rgba(0,102,255,0.85)'];
+  const flashInterval = setInterval(() => {
+    flash.style.background = colors[count % 2];
+    count++;
+    if (count > 18) {
+      clearInterval(flashInterval);
+      flash.style.background = 'transparent';
+    }
+  }, 150);
+
+  // Show SOS modal immediately
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="text-align:center;padding:10px 0 6px;">
+      <div style="display:inline-flex;align-items:center;gap:6px;background:#FDECEA;border:1px solid #FFAAAA;border-radius:20px;padding:5px 16px;margin-bottom:16px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#E5303A;animation:dotPulse 0.6s infinite;"></div>
+        <span style="font-size:11px;font-weight:800;color:#E5303A;letter-spacing:0.12em;">SOS AKTIF</span>
+      </div>
+      <div style="font-size:56px;margin-bottom:8px;animation:sosPulse 0.8s ease-in-out infinite;">🆘</div>
+      <div style="font-size:18px;font-weight:900;color:#E5303A;margin-bottom:6px;letter-spacing:-0.3px;">Unit SOS Diturunkan</div>
+      <div style="font-size:13px;color:#525F7F;font-weight:600;line-height:1.6;margin-bottom:20px;">dalam <span style="color:#E5303A;font-weight:900;">5 menit</span> dari lokasi Anda sekarang</div>
+
+      <div style="background:#FDECEA;border:1.5px solid rgba(229,48,58,0.3);border-radius:16px;padding:16px 14px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;">
+          <span style="font-size:20px;">📍</span>
+          <div style="font-size:12px;font-weight:700;color:#B71C1C;">Lokasi Anda Terdeteksi</div>
+        </div>
+        <div id="sosCountdown" style="font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:900;color:#E5303A;letter-spacing:0.05em;">05:00</div>
+        <div style="font-size:10px;color:#E5303A;margin-top:4px;font-weight:600;opacity:0.7;">ESTIMASI TIBA</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #FFD0D0;border-radius:12px;padding:10px 14px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#E5303A;animation:dotPulse 1s infinite;flex-shrink:0;"></div>
+          <div style="font-size:11px;color:#525F7F;font-weight:600;text-align:left;">Unit darurat sedang bergerak menuju posisi Anda</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #FFD0D0;border-radius:12px;padding:10px 14px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#0066FF;animation:dotPulse 1s 0.3s infinite;flex-shrink:0;"></div>
+          <div style="font-size:11px;color:#525F7F;font-weight:600;text-align:left;">Koordinat GPS telah dikirim ke command center</div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('menuBottomBtn').innerHTML = `
+    <button onclick="cancelSOS()" style="width:100%;padding:14px;background:linear-gradient(135deg,#E5303A,#B71C1C);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;cursor:pointer;box-shadow:0 6px 20px rgba(229,48,58,0.4);">✕ BATALKAN SOS</button>
+  `;
+  openModal();
+
+  // Add to My Orders
+  addOrder('sos', menuConfig['sos'], 'Lokasi GPS Terdeteksi — Unit Darurat Diturunkan');
+
+  // Countdown timer 5:00
+  let totalSec = 300;
+  window._sosTimer = setInterval(() => {
+    totalSec--;
+    if (totalSec <= 0) {
+      clearInterval(window._sosTimer);
+      document.getElementById('sosCountdown').textContent = '00:00';
+      return;
+    }
+    const m = String(Math.floor(totalSec/60)).padStart(2,'0');
+    const s = String(totalSec%60).padStart(2,'0');
+    const el = document.getElementById('sosCountdown');
+    if (el) el.textContent = m+':'+s;
+  }, 1000);
+}
+
+function cancelSOS() {
+  if (window._sosTimer) clearInterval(window._sosTimer);
+  const flash = document.getElementById('sosFlash');
+  if (flash) flash.remove();
+  closeModalMenu();
+}
+
+function showWeaponList() {
+  const WEAPONS = [
+    { id:'w01', type:'LARAS PANJANG', name:'HK416 A5', cal:'5.56×45mm NATO', ammo:'M855A1 EPR', stock:240, icon:'🔫', color:'#1A1F36', tag:'Assault Rifle' },
+    { id:'w02', type:'LARAS PANJANG', name:'SCAR-H', cal:'7.62×51mm NATO', ammo:'M80A1 Ball', stock:180, icon:'🔫', color:'#2D3561', tag:'Battle Rifle' },
+    { id:'w03', type:'LARAS PANJANG', name:'SR-25 EMC', cal:'7.62×51mm NATO', ammo:'Mk316 Mod 0', stock:120, icon:'🎯', color:'#0A3A5C', tag:'Sniper Rifle' },
+    { id:'w04', type:'LARAS PANJANG', name:'MP5SD', cal:'9×19mm Parabellum', ammo:'147gr Subsonic', stock:300, icon:'🔫', color:'#1A3A2A', tag:'SMG Suppressed' },
+    { id:'w05', type:'LARAS PANJANG', name:'M249 SAW', cal:'5.56×45mm NATO', ammo:'M855A1 / 200rd Belt', stock:800, icon:'💥', color:'#3A1A00', tag:'LMG' },
+    { id:'w06', type:'LARAS PENDEK', name:'Glock 17 Gen5', cal:'9×19mm Parabellum', ammo:'Federal HST 124gr', stock:150, icon:'🔫', color:'#2A2A2A', tag:'Pistol' },
+    { id:'w07', type:'LARAS PENDEK', name:'SIG Sauer P320', cal:'9×19mm Parabellum', ammo:'Speer Gold Dot 147gr', stock:150, icon:'🔫', color:'#1A1F36', tag:'Pistol' },
+    { id:'w08', type:'LARAS PENDEK', name:'Desert Eagle .50', cal:'.50 AE', ammo:'Hornady XTP 300gr', stock:84, icon:'🔫', color:'#5C3A00', tag:'Pistol Magnum' },
+    { id:'w09', type:'LARAS PENDEK', name:'Beretta M9A3', cal:'9×19mm Parabellum', ammo:'NATO M882 Ball', stock:150, icon:'🔫', color:'#1A2A1A', tag:'Pistol' },
+    { id:'w10', type:'LARAS PENDEK', name:'FN Five-seveN', cal:'5.7×28mm', ammo:'SS197SR V-Max', stock:200, icon:'🔫', color:'#0A1F3A', tag:'Pistol AP' },
+  ];
+
+  window._WEAPONS_LIST = WEAPONS;
+  const selected = new Set();
+
+  function renderWeaponList() {
+    return WEAPONS.map((w,i) => {
+      const isSel = selected.has(w.id);
+      const isLong = w.type === 'LARAS PANJANG';
+      return `
+      <div onclick="toggleWeapon('${w.id}')" id="wcard-${w.id}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${isSel?'#EBF2FF':'#F8FAFF'};border:2px solid ${isSel?'#0066FF':'#E4EDFF'};border-radius:12px;cursor:pointer;transition:all 0.15s;margin-bottom:7px;-webkit-tap-highlight-color:transparent;">
+        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,${w.color},${w.color}CC);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${w.icon}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">
+            <span style="font-size:8px;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:0.06em;background:${isLong?'#1A1F36':'#F5A623'};color:#fff;">${w.type}</span>
+            <span style="font-size:8px;color:#8898AA;font-weight:600;">${w.tag}</span>
+          </div>
+          <div style="font-size:13px;font-weight:800;color:#1A1F36;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${w.name}</div>
+          <div style="font-size:10px;color:#0066FF;font-weight:600;margin-top:1px;">📦 ${w.cal} &nbsp;·&nbsp; 🎯 ${w.ammo}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:9px;color:#8898AA;font-weight:600;">STOCK</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:${isSel?'#0066FF':'#525F7F'};">${w.stock}</div>
+          <div style="width:20px;height:20px;border-radius:50%;border:2px solid ${isSel?'#0066FF':'#D0DCFF'};background:${isSel?'#0066FF':'transparent'};display:flex;align-items:center;justify-content:center;margin-top:4px;margin-left:auto;">
+            ${isSel?'<svg width="10" height="10" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>':''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  window._weaponSelected = selected;
+  window._renderWeaponList = renderWeaponList;
+
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#F5A623,#C07800);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 14px rgba(245,166,35,0.32);">🔫</div>
+      <div>
+        <div style="font-size:16px;font-weight:800;color:#1A1F36;">Request Weapon</div>
+        <div style="font-size:11px;color:#8898AA;margin-top:2px;">Pilih senjata & amunisi</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <div style="flex:1;background:#1A1F36;border-radius:8px;padding:6px 10px;text-align:center;">
+        <div style="font-size:9px;color:rgba(255,255,255,0.5);font-weight:600;">LARAS PANJANG</div>
+        <div style="font-size:13px;font-weight:800;color:#fff;">5 Unit</div>
+      </div>
+      <div style="flex:1;background:#F5A623;border-radius:8px;padding:6px 10px;text-align:center;">
+        <div style="font-size:9px;color:rgba(255,255,255,0.7);font-weight:600;">LARAS PENDEK</div>
+        <div style="font-size:13px;font-weight:800;color:#fff;">5 Unit</div>
+      </div>
+      <div style="flex:1;background:#EBF2FF;border-radius:8px;padding:6px 10px;text-align:center;">
+        <div style="font-size:9px;color:#525F7F;font-weight:600;">DIPILIH</div>
+        <div id="wSelectedCount" style="font-size:13px;font-weight:800;color:#0066FF;">0</div>
+      </div>
+    </div>
+    <div id="weaponListContainer">
+      ${renderWeaponList()}
+    </div>
+  `;
+
+  document.getElementById('menuBottomBtn').innerHTML = `
+    <button onclick="submitWeaponRequest()" style="width:100%;padding:14px;background:linear-gradient(135deg,#F5A623,#C07800);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;cursor:pointer;box-shadow:0 6px 20px rgba(245,166,35,0.4);">🔫 KONFIRMASI REQUEST</button>
+    <button onclick="closeModalMenu()" style="width:100%;padding:12px;background:none;border:none;color:#8898AA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;">Batal</button>
+  `;
+  openModal();
+}
+
+function toggleWeapon(id) {
+  const sel = window._weaponSelected;
+  if (sel.has(id)) { sel.delete(id); } else { sel.add(id); }
+  const container = document.getElementById('weaponListContainer');
+  if (container) container.innerHTML = window._renderWeaponList();
+  const cnt = document.getElementById('wSelectedCount');
+  if (cnt) cnt.textContent = sel.size;
+}
+
+function submitWeaponRequest() {
+  const sel = window._weaponSelected;
+  if (!sel || sel.size === 0) {
+    const cnt = document.getElementById('wSelectedCount');
+    if (cnt) { cnt.style.color='#E5303A'; cnt.textContent='Pilih 1!'; setTimeout(()=>{cnt.style.color='#0066FF';cnt.textContent='0';},1500); }
+    return;
+  }
+  // Add to My Orders
+  const WEAPONS = window._WEAPONS_LIST || [];
+  const selNames = WEAPONS.filter(w => sel.has(w.id)).map(w => w.name).join(', ') || `${sel.size} item senjata`;
+  addOrder('weapon', menuConfig['weapon'], selNames);
+
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="text-align:center;padding:16px 0 8px;">
+      <div style="font-size:52px;margin-bottom:12px;">✅</div>
+      <div style="font-size:17px;font-weight:900;color:#1A1F36;margin-bottom:6px;">Request Dikirim</div>
+      <div style="font-size:12px;color:#8898AA;margin-bottom:16px;">${sel.size} item senjata telah diminta</div>
+      <div style="background:#FFF4E0;border:1px solid #FFE0A0;border-radius:12px;padding:12px 14px;font-size:11px;color:#C07800;font-weight:700;">
+        ⏱ Estimasi pengiriman: <span style="color:#F5A623;">30–60 menit</span>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:#0066FF;font-weight:700;cursor:pointer;" onclick="closeModalMenu();openOrdersPanel();">📋 Lihat My Orders →</div>
+    </div>
+  `;
+  document.getElementById('menuBottomBtn').innerHTML = `
+    <button onclick="closeModalMenu()" style="width:100%;padding:14px;background:linear-gradient(135deg,#F5A623,#C07800);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(245,166,35,0.35);">✓ SELESAI</button>
+  `;
+}
+
+
+function showDoctorList() {
+  const DOCTORS = [
+    {
+      id:'d01', spesialis:'Jantung & Pembuluh Darah', organ:'Jantung', icon:'❤️',
+      name:'Prof. Dr. dr. Ismoyo Sunu, SpJP(K)', sub:'Kardiologi Intervensi',
+      exp:'32 thn', rating:'4.97', tag:'Kardiologi', color:'#E5303A',
+      bio:'Spesialis intervensional kardiovaskular senior RSCM. Ahli kateterisasi jantung & pemasangan stent koroner.',
+      jadwal:'Senin–Rabu 08.00–14.00'
+    },
+    {
+      id:'d02', spesialis:'Otak & Saraf', organ:'Otak', icon:'🧠',
+      name:'Prof. Dr. dr. Darma Imron, SpBS(K)', sub:'Bedah Saraf Onkologi',
+      exp:'28 thn', rating:'4.95', tag:'Neurosurgery', color:'#6B3FA0',
+      bio:'Konsultan bedah saraf kepala & tulang belakang. Spesialis tumor otak dan kraniotomi minimal invasif.',
+      jadwal:'Selasa–Kamis 07.00–13.00'
+    },
+    {
+      id:'d03', spesialis:'Paru & Pernapasan', organ:'Paru-Paru', icon:'🫁',
+      name:'Dr. dr. Faisal Yunus, SpP(K)', sub:'Pulmonologi & Respirologi Kritis',
+      exp:'25 thn', rating:'4.93', tag:'Pulmonologi', color:'#0066FF',
+      bio:'Kepala Divisi Pulmonologi RSCM. Ahli PPOK, asma berat, dan ventilasi mekanik ICU pulmonal.',
+      jadwal:'Senin–Jumat 09.00–14.00'
+    },
+    {
+      id:'d04', spesialis:'Hati & Saluran Empedu', organ:'Hati', icon:'🟤',
+      name:'Dr. dr. Rino A. Gani, SpPD-KGEH', sub:'Hepatologi & Gastroenterologi',
+      exp:'27 thn', rating:'4.94', tag:'Hepatologi', color:'#C07800',
+      bio:'Konsultan hepatologi terkemuka RSCM. Ahli sirosis hati, hepatitis viral, dan transplantasi hati.',
+      jadwal:'Rabu–Jumat 08.00–13.00'
+    },
+    {
+      id:'d05', spesialis:'Ginjal & Saluran Kemih', organ:'Ginjal', icon:'🟣',
+      name:'Dr. dr. Parlindungan Siregar, SpPD-KGH', sub:'Nefrologi & Hipertensi Ginjal',
+      exp:'24 thn', rating:'4.92', tag:'Nefrologi', color:'#7B3FBE',
+      bio:'Spesialis ginjal & hemodialisis RSCM. Ahli penyakit ginjal kronik, transplantasi, dan AKI.',
+      jadwal:'Selasa–Kamis 08.00–14.00'
+    },
+    {
+      id:'d06', spesialis:'Tulang & Sendi', organ:'Tulang', icon:'🦴',
+      name:'Dr. dr. Achmad Fauzi Kamal, SpOT(K)', sub:'Ortopedi Onkologi & Rekonstruksi',
+      exp:'22 thn', rating:'4.91', tag:'Ortopedi', color:'#525F7F',
+      bio:'Kepala divisi ortopedi onkologi RSCM. Ahli tumor tulang, penggantian sendi total, dan fraktur kompleks.',
+      jadwal:'Senin–Rabu 07.30–13.00'
+    },
+    {
+      id:'d07', spesialis:'Mata', organ:'Mata', icon:'👁️',
+      name:'Dr. dr. Elvioza, SpM(K)', sub:'Vitreoretinal & Bedah Segmen Posterior',
+      exp:'26 thn', rating:'4.96', tag:'Oftalmologi', color:'#0A3A5C',
+      bio:'Konsultan vitreoretinal RSCM. Ahli bedah retina, ablasio retina, dan komplikasi diabetes okular.',
+      jadwal:'Selasa–Kamis 08.00–13.00'
+    },
+    {
+      id:'d08', spesialis:'Telinga, Hidung & Tenggorokan', organ:'THT', icon:'👂',
+      name:'Prof. Dr. dr. Bambang Hermani, SpTHT-KL(K)', sub:'THT-KL Onkologi Kepala Leher',
+      exp:'30 thn', rating:'4.95', tag:'THT-KL', color:'#007A56',
+      bio:'Guru besar THT FKUI-RSCM. Ahli bedah onkologi kepala-leher, implan koklea, dan rhinologi endoskopik.',
+      jadwal:'Senin–Rabu 08.00–14.00'
+    },
+    {
+      id:'d09', spesialis:'Kulit & Kelamin', organ:'Kulit', icon:'🩹',
+      name:'Dr. dr. Wresti Indriatmi, SpKK(K)', sub:'Dermatologi Estetik & Venereologi',
+      exp:'21 thn', rating:'4.90', tag:'Dermatologi', color:'#E07060',
+      bio:'Spesialis kulit & kelamin RSCM. Ahli penyakit autoimun kulit, lupus kutaneus, dan dermatitis atopik berat.',
+      jadwal:'Rabu–Jumat 09.00–14.00'
+    },
+    {
+      id:'d10', spesialis:'Lambung & Usus', organ:'Lambung', icon:'🫃',
+      name:'Dr. dr. Marcellus Simadibrata K., SpPD-KGEH', sub:'Gastroenterologi & Endoskopi',
+      exp:'29 thn', rating:'4.93', tag:'Gastroenterologi', color:'#B85C38',
+      bio:'Kepala divisi gastroenterologi RSCM. Ahli endoskopi therapeutik, IBD, dan kanker kolorektal.',
+      jadwal:'Senin–Kamis 08.00–13.00'
+    },
+    {
+      id:'d11', spesialis:'Hormon & Metabolisme', organ:'Pankreas/Endokrin', icon:'⚗️',
+      name:'Dr. dr. Pradana Soewondo, SpPD-KEMD', sub:'Endokrinologi & Diabetes',
+      exp:'26 thn', rating:'4.92', tag:'Endokrinologi', color:'#2A6099',
+      bio:'Konsultan endokrin-diabetes RSCM. Ahli diabetes melitus tipe 1 & 2, tiroid, dan gangguan kelenjar hipofisis.',
+      jadwal:'Selasa–Jumat 08.00–13.00'
+    },
+    {
+      id:'d12', spesialis:'Darah & Kanker', organ:'Sumsum Tulang', icon:'🩸',
+      name:'Dr. dr. Noorwati Sutandyo, SpPD-KHOM', sub:'Hematologi Onkologi Medik',
+      exp:'23 thn', rating:'4.94', tag:'Onkologi', color:'#B71C1C',
+      bio:'Spesialis hematologi & onkologi medik RSCM. Ahli leukemia, limfoma, myeloma, dan transplantasi sel punca.',
+      jadwal:'Senin–Rabu 09.00–14.00'
+    },
+  ];
+
+  window._DOCTORS_LIST = DOCTORS;
+  const selectedDoctors = new Set();
+
+  function renderDoctorList() {
+    return DOCTORS.map(d => {
+      const isSel = selectedDoctors.has(d.id);
+      return `
+      <div onclick="toggleDoctor('${d.id}')" id="dcard-${d.id}"
+        style="display:flex;flex-direction:column;gap:0;padding:12px;
+          background:${isSel?'#EBF2FF':'#F8FAFF'};
+          border:2px solid ${isSel?'#0066FF':'#E4EDFF'};
+          border-radius:14px;cursor:pointer;transition:all 0.15s;margin-bottom:8px;
+          -webkit-tap-highlight-color:transparent;position:relative;overflow:hidden;">
+        <!-- Top row -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,${d.color},${d.color}99);
+            display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+            box-shadow:0 3px 10px rgba(0,0,0,0.12);">${d.icon}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap;">
+              <span style="font-size:8px;font-weight:800;padding:2px 7px;border-radius:5px;letter-spacing:0.06em;background:${d.color};color:#fff;">${d.tag}</span>
+              <span style="font-size:8px;color:#8898AA;font-weight:600;">• ${d.organ}</span>
+            </div>
+            <div style="font-size:11px;font-weight:900;color:#1A1F36;line-height:1.3;">${d.name}</div>
+            <div style="font-size:10px;color:${d.color};font-weight:700;margin-top:2px;">${d.sub}</div>
+          </div>
+          <div style="flex-shrink:0;text-align:right;">
+            <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${isSel?'#0066FF':'#D0DCFF'};
+              background:${isSel?'#0066FF':'transparent'};
+              display:flex;align-items:center;justify-content:center;transition:all 0.15s;">
+              ${isSel?'<svg width="10" height="10" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>':''}
+            </div>
+          </div>
+        </div>
+        <!-- Bio -->
+        <div style="font-size:10px;color:#525F7F;font-weight:600;line-height:1.55;padding:8px 10px;background:rgba(0,0,0,0.025);border-radius:8px;margin-bottom:7px;">${d.bio}</div>
+        <!-- Footer chips -->
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <span style="font-size:9px;font-weight:700;color:#525F7F;background:#EFF1F8;border-radius:6px;padding:3px 8px;">🏥 RSCM Kencana</span>
+          <span style="font-size:9px;font-weight:700;color:#007A56;background:#E6F7F2;border-radius:6px;padding:3px 8px;">⭐ ${d.rating}</span>
+          <span style="font-size:9px;font-weight:700;color:#525F7F;background:#EFF1F8;border-radius:6px;padding:3px 8px;">📅 ${d.jadwal}</span>
+          <span style="font-size:9px;font-weight:700;color:#0066FF;background:#EBF2FF;border-radius:6px;padding:3px 8px;">🎓 ${d.exp} pengalaman</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  window._renderDoctorList = renderDoctorList;
+  window._selectedDoctors = selectedDoctors;
+
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#00B37D,#007A56);
+        display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;
+        box-shadow:0 4px 14px rgba(0,179,125,0.30);">🩺</div>
+      <div>
+        <div style="font-size:16px;font-weight:800;color:#1A1F36;">Call Doctor — RSCM</div>
+        <div style="font-size:11px;color:#8898AA;margin-top:2px;">Pilih spesialis terbaik · 1 dokter per organ</div>
+      </div>
+    </div>
+
+    <!-- Info bar -->
+    <div style="background:#E6F7F2;border:1px solid #B3EDD8;border-radius:10px;padding:9px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:14px;">🏥</span>
+      <div style="font-size:10px;color:#007A56;font-weight:700;line-height:1.5;">
+        RS Cipto Mangunkusumo (RSCM) — Dokter Spesialis Terbaik<br>
+        <span style="font-weight:600;color:#00B37D;">Pilih dokter yang Anda butuhkan. Satu dokter per spesialisasi organ.</span>
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <div style="flex:1;background:#F4F7FF;border-radius:8px;padding:6px 10px;text-align:center;">
+        <div style="font-size:9px;color:#8898AA;font-weight:600;">TOTAL SPESIALIS</div>
+        <div style="font-size:14px;font-weight:900;color:#1A1F36;">12</div>
+      </div>
+      <div style="flex:1;background:#E6F7F2;border-radius:8px;padding:6px 10px;text-align:center;">
+        <div style="font-size:9px;color:#007A56;font-weight:600;">DIPILIH</div>
+        <div id="dSelectedCount" style="font-size:14px;font-weight:900;color:#00B37D;">0</div>
+      </div>
+      <div style="flex:1;background:#EBF2FF;border-radius:8px;padding:6px 10px;text-align:center;">
+        <div style="font-size:9px;color:#0066FF;font-weight:600;">RATING RATA²</div>
+        <div style="font-size:14px;font-weight:900;color:#0066FF;">4.93</div>
+      </div>
+    </div>
+
+    <div id="doctorListContainer">
+      ${renderDoctorList()}
+    </div>
+  `;
+
+  document.getElementById('menuBottomBtn').innerHTML = `
+    <button onclick="submitDoctorRequest()" style="width:100%;padding:14px;background:linear-gradient(135deg,#00B37D,#007A56);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;cursor:pointer;box-shadow:0 6px 20px rgba(0,179,125,0.4);">🩺 PANGGIL DOKTER</button>
+    <button onclick="closeModalMenu()" style="width:100%;padding:12px;background:none;border:none;color:#8898AA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;">Batal</button>
+  `;
+  openModal();
+}
+
+function toggleDoctor(id) {
+  const sel = window._selectedDoctors;
+  if (sel.has(id)) { sel.delete(id); } else { sel.add(id); }
+  const container = document.getElementById('doctorListContainer');
+  if (container) container.innerHTML = window._renderDoctorList();
+  const cnt = document.getElementById('dSelectedCount');
+  if (cnt) cnt.textContent = sel.size;
+}
+
+function submitDoctorRequest() {
+  const sel = window._selectedDoctors;
+  if (!sel || sel.size === 0) {
+    const cnt = document.getElementById('dSelectedCount');
+    if (cnt) { cnt.style.color='#E5303A'; cnt.textContent='Pilih 1!'; setTimeout(()=>{cnt.style.color='#00B37D';cnt.textContent='0';},1500); }
+    return;
+  }
+  const DOCTORS = window._DOCTORS_LIST || [];
+  const selDocs = DOCTORS.filter(d => sel.has(d.id));
+  const detail = selDocs.map(d => d.name.split(',')[0]).join(', ');
+
+  // Add to My Orders
+  addOrder('doctor', menuConfig['doctor'], detail);
+
+  // Show processing
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="text-align:center;padding:14px 0 6px;">
+      <div style="font-size:52px;margin-bottom:14px;">🩺</div>
+      <div style="font-size:16px;font-weight:900;color:#1A1F36;margin-bottom:6px;">Menghubungi Dokter...</div>
+      <div style="font-size:12px;color:#8898AA;margin-bottom:20px;">Menghubungkan ke jaringan RSCM</div>
+      <div style="display:flex;justify-content:center;gap:9px;margin-bottom:20px;">
+        ${[0,0.2,0.4,0.6,0.8].map(d=>`<div style="width:10px;height:10px;border-radius:50%;background:#00B37D;animation:dotBlink 1s ${d}s ease-in-out infinite alternate;"></div>`).join('')}
+      </div>
+      <div style="background:#F0FFF8;border-radius:10px;height:8px;overflow:hidden;margin:0 8px;">
+        <div id="docProgress" style="height:100%;width:0%;background:linear-gradient(90deg,#00B37D,#00E5A0);border-radius:10px;transition:width 0.5s ease;"></div>
+      </div>
+      <div id="docStatus" style="font-size:11px;color:#8898AA;margin-top:10px;">Memverifikasi kredensial dokter...</div>
+    </div>
+  `;
+  document.getElementById('menuBottomBtn').innerHTML = '';
+
+  const statuses = ['Memverifikasi kredensial dokter...','Menghubungi ruang praktik RSCM...','Konfirmasi ketersediaan dokter...','Dokter siap berangkat!'];
+  let pct = 0; let si = 0;
+  const prog = setInterval(() => {
+    pct += Math.random() * 22 + 10;
+    if (pct > 92) pct = 92;
+    const pb = document.getElementById('docProgress');
+    const st = document.getElementById('docStatus');
+    if (pb) pb.style.width = pct + '%';
+    if (st && si < statuses.length) { st.textContent = statuses[si]; si++; }
+  }, 700);
+
+  setTimeout(() => {
+    clearInterval(prog);
+    const pb = document.getElementById('docProgress');
+    if (pb) pb.style.width = '100%';
+    setTimeout(() => showDoctorConfirmed(selDocs), 400);
+  }, 3200);
+}
+
+function showDoctorConfirmed(selDocs) {
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="text-align:center;margin-bottom:14px;">
+      <div style="display:inline-flex;align-items:center;gap:6px;background:#E6F7F2;border:1px solid #B3EDD8;border-radius:20px;padding:5px 14px;margin-bottom:14px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#00B37D;animation:dotPulse 1.2s infinite;"></div>
+        <span style="font-size:11px;font-weight:800;color:#00B37D;letter-spacing:0.1em;">DOKTER DALAM PERJALANAN</span>
+      </div>
+      <div style="font-size:44px;margin-bottom:6px;">🩺</div>
+      <div style="font-size:14px;font-weight:900;color:#1A1F36;">${selDocs.length} Dokter Spesialis Dikonfirmasi</div>
+      <div style="font-size:11px;color:#8898AA;margin-top:4px;">Estimasi tiba: <span style="color:#00B37D;font-weight:800;">10–20 menit</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;padding-right:2px;">
+      ${selDocs.map(d => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F8FAFF;border:1.5px solid #E6F7F2;border-radius:12px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,${d.color},${d.color}99);
+            display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${d.icon}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:11px;font-weight:900;color:#1A1F36;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.name.split(',')[0]}</div>
+            <div style="font-size:10px;color:${d.color};font-weight:700;margin-top:1px;">${d.sub}</div>
+            <div style="font-size:9px;color:#8898AA;margin-top:1px;">🏥 RSCM Kencana · ⭐ ${d.rating}</div>
+          </div>
+          <div style="flex-shrink:0;">
+            <div style="width:24px;height:24px;border-radius:50%;background:#E6F7F2;border:1.5px solid #00B37D;display:flex;align-items:center;justify-content:center;">
+              <div style="width:8px;height:8px;border-radius:50%;background:#00B37D;animation:dotPulse 1.2s infinite;"></div>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>
+  `;
+  document.getElementById('menuBottomBtn').innerHTML = `
+    <button onclick="closeModalMenu()" style="width:100%;padding:14px;background:linear-gradient(135deg,#00B37D,#007A56);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;cursor:pointer;box-shadow:0 6px 20px rgba(0,179,125,0.35);">✓ SELESAI</button>
+    <div style="text-align:center;margin-top:10px;font-size:12px;color:#0066FF;font-weight:700;cursor:pointer;" onclick="closeModalMenu();openOrdersPanel();">📋 Lihat My Orders →</div>
+  `;
+}
+
+function showDestinationForm(type) {
+  const isParade = type === 'parade';
+  const icon = isParade ? '🚗' : '🚁';
+  const color = isParade ? '#1A1F36' : '#00B37D';
+  const colorDark = isParade ? '#2D3561' : '#007A56';
+  const label = isParade ? 'Black Parade' : 'Helicopter';
+  const ph = isParade ? 'Masukkan tujuan konvoi...' : 'Pilih area tujuan...';
+
+  const inputHtml = isParade
+    ? `<input id="destInput" type="text" placeholder="${ph}"
+        style="width:100%;padding:14px 16px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:#1A1F36;outline:none;"
+        onfocus="this.style.borderColor='#0066FF';this.style.background='#EBF2FF'"
+        onblur="this.style.borderColor='#E4EDFF';this.style.background='#F4F7FF'"
+        onkeydown="if(event.key==='Enter')submitDestination()">`
+    : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px;">
+        ${HELI_AREAS.map(a=>`<button onclick="selectHeliArea(this,'${a}')" class="heli-area-btn" style="padding:10px 8px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#1A1F36;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;">${a}</button>`).join('')}
+      </div>
+      <input id="destInput" type="hidden" value="">
+      <div id="heliAreaError" style="font-size:11px;color:#E5303A;font-weight:700;min-height:16px;margin-top:4px;text-align:center;"></div>`;
+
+  const coverageNote = isParade ? '' : `
+    <div style="background:#E6F7F2;border:1px solid #B3EDD8;border-radius:10px;padding:10px 12px;margin-bottom:16px;display:flex;align-items:flex-start;gap:8px;">
+      <span style="font-size:14px;">📡</span>
+      <div style="font-size:11px;color:#007A56;font-weight:600;line-height:1.6;">
+        Helikopter hanya tersedia di area:<br>
+        <span style="font-weight:800;">Jakarta · Depok · Bogor · Bekasi · Tangerang · Merak · Palembang</span>
+      </div>
+    </div>`;
+
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+      <div style="width:52px;height:52px;border-radius:16px;background:${color};display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 4px 16px rgba(0,0,0,0.2);">${icon}</div>
+      <div>
+        <div style="font-size:17px;font-weight:900;color:#1A1F36;">Request ${label}</div>
+        <div style="font-size:12px;color:#8898AA;margin-top:2px;">${isParade ? 'Masukkan tujuan Anda' : 'Pilih area tujuan Anda'}</div>
+      </div>
+    </div>
+    ${coverageNote}
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">📍 ${isParade ? 'Tujuan' : 'Pilih Area'}</div>
+      ${inputHtml}
+    </div>
+  `;
+  document.getElementById('menuBottomBtn').innerHTML = `
+    <button onclick="submitDestination()" style="width:100%;padding:14px;background:linear-gradient(135deg,${color},${colorDark});color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);">OK — KONFIRMASI TUJUAN</button>
+    <button onclick="closeModalMenu()" style="width:100%;padding:12px;background:none;border:none;color:#8898AA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;">Batal</button>
+  `;
+  openModal();
+  setTimeout(() => { const inp = document.getElementById('destInput'); if(inp && inp.type==='text') inp.focus(); }, 350);
+}
+
+function selectHeliArea(btn, area) {
+  document.querySelectorAll('.heli-area-btn').forEach(b => {
+    b.style.background='#F4F7FF'; b.style.borderColor='#E4EDFF'; b.style.color='#1A1F36';
+  });
+  btn.style.background='#E6F7F2'; btn.style.borderColor='#00B37D'; btn.style.color='#007A56';
+  const inp = document.getElementById('destInput');
+  if(inp) inp.value = area;
+  const err = document.getElementById('heliAreaError');
+  if(err) err.textContent = '';
+}
+
+function showJetForm() {
+  // Get mission dates from MISSIONS array for display
+  const missionDates = MISSIONS.map(m => ({
+    num: m.num, date: m.date, flag: m.flag, city: m.city, country: m.country
+  }));
+
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+      <div style="width:52px;height:52px;border-radius:16px;background:#0066FF;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 4px 16px rgba(0,102,255,0.3);">✈️</div>
+      <div>
+        <div style="font-size:17px;font-weight:900;color:#1A1F36;">Private Jet</div>
+        <div style="font-size:12px;color:#8898AA;margin-top:2px;">Penerbangan khusus misi</div>
+      </div>
+    </div>
+
+    <!-- Mission selector -->
+    <div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">🎯 Pilih Misi Tujuan</div>
+    <div style="display:flex;flex-direction:column;gap:7px;max-height:200px;overflow-y:auto;padding-right:2px;">
+      ${missionDates.map(m=>`
+        <button onclick="selectJetMission(this,'${m.country}','${m.city}','${m.date}')" class="jet-mission-btn" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:10px;font-family:'Nunito',sans-serif;cursor:pointer;text-align:left;transition:all 0.15s;-webkit-tap-highlight-color:transparent;width:100%;">
+          <span style="font-size:18px;">${m.flag}</span>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:800;color:#1A1F36;">${m.city}, ${m.country}</div>
+            <div style="font-size:10px;color:#0066FF;font-weight:600;margin-top:1px;">${m.date}</div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8898AA;">#${m.num}</div>
+        </button>`).join('')}
+    </div>
+    <input id="jetMissionDest" type="hidden" value="">
+    <div id="jetMissionError" style="font-size:11px;color:#E5303A;font-weight:700;min-height:16px;margin-top:8px;text-align:center;"></div>
+  `;
+  document.getElementById('menuBottomBtn').innerHTML = `
+    <button onclick="submitJetRequest()" style="width:100%;padding:14px;background:linear-gradient(135deg,#0066FF,#0044CC);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;cursor:pointer;box-shadow:0 6px 20px rgba(0,102,255,0.35);">✈️ KONFIRMASI PENERBANGAN</button>
+    <button onclick="closeModalMenu()" style="width:100%;padding:12px;background:none;border:none;color:#8898AA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;">Batal</button>
+  `;
+  openModal();
+}
+
+function selectJetMission(btn, country, city, date) {
+  document.querySelectorAll('.jet-mission-btn').forEach(b => {
+    b.style.background='#F4F7FF'; b.style.borderColor='#E4EDFF';
+  });
+  btn.style.background='#EBF2FF'; btn.style.borderColor='#0066FF';
+  const inp = document.getElementById('jetMissionDest');
+  if(inp) inp.value = city + ', ' + country + ' | ' + date;
+  const err = document.getElementById('jetMissionError');
+  if(err) err.textContent='';
+}
+
+function submitJetRequest() {
+  const dest = document.getElementById('jetMissionDest');
+  if(!dest || !dest.value) {
+    const err = document.getElementById('jetMissionError');
+    if(err) err.textContent = '⚠️ Pilih misi tujuan terlebih dahulu.';
+    return;
+  }
+  const [cityCountry, dateRange] = dest.value.split(' | ');
+
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="text-align:center;padding:10px 0 4px;">
+      <div style="font-size:54px;margin-bottom:16px;">✈️</div>
+      <div style="font-size:16px;font-weight:900;color:#1A1F36;margin-bottom:6px;">Memproses Penerbangan...</div>
+      <div style="font-size:12px;color:#8898AA;margin-bottom:22px;">Menghubungkan ke jaringan MYTHOS</div>
+      <div style="display:flex;justify-content:center;gap:9px;margin-bottom:22px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.0s ease-in-out infinite alternate;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.2s ease-in-out infinite alternate;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.4s ease-in-out infinite alternate;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.6s ease-in-out infinite alternate;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.8s ease-in-out infinite alternate;"></div>
+      </div>
+      <div style="background:#F0F4FF;border-radius:10px;height:8px;overflow:hidden;margin:0 8px;">
+        <div id="jetProgress" style="height:100%;width:0%;background:linear-gradient(90deg,#0066FF,#4A90E2);border-radius:10px;transition:width 0.5s ease;"></div>
+      </div>
+      <div id="jetStatus" style="font-size:11px;color:#8898AA;margin-top:10px;">Memverifikasi slot penerbangan...</div>
+    </div>
+  `;
+  document.getElementById('menuBottomBtn').innerHTML = '';
+
+  const statuses = ['Memverifikasi slot penerbangan...','Konfirmasi gate HLP Halim...','Memeriksa clearance misi...','Penerbangan terkonfirmasi!'];
+  let pct = 0; let si = 0;
+  const prog = setInterval(() => {
+    pct += Math.random() * 20 + 10;
+    if (pct > 92) pct = 92;
+    const pb = document.getElementById('jetProgress');
+    const st = document.getElementById('jetStatus');
+    if (pb) pb.style.width = pct + '%';
+    if (st && si < statuses.length) { st.textContent = statuses[si]; si++; }
+  }, 700);
+
+  setTimeout(() => {
+    clearInterval(prog);
+    const pb = document.getElementById('jetProgress');
+    if (pb) pb.style.width = '100%';
+    setTimeout(() => showJetConfirmed(cityCountry, dateRange), 500);
+  }, 3500);
+}
+
+function showJetConfirmed(dest, dateRange) {
+  // Add to My Orders
+  addOrder('jet', menuConfig['jet'], `${dest} | ${dateRange}`);
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="display:inline-flex;align-items:center;gap:6px;background:#EBF2FF;border:1px solid #B3CFFF;border-radius:20px;padding:5px 14px;margin-bottom:16px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#0066FF;animation:dotPulse 1.2s infinite;"></div>
+        <span style="font-size:11px;font-weight:800;color:#0066FF;letter-spacing:0.1em;">TERKONFIRMASI</span>
+      </div>
+      <div style="font-size:52px;margin-bottom:4px;">✈️</div>
+      <div style="font-size:13px;font-weight:700;color:#8898AA;letter-spacing:0.12em;">PRIVATE JET</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#0066FF;font-weight:600;margin-top:3px;">PJ-${Math.floor(Math.random()*9000)+1000}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;">
+      <div style="background:#EBF2FF;border:1px solid #D6E8FF;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:18px;">🛫</span>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#8898AA;letter-spacing:0.08em;">BANDARA KEBERANGKATAN</div>
+          <div style="font-size:13px;font-weight:800;color:#0044CC;margin-top:2px;">HLP – Halim Perdanakusuma</div>
+          <div style="font-size:11px;color:#525F7F;margin-top:1px;">Jakarta, Indonesia</div>
+        </div>
+      </div>
+      <div style="background:#F4F7FF;border:1px solid #E4EDFF;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:18px;">🎯</span>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#8898AA;letter-spacing:0.08em;">TUJUAN</div>
+          <div style="font-size:13px;font-weight:700;color:#1A1F36;margin-top:2px;">${dest}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:#FFF4E0;border:1px solid #FFE0A0;border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:#C07800;letter-spacing:0.08em;margin-bottom:4px;">📅 TANGGAL MISI</div>
+          <div style="font-size:11px;font-weight:800;color:#F5A623;line-height:1.4;">${dateRange}</div>
+        </div>
+        <div style="background:#FDECEA;border:1px solid #FFCCCC;border-radius:12px;padding:12px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:#B71C1C;letter-spacing:0.08em;margin-bottom:4px;">🕔 JAM TERBANG</div>
+          <div style="font-size:13px;font-weight:800;color:#E5303A;line-height:1.4;">17:00 – 22:00</div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('menuBottomBtn').innerHTML = `
+    <button onclick="closeModalMenu()" style="width:100%;padding:14px;background:linear-gradient(135deg,#0066FF,#0044CC);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;cursor:pointer;box-shadow:0 6px 20px rgba(0,102,255,0.3);">✓ SELESAI</button>
+    <div style="text-align:center;margin-top:10px;font-size:12px;color:#0066FF;font-weight:700;cursor:pointer;" onclick="closeModalMenu();openOrdersPanel();">📋 Lihat My Orders →</div>
+  `;
+}
+
+function submitDestination() {
+  const destEl = document.getElementById('destInput');
+  const dest = destEl ? destEl.value.trim() : '';
+  const type = window._currentMenuType;
+
+  // Validate helicopter area
+  if (type === 'heli') {
+    if (!dest) {
+      const err = document.getElementById('heliAreaError');
+      if(err) err.textContent = '⚠️ Pilih area tujuan terlebih dahulu.';
+      return;
+    }
+    if (!HELI_AREAS.includes(dest)) {
+      const err = document.getElementById('heliAreaError');
+      if(err) err.textContent = '⚠️ Area tidak tersedia. Pilih dari daftar yang ada.';
+      return;
+    }
+  }
+  const isParade = type === 'parade';
+  const color = isParade ? '#1A1F36' : '#00B37D';
+  const colorAlt = isParade ? '#4A6CF7' : '#00E5A0';
+  const icon = isParade ? '🚗' : '🚁';
+  const unitLabel = isParade ? 'Armada' : 'Helikopter';
+
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="text-align:center;padding:10px 0 4px;">
+      <div id="searchIcon" style="font-size:54px;margin-bottom:16px;">${icon}</div>
+      <div style="font-size:16px;font-weight:900;color:#1A1F36;margin-bottom:6px;">Mencari ${unitLabel}...</div>
+      <div style="font-size:12px;color:#8898AA;margin-bottom:22px;">Menghubungkan ke jaringan MYTHOS</div>
+      <div style="display:flex;justify-content:center;gap:9px;margin-bottom:22px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.0s ease-in-out infinite alternate;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.2s ease-in-out infinite alternate;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.4s ease-in-out infinite alternate;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.6s ease-in-out infinite alternate;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.8s ease-in-out infinite alternate;"></div>
+      </div>
+      <div style="background:#F0F4FF;border-radius:10px;height:8px;overflow:hidden;margin:0 8px;">
+        <div id="searchProgress" style="height:100%;width:0%;background:linear-gradient(90deg,${color},${colorAlt});border-radius:10px;transition:width 0.5s ease;"></div>
+      </div>
+      <div id="searchStatus" style="font-size:11px;color:#8898AA;margin-top:10px;">Memindai area sekitar...</div>
+    </div>
+  `;
+  document.getElementById('menuBottomBtn').innerHTML = '';
+
+  const statuses = ['Memindai area sekitar...','Mendeteksi unit terdekat...','Mengenkripsi komunikasi...','Unit ditemukan! Menghubungkan...'];
+  let pct = 0; let si = 0;
+  const prog = setInterval(() => {
+    pct += Math.random() * 20 + 10;
+    if (pct > 92) pct = 92;
+    const pb = document.getElementById('searchProgress');
+    const st = document.getElementById('searchStatus');
+    if (pb) pb.style.width = pct + '%';
+    if (st && si < statuses.length) { st.textContent = statuses[si]; si++; }
+  }, 700);
+
+  const delay = 3000 + Math.random() * 2000;
+  setTimeout(() => {
+    clearInterval(prog);
+    const pb = document.getElementById('searchProgress');
+    if (pb) pb.style.width = '100%';
+    setTimeout(() => showUnitConnected(dest, type), 500);
+  }, delay);
+}
+
+function showUnitConnected(dest, type) {
+  const isParade = type === 'parade';
+  const icon = isParade ? '🚗' : '🚁';
+  const color = isParade ? '#1A1F36' : '#00B37D';
+  const colorDark = isParade ? '#2D3561' : '#007A56';
+  const unitLabel = isParade ? 'BLACK PARADE' : 'HELICOPTER';
+  const unitCode = isParade ? 'BP-' + (Math.floor(Math.random()*900)+100) : 'HC-' + (Math.floor(Math.random()*900)+100);
+
+  const jarak = isParade ? (2 + Math.random() * 6).toFixed(1) : (30 + Math.random() * 50).toFixed(1);
+  const kecepatan = isParade ? 40 : 120;
+  const menit = Math.ceil((parseFloat(jarak) / kecepatan) * 60);
+  const etaStr = menit < 1 ? '< 1 menit' : menit + ' menit';
+
+  // Override ETA in order system with actual calculated ETA
+  if (orders.length > 0) {
+    const lastOrder = orders[0];
+    if (lastOrder.type === type) {
+      lastOrder.etaMins = Math.max(1, menit);
+      lastOrder.arrivalAt = Date.now() + menit * 60000;
+    }
+  }
+  // Add order if not already added (direct unit connected flow)
+  const label = isParade ? 'Black Parade' : 'Helicopter';
+  addOrder(type, menuConfig[type], `${unitLabel} ${unitCode} → ${dest || 'Lokasi Anda'}`);
+
+  document.getElementById('menuModalContent').innerHTML = `
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="display:inline-flex;align-items:center;gap:6px;background:#E6F7F2;border:1px solid #B3EDD8;border-radius:20px;padding:5px 14px;margin-bottom:16px;">
+        <div style="width:7px;height:7px;border-radius:50%;background:#00B37D;animation:dotPulse 1.2s infinite;"></div>
+        <span style="font-size:11px;font-weight:800;color:#00B37D;letter-spacing:0.1em;">TERHUBUNG</span>
+      </div>
+      <div style="font-size:52px;margin-bottom:4px;">${icon}</div>
+      <div style="font-size:13px;font-weight:700;color:#8898AA;letter-spacing:0.12em;">${unitLabel}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#0066FF;font-weight:600;margin-top:3px;">${unitCode}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="background:#EBF2FF;border:1px solid #D6E8FF;border-radius:14px;padding:14px 12px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;color:#525F7F;letter-spacing:0.08em;margin-bottom:5px;">📍 JARAK</div>
+        <div style="font-size:24px;font-weight:900;color:#0066FF;line-height:1;">${jarak} km</div>
+        <div style="font-size:10px;color:#8898AA;margin-top:3px;">dari posisi Anda</div>
+      </div>
+      <div style="background:#E6F7F2;border:1px solid #B3EDD8;border-radius:14px;padding:14px 12px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;color:#525F7F;letter-spacing:0.08em;margin-bottom:5px;">⏱ EST. TIBA</div>
+        <div style="font-size:24px;font-weight:900;color:#00B37D;line-height:1;">${etaStr}</div>
+        <div style="font-size:10px;color:#8898AA;margin-top:3px;">menuju lokasi Anda</div>
+      </div>
+    </div>
+    <div style="background:#F4F7FF;border:1px solid #E4EDFF;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
+      <div style="font-size:20px;">🎯</div>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#8898AA;letter-spacing:0.08em;">TUJUAN</div>
+        <div style="font-size:13px;font-weight:700;color:#1A1F36;margin-top:2px;">${dest || '—'}</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('menuBottomBtn').innerHTML = `
+    <button onclick="closeModalMenu()" style="width:100%;padding:14px;background:linear-gradient(135deg,${color},${colorDark});color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.2);">✓ SELESAI</button>
+    <div style="text-align:center;margin-top:10px;font-size:12px;color:#0066FF;font-weight:700;cursor:pointer;" onclick="closeModalMenu();openOrdersPanel();">📋 Lihat My Orders →</div>
+  `;
+}
+
+function closeMenuModal(e) {
+  if (e.target === document.getElementById('menuModal')) {
+    closeModalMenu();
+  }
+}
+
+function sendMenuRequest() {
+  const type = window._currentMenuType;
+  const cfg = menuConfig[type];
+  const inputs = document.querySelectorAll('#menuModalContent input[type="text"]');
+  const vals = Array.from(inputs).map(i => i.value.trim());
+  const detail = vals.filter(Boolean).join(' → ') || cfg.label;
+  addOrder(type, cfg, detail);
+
+  const sheet = document.getElementById('menuSheet');
+  sheet.innerHTML = `<div style="padding:40px 22px;text-align:center;">
+    <div style="font-size:48px;margin-bottom:16px;">✅</div>
+    <div style="font-size:17px;font-weight:800;color:#1A1F36;margin-bottom:6px;">Request Terkirim</div>
+    <div style="font-size:12px;color:#8898AA;">Tim akan segera menindaklanjuti permintaan Anda.</div>
+    <div style="margin-top:14px;font-size:12px;color:#0066FF;font-weight:700;cursor:pointer;" onclick="closeModalMenu();openOrdersPanel();">📋 Lihat My Orders →</div>
+    <button onclick="closeModalMenu()" style="margin-top:20px;padding:13px 40px;background:linear-gradient(135deg,#0066FF,#0044CC);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">OK</button>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+//  MY ORDERS SYSTEM
+// ═══════════════════════════════════════════
+
+const orderStatusFlow = ['Diterima','Diproses','Dalam Perjalanan','Tiba'];
+const orderStatusColors = {
+  'Diterima':        { bg:'#EBF2FF', color:'#0066FF', dot:'#0066FF' },
+  'Diproses':        { bg:'#FFF4E0', color:'#C07800', dot:'#F5A623' },
+  'Dalam Perjalanan':{ bg:'#E6F7F2', color:'#007A56', dot:'#00B37D' },
+  'Tiba':            { bg:'#E6F7F2', color:'#007A56', dot:'#00B37D' },
+};
+
+const orderETAs = {
+  parade: 10,
+  jet:    240,
+  heli:   20,
+  sos:    5,
+  doctor: 15,
+  weapon: 45,
+};
+
+let orders = [];
+let orderIdCounter = 1;
+
+// Jet-specific status flow
+const jetStatusFlow = ['Diterima','Terkonfirmasi','Siap Boarding','Departed'];
+const jetStatusColors = {
+  'Diterima':      { bg:'#EBF2FF', color:'#0066FF', dot:'#0066FF' },
+  'Terkonfirmasi': { bg:'#FFF4E0', color:'#C07800', dot:'#F5A623' },
+  'Siap Boarding': { bg:'#E6F7F2', color:'#007A56', dot:'#00B37D' },
+  'Departed':      { bg:'#E6F7F2', color:'#007A56', dot:'#00B37D' },
+};
+
+function genJetCode() {
+  const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const nums = '0123456789';
+  let code = '';
+  for(let i=0;i<2;i++) code += letters[Math.floor(Math.random()*letters.length)];
+  for(let i=0;i<2;i++) code += nums[Math.floor(Math.random()*nums.length)];
+  for(let i=0;i<2;i++) code += nums[Math.floor(Math.random()*nums.length)];
+  return code; // e.g. PJ4287
+}
+
+function addOrder(type, cfg, detail) {
+  const etaMins = orderETAs[type] || 20;
+  const now = Date.now();
+  const order = {
+    id: orderIdCounter++,
+    type,
+    icon: cfg.icon,
+    label: cfg.label,
+    color: cfg.color,
+    detail,
+    etaMins,
+    createdAt: now,
+    arrivalAt: now + etaMins * 60000,
+    statusIndex: 0,
+    done: false,
+    // Jet-specific extras
+    jetCode: type === 'jet' ? genJetCode() : null,
+  };
+  orders.unshift(order);
+  updateOrderBadge();
+  startOrderProgress(order);
+}
+
+function startOrderProgress(order) {
+  if (order.type === 'jet') {
+    // Jet: Diterima → Terkonfirmasi (5 detik) → Siap Boarding (40% of ETA) → Departed (100%)
+    const totalMs = order.etaMins * 60000;
+    const jetIntervals = [0, 5000, totalMs * 0.4, totalMs];
+
+    jetIntervals.forEach((ms, i) => {
+      if (i === 0) { order.statusIndex = 0; return; }
+      setTimeout(() => {
+        order.statusIndex = i;
+        if (i === jetStatusFlow.length - 1) order.done = true;
+        updateOrderBadge();
+        refreshOrdersPanel();
+      }, ms);
+    });
+
+    const tick = setInterval(() => {
+      if (order.done) { clearInterval(tick); return; }
+      refreshOrdersPanel();
+    }, 1000);
+    return;
+  }
+
+  // Default for all other types
+  const totalMs = order.etaMins * 60000;
+  const intervals = [0, 0.2, 0.55, 1.0];
+
+  intervals.forEach((frac, i) => {
+    if (i === 0) { order.statusIndex = 0; return; }
+    setTimeout(() => {
+      order.statusIndex = i;
+      if (i === orderStatusFlow.length - 1) order.done = true;
+      updateOrderBadge();
+      refreshOrdersPanel();
+    }, frac * totalMs);
+  });
+
+  const tick = setInterval(() => {
+    if (order.done) { clearInterval(tick); return; }
+    refreshOrdersPanel();
+  }, 1000);
+}
+
+function updateOrderBadge() {
+  const btn = document.getElementById('myOrdersBtn');
+  if (!btn) return;
+  const active = orders.filter(o => !o.done).length;
+  const badge = document.getElementById('orderBadge');
+  if (badge) {
+    badge.textContent = orders.length;
+    badge.style.display = orders.length > 0 ? 'flex' : 'none';
+  }
+  // pulse if active
+  if (active > 0) {
+    btn.style.boxShadow = '0 4px 20px rgba(0,102,255,0.45), 0 0 0 4px rgba(0,102,255,0.15)';
+  } else {
+    btn.style.boxShadow = '0 4px 20px rgba(0,102,255,0.35)';
+  }
+}
+
+function openOrdersPanel() {
+  const panel = document.getElementById('myOrdersPanel');
+  panel.style.display = 'flex';
+  setTimeout(() => { panel.style.opacity='1'; panel.style.transform='translateY(0)'; }, 10);
+  refreshOrdersPanel();
+}
+
+function closeOrdersPanel() {
+  const panel = document.getElementById('myOrdersPanel');
+  panel.style.opacity = '0';
+  panel.style.transform = 'translateY(20px)';
+  setTimeout(() => { panel.style.display = 'none'; }, 280);
+}
+
+function formatCountdown(ms) {
+  if (ms <= 0) return '✓ Tiba';
+  const totalSec = Math.ceil(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return `${h}j ${String(m).padStart(2,'0')}m`;
+  if (m > 0) return `${m}m ${String(s).padStart(2,'0')}d`;
+  return `${s}d`;
+}
+
+function refreshOrdersPanel() {
+  const container = document.getElementById('ordersContainer');
+  if (!container) return;
+
+  const countEl = document.getElementById('ordersCount');
+  if (countEl) countEl.textContent = orders.length;
+
+  if (orders.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:40px 20px;">
+        <div style="font-size:40px;margin-bottom:12px;opacity:0.3;">📋</div>
+        <div style="font-size:13px;font-weight:700;color:#8898AA;">Belum ada request</div>
+        <div style="font-size:11px;color:#C0CCDD;margin-top:6px;">Gunakan menu di atas untuk membuat request</div>
+      </div>`;
+    return;
+  }
+
+  const now = Date.now();
+  container.innerHTML = orders.map(order => {
+    const isJet = order.type === 'jet';
+    const flow = isJet ? jetStatusFlow : orderStatusFlow;
+    const colorMap = isJet ? jetStatusColors : orderStatusColors;
+    const status = flow[order.statusIndex];
+    const sc = colorMap[status] || colorMap[flow[0]];
+    const msLeft = Math.max(0, order.arrivalAt - now);
+    const pct = Math.min(100, Math.round((1 - msLeft / (order.etaMins * 60000)) * 100));
+    const isDone = order.done;
+    const isConfirmed = isJet && order.statusIndex >= 1; // Terkonfirmasi+
+
+    // Timeline dots
+    const timeline = flow.map((st, i) => {
+      const passed = i <= order.statusIndex;
+      const active = i === order.statusIndex && !isDone;
+      return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;">
+        <div style="width:${active?'12px':'10px'};height:${active?'12px':'10px'};border-radius:50%;
+          background:${passed?sc.dot:'#E4EDFF'};
+          ${active?'box-shadow:0 0 0 3px '+sc.dot+'33;animation:orderDotPulse 1.2s infinite;':''}
+          transition:all 0.4s;flex-shrink:0;"></div>
+        <div style="font-size:7.5px;font-weight:700;color:${passed?sc.color:'#C0CCDD'};text-align:center;line-height:1.2;">${st}</div>
+      </div>
+      ${i < flow.length-1 ? `<div style="height:2px;flex:1;background:${i < order.statusIndex?sc.dot:'#E4EDFF'};border-radius:1px;margin-bottom:12px;transition:background 0.4s;"></div>` : ''}`;
+    }).join('');
+
+    // Jet confirmation box (shown from statusIndex >= 1)
+    const jetConfirmBox = isJet && isConfirmed ? `
+      <div style="margin-top:10px;background:linear-gradient(135deg,#0D1B4B,#0a1a48);border-radius:12px;padding:12px 14px;border:1px solid rgba(0,102,255,0.3);">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#4D9FFF;animation:orderDotPulse 1.2s infinite;"></div>
+          <span style="font-size:9px;font-weight:800;color:#4D9FFF;letter-spacing:0.12em;">TERKONFIRMASI — BANDARA HLP</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 10px;">
+            <div style="font-size:8px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:0.08em;margin-bottom:3px;">🛫 BANDARA</div>
+            <div style="font-size:11px;font-weight:800;color:#fff;line-height:1.3;">HLP – Halim<br>Perdanakusuma</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 10px;">
+            <div style="font-size:8px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:0.08em;margin-bottom:3px;">✈️ NO. JET</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:900;color:#4D9FFF;letter-spacing:0.1em;">MYT-${order.jetCode}</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(0,179,125,0.12);border:1px solid rgba(0,179,125,0.2);border-radius:8px;padding:7px 10px;">
+            <span style="font-size:13px;">📄</span>
+            <div>
+              <div style="font-size:9px;font-weight:800;color:#6FFFCA;letter-spacing:0.06em;">VISA & PASSPORT</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.7);font-weight:600;margin-top:1px;">Sudah termasuk dalam persiapan keberangkatan</div>
+            </div>
+            <div style="margin-left:auto;font-size:14px;">✅</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(0,179,125,0.12);border:1px solid rgba(0,179,125,0.2);border-radius:8px;padding:7px 10px;">
+            <span style="font-size:13px;">🧳</span>
+            <div>
+              <div style="font-size:9px;font-weight:800;color:#6FFFCA;letter-spacing:0.06em;">CLEARANCE & PROTOKOL</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.7);font-weight:600;margin-top:1px;">Diplomatic clearance & security protokol aktif</div>
+            </div>
+            <div style="margin-left:auto;font-size:14px;">✅</div>
+          </div>
+        </div>
+      </div>` : '';
+
+    return `
+    <div style="background:#fff;border:1.5px solid ${isDone?'#B3EDD8':isJet&&isConfirmed?'#B3CFFF':'#E4EDFF'};border-radius:16px;padding:14px;margin-bottom:10px;transition:border-color 0.4s;">
+      <!-- Header row -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:38px;height:38px;border-radius:12px;background:${order.color};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,0.12);">${order.icon}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:800;color:#1A1F36;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${order.label}</div>
+          <div style="font-size:10px;color:#8898AA;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${order.detail}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="display:inline-flex;align-items:center;gap:4px;background:${sc.bg};border-radius:8px;padding:3px 8px;">
+            <div style="width:5px;height:5px;border-radius:50%;background:${sc.dot};${!isDone?'animation:orderDotPulse 1.2s infinite;':''}"></div>
+            <span style="font-size:9px;font-weight:800;color:${sc.color};letter-spacing:0.06em;">${isDone?'DEPARTED':status.toUpperCase()}</span>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:${isDone?'#00B37D':'#1A1F36'};margin-top:4px;font-family:'JetBrains Mono',monospace;">
+            ${isDone ? '✓ Departed' : formatCountdown(msLeft)}
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div style="background:#F0F4FF;border-radius:6px;height:5px;overflow:hidden;margin-bottom:10px;">
+        <div style="height:100%;width:${pct}%;background:${isDone?'#00B37D':order.color};border-radius:6px;transition:width 1s ease;"></div>
+      </div>
+
+      <!-- Timeline -->
+      <div style="display:flex;align-items:flex-start;gap:0;">
+        ${timeline}
+      </div>
+
+      <!-- Jet confirmation box -->
+      ${jetConfirmBox}
+
+      <!-- ETA info -->
+      ${!isJet ? (!isDone ? `
+      <div style="margin-top:10px;background:#F8FAFF;border-radius:8px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:10px;color:#8898AA;font-weight:600;">⏱ Est. Tiba</div>
+        <div style="font-size:11px;font-weight:800;color:#0066FF;font-family:'JetBrains Mono',monospace;">${formatCountdown(msLeft)}</div>
+      </div>` : `
+      <div style="margin-top:10px;background:#E6F7F2;border-radius:8px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:10px;color:#007A56;font-weight:700;">✅ Request Selesai</div>
+        <div style="font-size:10px;color:#00B37D;font-weight:600;">${order.label} telah tiba</div>
+      </div>`) : ''}
+    </div>`;
+  }).join('');
+}
+
+</script>
+
+<style>
+@keyframes dotBlink {
+  from { opacity:0.2; transform:scale(0.8); }
+  to   { opacity:1;   transform:scale(1.3); }
+}
+@keyframes sosPulse {
+  0%,100% { transform:scale(1); }
+  50%     { transform:scale(1.15); }
+}
+</style>
 
   <!-- SUMMARY CHIPS -->
-  <div class="summary-chips">
+  <div class="summary-chips" style="margin-top:28px;padding:0 16px;margin-bottom:16px;">
     <div class="chip">
       <div class="chip-label">Nodes</div>
       <div class="chip-val blue">8</div>
@@ -1716,17 +3249,32 @@ setInterval(updateTicker, 5000);
 
 
 // ── ACCESS GATE LOGIC ──────────────────────────────────
-const ACCESS_CODE = '250315'; // Default code — change as needed
+const USERS = {
+  gavin: { code: '889195', name: 'GAVIN' },
+  lss:   { code: '251088', name: 'LSS'   }
+};
+let selectedUser = 'gavin';
 let pinInput = '';
 const PIN_LENGTH = 6;
+
+
+
+function selectUser(user) {
+  selectedUser = user;
+  window._currentUser = user;
+  pinInput = '';
+  updateDots();
+  document.getElementById('gateError').textContent = '';
+  document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('userGavin').classList.toggle('active', user === 'gavin');
+  document.getElementById('userLSS').classList.toggle('active', user === 'lss');
+}
 
 function numPress(val) {
   if (pinInput.length >= PIN_LENGTH) return;
   pinInput += val;
   updateDots();
-  if (pinInput.length === PIN_LENGTH) {
-    setTimeout(numOk, 180);
-  }
+  if (pinInput.length === PIN_LENGTH) setTimeout(numOk, 180);
 }
 
 function numDel() {
@@ -1745,8 +3293,9 @@ function updateDots() {
 
 function numOk() {
   if (pinInput.length === 0) return;
-  if (pinInput === ACCESS_CODE) {
-    // Success
+  const correctCode = USERS[selectedUser].code;
+  if (pinInput === correctCode) {
+    window._currentUser = selectedUser; // sync global
     const gate = document.getElementById('accessGate');
     gate.classList.add('unlocking');
     setTimeout(() => {
@@ -1754,19 +3303,50 @@ function numOk() {
       const main = document.getElementById('mainContent');
       main.style.display = 'block';
       main.style.animation = 'fadeInMain 0.5s ease both';
+      showGreeting(selectedUser);
+      // Show My Orders button
+      const ob = document.getElementById('myOrdersBtn');
+      if (ob) { ob.style.display = 'flex'; }
     }, 650);
   } else {
-    // Error
     for (let i = 0; i < PIN_LENGTH; i++) {
       const dot = document.getElementById('dot' + i);
       if (dot.classList.contains('filled')) dot.classList.add('error');
     }
-    document.getElementById('gateError').textContent = 'Kode akses salah. Coba lagi.';
+    document.getElementById('gateError').textContent = 'Kode salah. Coba lagi.';
     setTimeout(() => {
       pinInput = '';
       updateDots();
-    }, 700);
+      document.getElementById('gateError').textContent = '';
+    }, 900);
   }
+}
+
+function showGreeting(user) {
+  const now = new Date();
+  // GMT+7
+  const gmt7Hour = (now.getUTCHours() + 7) % 24;
+  let greet, emoji;
+  if (gmt7Hour >= 4 && gmt7Hour < 11) {
+    greet = 'Selamat Pagi';  emoji = '☀️';
+  } else if (gmt7Hour >= 11 && gmt7Hour < 15) {
+    greet = 'Selamat Siang'; emoji = '🌤️';
+  } else if (gmt7Hour >= 15 && gmt7Hour < 19) {
+    greet = 'Selamat Sore';  emoji = '🌇';
+  } else {
+    greet = 'Selamat Malam'; emoji = '🌙';
+  }
+  const fullNames = {
+    gavin: 'Gavin Ward Lowel Hebert',
+    lss:   'Lydia Shanty'
+  };
+  const subs = {
+    gavin: 'Selamat datang kembali di MYTHOS.',
+    lss:   'Selamat datang kembali di MYTHOS.'
+  };
+  document.getElementById('greetEmoji').textContent = emoji;
+  document.getElementById('greetText').textContent = `${greet}, ${fullNames[user]} 👋`;
+  document.getElementById('greetSub').textContent = subs[user];
 }
 
 // keyboard support
@@ -1852,6 +3432,86 @@ document.addEventListener('keydown', (e) => {
     </div>
   </div>
 </div>
+
+<!-- MY ORDERS FLOATING BUTTON -->
+<div id="myOrdersBtn" onclick="openOrdersPanel()" style="position:fixed;bottom:24px;right:20px;z-index:4000;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#0066FF,#0044CC);display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(0,102,255,0.35);-webkit-tap-highlight-color:transparent;transition:all 0.2s;">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9 12h6M9 16h4" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+  <div id="orderBadge" style="display:none;position:absolute;top:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:#E5303A;color:#fff;font-size:10px;font-weight:800;align-items:center;justify-content:center;border:2px solid #fff;font-family:'Nunito',sans-serif;"></div>
+</div>
+
+<!-- MY ORDERS PANEL -->
+<div id="myOrdersPanel" onclick="if(event.target===this)closeOrdersPanel()" style="display:none;position:fixed;inset:0;z-index:4500;background:rgba(10,15,46,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:flex-end;justify-content:center;opacity:0;transition:opacity 0.28s ease;">
+  <div onclick="event.stopPropagation()" style="background:#F4F6FB;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:82vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,50,150,0.18);transform:translateY(20px);transition:transform 0.28s cubic-bezier(0.16,1,0.3,1);" id="myOrdersPanelInner">
+    <!-- Handle -->
+    <div style="width:36px;height:4px;background:#D0DCFF;border-radius:2px;margin:14px auto 0;flex-shrink:0;"></div>
+    <!-- Header -->
+    <div style="padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid #E4E9F2;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#0066FF;animation:dotPulse 1.4s infinite;"></div>
+        <span style="font-size:15px;font-weight:900;color:#1A1F36;letter-spacing:-0.2px;">My Orders</span>
+        <span id="ordersCount" style="background:#EBF2FF;color:#0066FF;font-size:10px;font-weight:800;padding:2px 8px;border-radius:8px;">0</span>
+      </div>
+      <div onclick="closeOrdersPanel()" style="width:30px;height:30px;border-radius:50%;background:#F0F4FF;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#8898AA;">✕</div>
+    </div>
+    <!-- Orders list -->
+    <div id="ordersContainer" style="flex:1;overflow-y:auto;padding:14px 16px 24px;-webkit-overflow-scrolling:touch;"></div>
+  </div>
+</div>
+
+<style>
+@keyframes orderDotPulse {
+  0%,100% { transform:scale(1); opacity:1; }
+  50% { transform:scale(1.5); opacity:0.6; }
+}
+#myOrdersPanel { display:none; }
+#myOrdersPanel.open { display:flex; }
+</style>
+
+<!-- ACCESS DENIED POPUP (untuk user LSS) -->
+<div id="accessDeniedPopup" onclick="closeAccessDenied()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(10,15,46,0.70);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:24px;">
+  <div onclick="event.stopPropagation()" id="accessDeniedCard" style="background:#fff;border-radius:24px;padding:36px 28px;max-width:320px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.3);">
+    <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#E5303A,#B71C1C);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 8px 24px rgba(229,48,58,0.40);">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/>
+        <path d="M4.93 4.93l14.14 14.14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div style="font-size:22px;font-weight:900;color:#1A1F36;letter-spacing:-0.3px;margin-bottom:10px;">Access Denied</div>
+    <div style="font-size:14px;color:#525F7F;line-height:1.7;margin-bottom:24px;">Anda tidak memiliki izin<br>untuk mengakses fitur ini.</div>
+    <button onclick="closeAccessDenied()" style="width:100%;padding:14px;background:linear-gradient(135deg,#E5303A,#B71C1C);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;cursor:pointer;box-shadow:0 6px 20px rgba(229,48,58,0.40);">TUTUP</button>
+  </div>
+</div>
+
+<style>
+#accessDeniedPopup.show { opacity:1; }
+#accessDeniedPopup.show #accessDeniedCard { transform:scale(1); }
+
+/* Animasi tekan menu card */
+.menu-card {
+  background:#fff;
+  border-radius:20px;
+  padding:22px 10px 18px;
+  text-align:center;
+  cursor:pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow:0 3px 12px rgba(0,80,200,0.08);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.menu-card:active {
+  transform: scale(0.92);
+  box-shadow: 0 1px 6px rgba(0,80,200,0.10);
+}
+</style>
+
+<script>
+function closeAccessDenied() {
+  document.getElementById('accessDeniedPopup').style.display = 'none';
+}
+</script>
 
 </div><!-- end #mainContent -->
 </body>
