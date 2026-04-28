@@ -2988,10 +2988,11 @@ function sendMenuRequest() {
 //  MY ORDERS SYSTEM
 // ═══════════════════════════════════════════
 
-const orderStatusFlow = ['Diterima','Diproses','Dalam Perjalanan','Tiba'];
+const orderStatusFlow = ['Diterima','Dikonfirmasi','Diproses','Dalam Perjalanan','Tiba'];
 const orderStatusColors = {
   'Diterima':        { bg:'#EBF2FF', color:'#0066FF', dot:'#0066FF' },
-  'Diproses':        { bg:'#FFF4E0', color:'#C07800', dot:'#F5A623' },
+  'Dikonfirmasi':    { bg:'#FFF4E0', color:'#C07800', dot:'#F5A623' },
+  'Diproses':        { bg:'#EBF2FF', color:'#0066FF', dot:'#0066FF' },
   'Dalam Perjalanan':{ bg:'#E6F7F2', color:'#007A56', dot:'#00B37D' },
   'Tiba':            { bg:'#E6F7F2', color:'#007A56', dot:'#00B37D' },
 };
@@ -3007,6 +3008,91 @@ const orderETAs = {
 
 let orders = [];
 let orderIdCounter = 1;
+
+// ── PERSISTENSI ORDER KE LOCALSTORAGE ──────────────────────────────────
+function saveOrders() {
+  try {
+    localStorage.setItem('mythos_orders', JSON.stringify(orders));
+    localStorage.setItem('mythos_orderIdCounter', String(orderIdCounter));
+  } catch(e) {}
+}
+
+function loadOrders() {
+  try {
+    const raw = localStorage.getItem('mythos_orders');
+    const ctr = localStorage.getItem('mythos_orderIdCounter');
+    if (raw) {
+      orders = JSON.parse(raw);
+      const now = Date.now();
+      orders.forEach(o => {
+        if (!o.done && o.arrivalAt && now >= o.arrivalAt) {
+          // Untuk jet: arrivalAt = waktu landing (departure + flight duration).
+          // Jangan mark done sebelum departure tiba — cek departureTs dulu.
+          if (o.type === 'jet' && o.departureTs && now < o.departureTs) {
+            // Belum departure, biarkan resumeOrderTimers() yang hitung statusnya.
+            return;
+          }
+          const flow = o.type === 'jet' ? jetStatusFlow : orderStatusFlow;
+          o.statusIndex = flow.length - 1;
+          o.done = true;
+        }
+      });
+    }
+    if (ctr) orderIdCounter = parseInt(ctr) || 1;
+  } catch(e) {}
+}
+
+function resumeOrderTimers() {
+  const now = Date.now();
+  orders.forEach(o => {
+    if (o.done) return;
+    const flow = o.type === 'jet' ? jetStatusFlow : orderStatusFlow;
+
+    if (o.type === 'jet' && o.departureTs) {
+      // Untuk jet, statusIndex dihitung berdasarkan tahapan pre-departure:
+      // [0] Diterima → [1] Terkonfirmasi (5 detik setelah order) → [2] Siap Boarding (40% total)
+      // [3] Departed hanya setelah arrivalAt (= departure + flight duration) tercapai
+      const totalMs = o.arrivalAt - o.createdAt;
+      if (now >= o.arrivalAt) {
+        // Sudah landing
+        o.statusIndex = flow.length - 1;
+        o.done = true;
+        return;
+      } else if (now >= o.departureTs) {
+        // Sudah departure, belum landing — tahan di index 3 (Departed) tapi belum done
+        o.statusIndex = flow.length - 1;
+        o.done = false;
+      } else {
+        // Belum departure — hitung status proporsional dari createdAt → departureTs
+        const preDepartMs = o.departureTs - o.createdAt;
+        const ratio = Math.min((now - o.createdAt) / preDepartMs, 1);
+        // Hanya boleh sampai index 2 (Siap Boarding) sebelum departure
+        o.statusIndex = Math.min(Math.floor(ratio * (flow.length - 1)), flow.length - 2);
+      }
+    } else {
+      const totalMs = o.arrivalAt - o.createdAt;
+      // Milestone timestamps (same as _startOrderTimer)
+      const milestones = [
+        o.createdAt,
+        o.createdAt + 5000,
+        o.createdAt + totalMs * 0.2,
+        o.createdAt + totalMs * 0.55,
+        o.arrivalAt,
+      ];
+      if (now >= o.arrivalAt) { o.statusIndex = orderStatusFlow.length - 1; o.done = true; return; }
+      // Find current step
+      let stepIdx = 0;
+      for (let i = milestones.length - 1; i >= 0; i--) {
+        if (now >= milestones[i]) { stepIdx = i; break; }
+      }
+      o.statusIndex = Math.min(stepIdx, orderStatusFlow.length - 2);
+    }
+
+    _startOrderTimer(o);
+  });
+  saveOrders();
+  updateOrderBadge();
+}
 
 // Jet-specific status flow
 const jetStatusFlow = ['Diterima','Terkonfirmasi','Siap Boarding','Departed'];
@@ -3059,6 +3145,7 @@ function addOrder(type, cfg, detail, departureTs) {
     departureTs: type === 'jet' ? (departureTs || null) : null,
   };
   orders.unshift(order);
+  saveOrders();
   updateOrderBadge();
   startOrderProgress(order);
   if (type === 'jet' && order.departureTs) scheduleJetReminder(order);
@@ -3099,47 +3186,68 @@ function scheduleJetReminder(order) {
   });
 }
 
-function startOrderProgress(order) {
+// _startOrderTimer: mulai/lanjutkan timer dari waktu SEKARANG berdasarkan sisa waktu
+function _startOrderTimer(order) {
+  const now = Date.now();
   if (order.type === 'jet') {
-    // Jet: Diterima → Terkonfirmasi (5 detik) → Siap Boarding (40% of ETA) → Departed (100%)
-    const totalMs = order.etaMins * 60000;
-    const jetIntervals = [0, 5000, totalMs * 0.4, totalMs];
-
-    jetIntervals.forEach((ms, i) => {
-      if (i === 0) { order.statusIndex = 0; return; }
-      setTimeout(() => {
-        order.statusIndex = i;
-        if (i === jetStatusFlow.length - 1) order.done = true;
+    const departTs = order.departureTs || order.arrivalAt;
+    // Status jet:
+    // [0] Diterima      -> saat order dibuat
+    // [1] Terkonfirmasi -> 5 detik setelah order
+    // [2] Siap Boarding -> 40% dari createdAt ke departureTs
+    // [3] Departed      -> tepat saat departureTs (bukan arrivalAt)
+    // done = true       -> saat arrivalAt (departure + flight duration)
+    const preDepartMs = departTs - order.createdAt;
+    const jetMilestones = [
+      { ts: order.createdAt + 5000,              idx: 1, done: false },
+      { ts: order.createdAt + preDepartMs * 0.4, idx: 2, done: false },
+      { ts: departTs,                             idx: 3, done: false },
+      { ts: order.arrivalAt,                      idx: 3, done: true  },
+    ];
+    jetMilestones.forEach(function(m) {
+      const remaining = m.ts - now;
+      if (remaining <= 0) return;
+      setTimeout(function() {
+        order.statusIndex = m.idx;
+        order.done = m.done;
+        saveOrders();
         updateOrderBadge();
         refreshOrdersPanel();
-      }, ms);
+      }, remaining);
     });
-
-    const tick = setInterval(() => {
-      if (order.done) { clearInterval(tick); return; }
-      refreshOrdersPanel();
-    }, 1000);
-    return;
+  } else {
+    const totalMs = order.arrivalAt - order.createdAt;
+    // [0] Diterima -> saat order dibuat
+    // [1] Dikonfirmasi -> 5 detik setelah order
+    // [2] Diproses -> 20% dari total
+    // [3] Dalam Perjalanan -> 55% dari total
+    // [4] Tiba -> 100%
+    const nonJetMilestones = [
+      { ts: order.createdAt + 5000,              idx: 1 }, // Dikonfirmasi
+      { ts: order.createdAt + totalMs * 0.2,     idx: 2 }, // Diproses
+      { ts: order.createdAt + totalMs * 0.55,    idx: 3 }, // Dalam Perjalanan
+      { ts: order.arrivalAt,                     idx: 4 }, // Tiba
+    ];
+    nonJetMilestones.forEach(m => {
+      const remaining = m.ts - now;
+      if (remaining <= 0) return;
+      setTimeout(() => {
+        order.statusIndex = m.idx;
+        if (m.idx === orderStatusFlow.length - 1) order.done = true;
+        saveOrders();
+        updateOrderBadge();
+        refreshOrdersPanel();
+      }, remaining);
+    });
   }
-
-  // Default for all other types
-  const totalMs = order.etaMins * 60000;
-  const intervals = [0, 0.2, 0.55, 1.0];
-
-  intervals.forEach((frac, i) => {
-    if (i === 0) { order.statusIndex = 0; return; }
-    setTimeout(() => {
-      order.statusIndex = i;
-      if (i === orderStatusFlow.length - 1) order.done = true;
-      updateOrderBadge();
-      refreshOrdersPanel();
-    }, frac * totalMs);
-  });
-
   const tick = setInterval(() => {
-    if (order.done) { clearInterval(tick); return; }
+    if (order.done) { clearInterval(tick); saveOrders(); return; }
     refreshOrdersPanel();
   }, 1000);
+}
+
+function startOrderProgress(order) {
+  _startOrderTimer(order);
 }
 
 function updateOrderBadge() {
@@ -3171,6 +3279,13 @@ function closeOrdersPanel() {
   panel.style.opacity = '0';
   panel.style.transform = 'translateY(20px)';
   setTimeout(() => { panel.style.display = 'none'; }, 280);
+}
+
+function deleteOrder(id) {
+  orders = orders.filter(o => o.id !== id);
+  saveOrders();
+  updateOrderBadge();
+  refreshOrdersPanel();
 }
 
 function formatCountdown(ms) {
@@ -3291,8 +3406,12 @@ function refreshOrdersPanel() {
     const status = flow[order.statusIndex];
     const sc = colorMap[status] || colorMap[flow[0]];
     const msLeft = Math.max(0, order.arrivalAt - now);
-    const pct = Math.min(100, Math.round((1 - msLeft / (order.etaMins * 60000)) * 100));
     const isDone = order.done;
+    // Bar progress sinkron dengan step timeline (bukan waktu)
+    const pct = isDone ? 100 : Math.round((order.statusIndex / (flow.length - 1)) * 100);
+
+
+
     const isConfirmed = isJet && order.statusIndex >= 1; // Terkonfirmasi+
 
     // Timeline dots
@@ -3355,12 +3474,15 @@ function refreshOrdersPanel() {
           <div style="font-size:13px;font-weight:800;color:#1A1F36;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${order.label}</div>
           <div style="font-size:10px;color:#8898AA;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${order.detail}</div>
         </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div style="display:inline-flex;align-items:center;gap:4px;background:${sc.bg};border-radius:8px;padding:3px 8px;">
-            <div style="width:5px;height:5px;border-radius:50%;background:${sc.dot};${!isDone?'animation:orderDotPulse 1.2s infinite;':''}"></div>
-            <span style="font-size:9px;font-weight:800;color:${sc.color};letter-spacing:0.06em;">${isDone?(isJet?'DEPARTED':'SELESAI'):status.toUpperCase()}</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:4px;">
+            <div style="display:inline-flex;align-items:center;gap:4px;background:${sc.bg};border-radius:8px;padding:3px 8px;">
+              <div style="width:5px;height:5px;border-radius:50%;background:${sc.dot};${!isDone?'animation:orderDotPulse 1.2s infinite;':''}"></div>
+              <span style="font-size:9px;font-weight:800;color:${sc.color};letter-spacing:0.06em;">${isDone?(isJet?'DEPARTED':'SELESAI'):status.toUpperCase()}</span>
+            </div>
+            <button onclick="deleteOrder(${order.id})" title="Hapus order" style="width:22px;height:22px;border-radius:50%;background:#FFF0F0;border:1px solid #FFD0D0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;line-height:1;color:#E5303A;flex-shrink:0;padding:0;-webkit-tap-highlight-color:transparent;" onmouseenter="this.style.background='#FFE0E0'" onmouseleave="this.style.background='#FFF0F0'">✕</button>
           </div>
-          <div style="font-size:11px;font-weight:700;color:${isDone?'#00B37D':'#1A1F36'};margin-top:4px;font-family:'JetBrains Mono',monospace;">
+          <div style="font-size:11px;font-weight:700;color:${isDone?'#00B37D':'#1A1F36'};font-family:'JetBrains Mono',monospace;">
             ${isDone ? (isJet ? '✓ Landed' : '✓ Tiba') : (isJet && order.departureTs ? (now < order.departureTs ? '⏳ ' + formatCountdown(order.departureTs - now) : '✈️ ' + formatCountdown(msLeft)) : formatCountdown(msLeft))}
           </div>
         </div>
@@ -6108,7 +6230,10 @@ function submitCryptoSend() {
 
 // Init network grid after first render
 document.addEventListener('DOMContentLoaded', function() {
-  // nothing needed — lazy init via openCryptoModal
+  // Load & resume orders dari localStorage saat halaman dibuka
+  loadOrders();
+  updateOrderBadge();
+  resumeOrderTimers();
 });
 </script>
 
