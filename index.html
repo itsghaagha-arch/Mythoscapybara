@@ -1003,19 +1003,46 @@
       <div style="font-size:12px;font-weight:800;color:#1A1F36;letter-spacing:0.01em;line-height:1.4;">Request<br>Weapon</div>
     </div>
 
-    <!-- Capybara AI — full width -->
-    <div onclick="openCapybaraChat()" class="menu-card" style="border:1px solid #E4E9F2;grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:16px 20px;text-align:left;">
-      <div style="width:54px;height:54px;border-radius:16px;background:#F4F6FB;border:1px solid #E4E9F2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <span style="font-size:28px;line-height:1;">🐾</span>
+    <!-- Mission Countdown — full width -->
+    <div class="menu-card" style="border:1px solid #D6E8FF;grid-column:1/-1;padding:16px 18px;text-align:left;cursor:default;background:linear-gradient(135deg,#EBF2FF 0%,#F4F8FF 100%);">
+      <!-- Header row -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#0066FF,#0044CC);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,102,255,0.28);">
+          <span style="font-size:20px;">🎯</span>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:900;color:#1A1F36;letter-spacing:-0.2px;">Upcoming Mission Countdown</div>
+          <div style="font-size:10px;color:#525F7F;margin-top:1px;font-weight:600;" id="mcdNextLabel">Loading...</div>
+        </div>
+        <div id="mcdNextFlag" style="font-size:28px;line-height:1;"></div>
       </div>
-      <div style="flex:1;">
-        <div style="font-size:14px;font-weight:900;color:#1A1F36;">Capybara AI</div>
-        <div style="font-size:11px;color:#8898AA;margin-top:2px;font-weight:600;">Asisten cerdas MYTHOS</div>
+
+      <!-- Countdown display -->
+      <div style="background:#fff;border:1px solid #D6E8FF;border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="text-align:center;flex:1;">
+          <div id="mcdDays" style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:900;color:#0066FF;line-height:1;">--</div>
+          <div style="font-size:8px;font-weight:700;color:#8898AA;letter-spacing:0.1em;margin-top:2px;">DAYS</div>
+        </div>
+        <div style="font-size:18px;font-weight:900;color:#D0DCFF;">:</div>
+        <div style="text-align:center;flex:1;">
+          <div id="mcdHours" style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:900;color:#0066FF;line-height:1;">--</div>
+          <div style="font-size:8px;font-weight:700;color:#8898AA;letter-spacing:0.1em;margin-top:2px;">HRS</div>
+        </div>
+        <div style="font-size:18px;font-weight:900;color:#D0DCFF;">:</div>
+        <div style="text-align:center;flex:1;">
+          <div id="mcdMins" style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:900;color:#0066FF;line-height:1;">--</div>
+          <div style="font-size:8px;font-weight:700;color:#8898AA;letter-spacing:0.1em;margin-top:2px;">MIN</div>
+        </div>
+        <div style="font-size:18px;font-weight:900;color:#D0DCFF;">:</div>
+        <div style="text-align:center;flex:1;">
+          <div id="mcdSecs" style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:900;color:#0066FF;line-height:1;">--</div>
+          <div style="font-size:8px;font-weight:700;color:#8898AA;letter-spacing:0.1em;margin-top:2px;">SEC</div>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:5px;background:#E6F7F2;border-radius:20px;padding:4px 12px;">
-        <div style="width:6px;height:6px;border-radius:50%;background:#00B37D;animation:dotPulse 1.2s infinite;"></div>
-        <span style="font-size:9px;font-weight:800;color:#00B37D;letter-spacing:0.1em;">ONLINE</span>
-      </div>
+
+      <!-- Team roster -->
+      <div style="font-size:9px;font-weight:800;color:#8898AA;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:7px;">🛡 Team Hadir</div>
+      <div id="mcdTeamList" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
     </div>
 
   </div>
@@ -3938,114 +3965,26 @@ document.addEventListener('keydown', (e) => {
           <div id="cardNum4" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.1em;">••••</div>
         </div>
 
-        <!-- Centurion Roman portrait SVG - detailed engraved style -->
-        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-46%);width:110px;height:110px;">
-          <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Outer oval decorative border with tick marks -->
-            <ellipse cx="55" cy="55" rx="52" ry="52" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" fill="rgba(255,255,255,0.025)"/>
-            <ellipse cx="55" cy="55" rx="48" ry="48" stroke="rgba(255,255,255,0.1)" stroke-width="0.6" fill="none"/>
-            <!-- Tick marks around oval -->
-            <line x1="55" y1="3" x2="55" y2="8" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-            <line x1="55" y1="102" x2="55" y2="107" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-            <line x1="3" y1="55" x2="8" y2="55" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-            <line x1="102" y1="55" x2="107" y2="55" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-            <line x1="19" y1="14" x2="22" y2="18" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
-            <line x1="88" y1="14" x2="85" y2="18" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
-            <line x1="19" y1="96" x2="22" y2="92" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
-            <line x1="88" y1="96" x2="85" y2="92" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
-
-            <!-- ═══ HELMET ═══ -->
-            <!-- Helmet base/brim - curves around head -->
-            <path d="M30 46 Q32 40 38 37 Q43 35 55 35 Q67 35 72 37 Q78 40 80 46" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.45)" stroke-width="1.2"/>
-            <!-- Helmet dome -->
-            <path d="M38 37 Q40 28 55 25 Q70 28 72 37" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.4)" stroke-width="1.1"/>
-            <!-- Helmet brim detail line -->
-            <path d="M31 48 Q33 43 38 40 Q43 37 55 37 Q67 37 72 40 Q77 43 79 48" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.6"/>
-            <!-- Cheek guards (left) -->
-            <path d="M30 46 Q27 50 27 57 Q27 63 31 67" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.1"/>
-            <path d="M31 47 Q29 51 29 57 Q29 62 33 66" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
-            <!-- Cheek guards (right) -->
-            <path d="M80 46 Q83 50 83 57 Q83 63 79 67" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.1"/>
-            <path d="M79 47 Q81 51 81 57 Q81 62 77 66" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
-
-            <!-- ═══ CREST / PLUME ═══ -->
-            <!-- Crest base ridge -->
-            <path d="M44 26 Q55 20 66 26" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/>
-            <!-- Crest feathers - flowing right/upward like in photo -->
-            <path d="M55 22 Q62 10 72 6 Q78 4 82 8" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.2"/>
-            <path d="M57 23 Q65 12 74 9 Q80 7 83 11" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.9"/>
-            <path d="M59 24 Q67 14 76 12 Q81 11 83 15" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
-            <path d="M61 25 Q68 17 77 15 Q81 14 82 18" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.6"/>
-            <path d="M53 22 Q58 8 68 5 Q75 3 78 7" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
-            <!-- Crest spine -->
-            <path d="M44 26 Q50 18 55 14 Q60 10 65 8" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
-
-            <!-- ═══ FACE ═══ -->
-            <!-- Head/face outline -->
-            <path d="M34 55 Q34 44 38 40 Q43 37 55 37 Q67 37 72 40 Q76 44 76 55 Q76 66 70 72 Q63 78 55 79 Q47 78 40 72 Q34 66 34 55Z" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-
-            <!-- Forehead lines (engraving texture) -->
-            <path d="M42 43 Q55 41 68 43" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
-            <path d="M41 46 Q55 44 69 46" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.4"/>
-
-            <!-- Eye sockets (shadowed) -->
-            <ellipse cx="46" cy="53" rx="5" ry="3.5" fill="rgba(0,0,0,0.3)" stroke="rgba(255,255,255,0.28)" stroke-width="0.8"/>
-            <ellipse cx="64" cy="53" rx="5" ry="3.5" fill="rgba(0,0,0,0.3)" stroke="rgba(255,255,255,0.28)" stroke-width="0.8"/>
-            <!-- Iris left -->
-            <ellipse cx="46" cy="53" rx="2.5" ry="2" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.4)" stroke-width="0.7"/>
-            <!-- Iris right -->
-            <ellipse cx="64" cy="53" rx="2.5" ry="2" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.4)" stroke-width="0.7"/>
-            <!-- Eyebrows -->
-            <path d="M41 49 Q46 47 51 49" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1"/>
-            <path d="M59 49 Q64 47 69 49" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1"/>
-
-            <!-- Nose - Roman nose (strong bridge) -->
-            <path d="M55 56 L54 63 Q54 65 55 66 Q56 65 56 63 L55 56Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
-            <!-- Nose bridge -->
-            <line x1="55" y1="50" x2="55" y2="56" stroke="rgba(255,255,255,0.2)" stroke-width="0.6"/>
-            <!-- Nose wings -->
-            <path d="M51 64 Q53 66 55 66 Q57 66 59 64" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
-
-            <!-- Mouth / lips -->
-            <path d="M49 70 Q52 68 55 69 Q58 68 61 70" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.9"/>
-            <path d="M50 72 Q52 74 55 73 Q58 74 60 72" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.7"/>
-            <!-- Chin cleft -->
-            <path d="M53 76 Q55 78 57 76" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.6"/>
-
-            <!-- Cheekbone shading lines -->
-            <path d="M36 58 Q38 60 40 61" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
-            <path d="M36 61 Q38 63 40 64" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
-            <path d="M74 58 Q72 60 70 61" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
-
-            <!-- Jaw definition -->
-            <path d="M34 63 Q36 70 40 74 Q47 80 55 81 Q63 80 70 74 Q74 70 76 63" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.7"/>
-
-            <!-- ═══ NECK & ARMOR ═══ -->
-            <!-- Neck -->
-            <path d="M48 79 L47 88 Q47 90 55 91 Q63 90 63 88 L62 79" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.3)" stroke-width="0.9"/>
-            <!-- Neck lines (engraving) -->
-            <line x1="49" y1="82" x2="61" y2="82" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
-            <line x1="49" y1="85" x2="61" y2="85" stroke="rgba(255,255,255,0.09)" stroke-width="0.4"/>
-
-            <!-- Shoulder armor / pauldron -->
-            <path d="M30 92 Q35 86 47 88 Q55 91 63 88 Q75 86 80 92 Q85 96 85 102" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-            <path d="M28 96 Q34 88 47 90 Q55 93 63 90 Q76 88 82 96" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.6"/>
-            <!-- Armor detail lines -->
-            <path d="M32 95 Q38 91 46 92 Q55 94 64 92 Q72 91 78 95" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.5"/>
-            <!-- Armor rivets/studs suggestion -->
-            <circle cx="37" cy="94" r="1" fill="rgba(255,255,255,0.2)"/>
-            <circle cx="55" cy="95" r="1" fill="rgba(255,255,255,0.2)"/>
-            <circle cx="73" cy="94" r="1" fill="rgba(255,255,255,0.2)"/>
-
-            <!-- Chest/breastplate curves -->
-            <path d="M36 100 Q45 96 55 97 Q65 96 74 100" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.7"/>
-
-            <!-- Radial light lines from behind head (engraving halo) -->
-            <line x1="55" y1="14" x2="55" y2="8" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
-            <line x1="65" y1="16" x2="68" y2="10" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
-            <line x1="45" y1="16" x2="42" y2="10" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
-            <line x1="73" y1="22" x2="77" y2="17" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
-            <line x1="37" y1="22" x2="33" y2="17" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+        <!-- Abstract geometric watermark — elegant, professional -->
+        <div style="position:absolute;right:-18px;top:50%;transform:translateY(-52%);opacity:0.13;pointer-events:none;">
+          <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Outer ring -->
+            <circle cx="90" cy="90" r="84" stroke="white" stroke-width="1"/>
+            <circle cx="90" cy="90" r="70" stroke="white" stroke-width="0.6"/>
+            <!-- Inner geometric star / crystal -->
+            <polygon points="90,10 104,76 172,76 116,118 138,184 90,144 42,184 64,118 8,76 76,76" stroke="white" stroke-width="0.8" fill="none"/>
+            <!-- Inner circle cross -->
+            <circle cx="90" cy="90" r="28" stroke="white" stroke-width="0.8"/>
+            <line x1="90" y1="62" x2="90" y2="118" stroke="white" stroke-width="0.6"/>
+            <line x1="62" y1="90" x2="118" y2="90" stroke="white" stroke-width="0.6"/>
+            <!-- Diagonal accents -->
+            <line x1="70" y1="70" x2="110" y2="110" stroke="white" stroke-width="0.4"/>
+            <line x1="110" y1="70" x2="70" y2="110" stroke="white" stroke-width="0.4"/>
+            <!-- Tick marks -->
+            <line x1="90" y1="6" x2="90" y2="14" stroke="white" stroke-width="1.2"/>
+            <line x1="90" y1="166" x2="90" y2="174" stroke="white" stroke-width="1.2"/>
+            <line x1="6" y1="90" x2="14" y2="90" stroke="white" stroke-width="1.2"/>
+            <line x1="166" y1="90" x2="174" y2="90" stroke="white" stroke-width="1.2"/>
           </svg>
         </div>
 
@@ -4110,7 +4049,7 @@ document.addEventListener('keydown', (e) => {
           <div id="detailExpiry" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#8898AA;">••/••</div>
         </div>
         <!-- CVV -->
-        <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;">
+        <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid #F0F4FA;">
           <div style="width:40px;height:40px;border-radius:12px;background:#FFF4E0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#F5A623" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="#F5A623" stroke-width="2"/></svg>
           </div>
@@ -4118,6 +4057,17 @@ document.addEventListener('keydown', (e) => {
             <div style="font-size:12px;font-weight:700;color:#1A1F36;">CVV (3-digit kode keamanan)</div>
           </div>
           <div id="detailCvv" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#8898AA;">•••</div>
+        </div>
+        <!-- Limit Available -->
+        <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;">
+          <div style="width:40px;height:40px;border-radius:12px;background:#E6F7F2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#00B37D" stroke-width="2"/><path d="M12 7v5l3 3" stroke="#00B37D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12h4" stroke="#00B37D" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:700;color:#1A1F36;">Limit Available</div>
+            <div style="font-size:9px;color:#8898AA;font-weight:600;margin-top:1px;">Credit limit tersedia</div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#00B37D;">$2,500,000</div>
         </div>
       </div>
 
@@ -4692,6 +4642,148 @@ async function sendCapybaraMsg() {
     btn.style.pointerEvents = '';
   }
 }
+</script>
+
+<script>
+// ─── MISSION COUNTDOWN & TEAM ROSTER ─────────────────────
+(function() {
+  // Full team pool
+  const ALL_TEAM = ['Christabel','Hendrik','Putra','Charles','Anita','Renata','Dave','Rayne','Morgan'];
+
+  // Per-mission team assignments (seeded shuffle, consistent)
+  // Hungary (idx 0): Christabel + 2 others fixed
+  // Others: random 3-5 from pool
+
+  function seededShuffle(arr, seed) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      seed = (seed * 9301 + 49297) % 233280;
+      const j = Math.floor((seed / 233280) * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // Build mission team map
+  // Index 0 = Hungary: Christabel fixed + 2 others
+  const hungarySeed = 42;
+  const othersForHungary = seededShuffle(ALL_TEAM.filter(n => n !== 'Christabel'), hungarySeed).slice(0, 2);
+  const hungaryTeam = ['Christabel', ...othersForHungary];
+
+  const missionTeams = MISSIONS.map((m, i) => {
+    if (i === 0) return hungaryTeam;
+    const seed = (i + 1) * 137;
+    const shuffled = seededShuffle(ALL_TEAM, seed);
+    const count = 3 + (seed % 3); // 3-5 members
+    return shuffled.slice(0, count);
+  });
+
+  function getNextMission() {
+    const now = new Date();
+    // Format: "01 – 04 May 2026"
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    for (let i = 0; i < MISSIONS.length; i++) {
+      const m = MISSIONS[i];
+      const full = m.date.replace(/\s+/g,' ').trim();
+      const dashParts = full.split(/\s*[–-]\s*/);
+      const startDay = parseInt(dashParts[0]);
+      const endParts = (dashParts[1] || '').trim().split(' ');
+      let mon = -1, yr = -1, endDay = -1;
+      for (let k = 0; k < endParts.length; k++) {
+        const idx = monthNames.indexOf(endParts[k]);
+        if (idx >= 0) { mon = idx; yr = parseInt(endParts[k+1]); break; }
+        if (!isNaN(parseInt(endParts[k])) && endDay < 0) endDay = parseInt(endParts[k]);
+      }
+      if (mon < 0 || isNaN(yr) || isNaN(startDay)) continue;
+      if (endDay < 0) endDay = startDay;
+      const endDate = new Date(yr, mon, endDay + 1, 0, 0, 0); // day after end
+      if (endDate > now) {
+        // Use start date for countdown if mission not started yet, else show 0
+        const startDate = new Date(yr, mon, startDay, 0, 0, 0);
+        return { idx: i, date: startDate > now ? startDate : now, active: startDate <= now };
+      }
+    }
+    return null;
+  }
+
+  function renderTeamChips(team) {
+    const el = document.getElementById('mcdTeamList');
+    if (!el) return;
+    el.innerHTML = team.map(name => {
+      const isChristabel = name === 'Christabel';
+      return `<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;font-family:'Nunito',sans-serif;
+        background:${isChristabel ? 'linear-gradient(135deg,#0066FF,#0044CC)' : '#fff'};
+        color:${isChristabel ? '#fff' : '#525F7F'};
+        border:1.5px solid ${isChristabel ? 'transparent' : '#E4E9F2'};
+        box-shadow:${isChristabel ? '0 2px 8px rgba(0,102,255,0.25)' : '0 1px 4px rgba(0,0,0,0.04)'};
+        letter-spacing:0.02em;">
+        ${isChristabel ? '⭐ ' : ''}${name}
+      </span>`;
+    }).join('');
+  }
+
+  function tickCountdown() {
+    const next = getNextMission();
+    if (!next) {
+      const labelEl = document.getElementById('mcdNextLabel');
+      const flagEl  = document.getElementById('mcdNextFlag');
+      if (labelEl) labelEl.textContent = 'Semua misi telah selesai';
+      if (flagEl)  flagEl.textContent = '✅';
+      ['mcdDays','mcdHours','mcdMins','mcdSecs'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = '00'; el.style.color = '#8898AA'; }
+      });
+      return;
+    }
+
+    const m = MISSIONS[next.idx];
+    const labelEl = document.getElementById('mcdNextLabel');
+    const flagEl  = document.getElementById('mcdNextFlag');
+
+    if (next.active) {
+      if (labelEl) labelEl.textContent = `🔴 BERLANGSUNG · #${m.num} ${m.city}, ${m.country} · ${m.date}`;
+      if (flagEl)  flagEl.textContent = m.flag;
+      // Show 00:00:00:00 when active
+      ['mcdDays','mcdHours','mcdMins','mcdSecs'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = '00'; el.style.color = '#00B37D'; }
+      });
+    } else {
+      if (labelEl) labelEl.textContent = `#${m.num} · ${m.city}, ${m.country} · ${m.date}`;
+      if (flagEl)  flagEl.textContent = m.flag;
+
+      const diff = next.date - new Date();
+      const totalSec = Math.max(0, Math.floor(diff / 1000));
+      const days  = Math.floor(totalSec / 86400);
+      const hours = Math.floor((totalSec % 86400) / 3600);
+      const mins  = Math.floor((totalSec % 3600) / 60);
+      const secs  = totalSec % 60;
+      const pad = n => String(n).padStart(2, '0');
+
+      const dEl = document.getElementById('mcdDays');
+      const hEl = document.getElementById('mcdHours');
+      const mEl = document.getElementById('mcdMins');
+      const sEl = document.getElementById('mcdSecs');
+      if (dEl) { dEl.textContent = days; dEl.style.color = '#0066FF'; }
+      if (hEl) { hEl.textContent = pad(hours); hEl.style.color = '#0066FF'; }
+      if (mEl) { mEl.textContent = pad(mins);  mEl.style.color = '#0066FF'; }
+      if (sEl) { sEl.textContent = pad(secs);  sEl.style.color = '#0066FF'; }
+    }
+
+    renderTeamChips(missionTeams[next.idx]);
+  }
+
+  // Start after main content is unlocked — poll until element exists
+  function startWhenReady() {
+    if (document.getElementById('mcdDays')) {
+      tickCountdown();
+      setInterval(tickCountdown, 1000);
+    } else {
+      setTimeout(startWhenReady, 300);
+    }
+  }
+  startWhenReady();
+})();
 </script>
 
 </div><!-- end #mainContent -->
