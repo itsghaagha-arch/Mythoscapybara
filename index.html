@@ -1003,6 +1003,21 @@
       <div style="font-size:12px;font-weight:800;color:#1A1F36;letter-spacing:0.01em;line-height:1.4;">Request<br>Weapon</div>
     </div>
 
+    <!-- Capybara AI — full width -->
+    <div onclick="openCapybaraChat()" class="menu-card" style="border:1px solid #E4E9F2;grid-column:1/-1;display:flex;align-items:center;gap:16px;padding:16px 20px;text-align:left;">
+      <div style="width:54px;height:54px;border-radius:16px;background:#F4F6FB;border:1px solid #E4E9F2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span style="font-size:28px;line-height:1;">🐾</span>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:900;color:#1A1F36;">Capybara AI</div>
+        <div style="font-size:11px;color:#8898AA;margin-top:2px;font-weight:600;">Asisten cerdas MYTHOS</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;background:#E6F7F2;border-radius:20px;padding:4px 12px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#00B37D;animation:dotPulse 1.2s infinite;"></div>
+        <span style="font-size:9px;font-weight:800;color:#00B37D;letter-spacing:0.1em;">ONLINE</span>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1080,12 +1095,43 @@ const MISSIONS = [
    detail:{codename:'OP-BLACKOUT',assets:'MYTHOS Node Cluster — Marina Bay',contact:'Asset ZERO — Classified',exfil:'Classified — Protocol Omega',risk:'CRITICAL',clearance:'OMEGA-1'}},
 ];
 const cityIcons={'Budapest':'🏰','Taipei':'🖥️','Singapore':'🦁','Bangkok':'🛕','Ho Chi Minh City':'🌿','Tokyo':'⛩️','Seoul':'🗼','Hanoi':'🏯','Osaka':'🏯'};
-const missionState={};
 const missionUnlocked={};
 const missionFails={};
 
-function acceptMission(i){missionState[i]='accepted';renderMissionItem(i);}
-function rejectMission(i){missionState[i]='rejected';renderMissionItem(i);}
+// ── MISSION STATE: persisted to localStorage ──────────────────
+const MISSION_STORAGE_KEY = 'mythos_mission_states_v1';
+
+function _loadMissionStates() {
+  try {
+    const raw = localStorage.getItem(MISSION_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch(e) { return {}; }
+}
+function _saveMissionStates() {
+  try { localStorage.setItem(MISSION_STORAGE_KEY, JSON.stringify(missionState)); } catch(e) {}
+}
+// { [index]: { status: 'accepted'|'rejected', ts: timestamp_ms } }
+const missionState = _loadMissionStates();
+
+function _formatMissionTs(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2,'0');
+  const days = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  return `${days[d.getDay()]}, ${pad(d.getDate())} ${months[d.getMonth()]} ${d.getFullYear()} — ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function acceptMission(i) {
+  missionState[i] = { status: 'accepted', ts: Date.now() };
+  _saveMissionStates();
+  renderMissionItem(i);
+}
+function rejectMission(i) {
+  missionState[i] = { status: 'rejected', ts: Date.now() };
+  _saveMissionStates();
+  renderMissionItem(i);
+}
 
 function verifyMissionPw(i) {
   const inp = document.getElementById('mpw-'+i);
@@ -1111,7 +1157,9 @@ function renderMissionItem(i){
   const el=document.getElementById('mop-'+i);
   if(!el)return;
   const m=MISSIONS[i];
-  const state=missionState[i]||null;
+  const stateObj = missionState[i] || null;
+  const state = stateObj ? stateObj.status : null;
+  const stateTs = stateObj ? stateObj.ts : null;
   const isMand=m.type==='MANDATORY';
   const locIcon=cityIcons[m.city]||'🎯';
   const isUnlocked=!!missionUnlocked[i];
@@ -1119,6 +1167,15 @@ function renderMissionItem(i){
   const clkSvg=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.9)" stroke-width="2"/><path d="M12 7v5l3 3" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round"/></svg>`;
   const typeBadge=`<span class="mission-badge ${isMand?'badge-mandatory':'badge-optional'}">${isMand?starSvg:clkSvg}&nbsp;${m.type}</span>`;
   const statBadge=state==='accepted'?`<span class="mission-badge badge-accepted">✓&nbsp;ACCEPTED</span>`:state==='rejected'?`<span class="mission-badge badge-rejected">✕&nbsp;REJECTED</span>`:'';
+
+  // Timestamp note (shown when accepted/rejected)
+  const tsLabel = state === 'accepted' ? 'Approved' : state === 'rejected' ? 'Rejected' : '';
+  const tsBlock = stateTs ? `
+    <div style="display:flex;align-items:center;gap:5px;margin-top:6px;padding:5px 10px;background:${state==='accepted'?'rgba(0,179,125,0.08)':'rgba(136,152,170,0.08)'};border:1px solid ${state==='accepted'?'rgba(0,179,125,0.2)':'rgba(136,152,170,0.15)'};border-radius:7px;">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="${state==='accepted'?'#00B37D':'#8898AA'}" stroke-width="2"/><path d="M12 7v5l3 3" stroke="${state==='accepted'?'#00B37D':'#8898AA'}" stroke-width="2" stroke-linecap="round"/></svg>
+      <span style="font-size:9px;font-weight:700;color:${state==='accepted'?'#007A56':'#525F7F'};letter-spacing:0.04em;">${tsLabel}: ${_formatMissionTs(stateTs)}</span>
+    </div>` : '';
+
   const btns=!state?(isMand
     ?`<div style="display:flex;gap:8px;margin-top:4px;"><button class="mission-action-btn btn-accept" onclick="acceptMission(${i})">✓ Accept</button></div>`
     :`<div style="display:flex;gap:8px;margin-top:4px;"><button class="mission-action-btn btn-accept" onclick="acceptMission(${i})">✓ Accept</button><button class="mission-action-btn btn-reject" onclick="rejectMission(${i})">✕ Reject</button></div>`
@@ -1187,6 +1244,7 @@ function renderMissionItem(i){
     <div class="mission-location">${m.flag} ${locIcon} ${m.city} <span style="font-size:10px;color:#8898AA;font-weight:600;">${m.country}</span></div>
     <div class="mission-desc">MISSION: ${m.mission}</div>
     <div class="mission-status-row">${typeBadge}${statBadge}</div>
+    ${tsBlock}
     ${detailBox}
     ${btns}`;
 }
@@ -1814,21 +1872,99 @@ function showDestinationForm(type) {
   const color = isParade ? '#1A1F36' : '#00B37D';
   const colorDark = isParade ? '#2D3561' : '#007A56';
   const label = isParade ? 'Black Parade' : 'Helicopter';
-  const ph = isParade ? 'Masukkan tujuan konvoi...' : 'Pilih area tujuan...';
 
-  const inputHtml = isParade
-    ? `<input id="destInput" type="text" placeholder="${ph}"
-        style="width:100%;padding:14px 16px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:#1A1F36;outline:none;"
-        onfocus="this.style.borderColor='#0066FF';this.style.background='#EBF2FF'"
-        onblur="this.style.borderColor='#E4EDFF';this.style.background='#F4F7FF'"
-        onkeydown="if(event.key==='Enter')submitDestination()">`
-    : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px;">
-        ${HELI_AREAS.map(a=>`<button onclick="selectHeliArea(this,'${a}')" class="heli-area-btn" style="padding:10px 8px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#1A1F36;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;">${a}</button>`).join('')}
+  if (isParade) {
+    // ── BLACK PARADE: Nominatim OSM Autocomplete ──
+    document.getElementById('menuModalContent').innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+        <div style="width:52px;height:52px;border-radius:16px;background:#1A1F36;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 4px 16px rgba(26,31,54,0.35);">🚗</div>
+        <div>
+          <div style="font-size:17px;font-weight:900;color:#1A1F36;">Request Black Parade</div>
+          <div style="font-size:12px;color:#8898AA;margin-top:2px;">Cari tujuan konvoi via OpenStreetMap</div>
+        </div>
       </div>
-      <input id="destInput" type="hidden" value="">
-      <div id="heliAreaError" style="font-size:11px;color:#E5303A;font-weight:700;min-height:16px;margin-top:4px;text-align:center;"></div>`;
 
-  const coverageNote = isParade ? '' : `
+      <!-- GPS Detect Current Location -->
+      <button id="osmGpsBtn" onclick="detectMyLocation()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;background:linear-gradient(135deg,#EBF2FF,#D6E8FF);border:2px solid #B3CFFF;border-radius:12px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:#0044CC;cursor:pointer;margin-bottom:10px;transition:all 0.15s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='linear-gradient(135deg,#D6E8FF,#BDD6FF)'" onmouseout="this.style.background='linear-gradient(135deg,#EBF2FF,#D6E8FF)'">
+        <span id="osmGpsIcon" style="font-size:18px;">📡</span>
+        <span id="osmGpsLabel">Deteksi Lokasi Saya Sekarang</span>
+      </button>
+
+      <!-- Divider -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="flex:1;height:1px;background:#E4EDFF;"></div>
+        <span style="font-size:10px;font-weight:700;color:#B0BAD0;letter-spacing:0.08em;">ATAU CARI MANUAL</span>
+        <div style="flex:1;height:1px;background:#E4EDFF;"></div>
+      </div>
+
+      <!-- OSM Search Box -->
+      <div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">📍 Cari Tujuan</div>
+      <div style="position:relative;margin-bottom:6px;">
+        <input id="osmSearchInput" type="text" placeholder="Ketik nama tempat, jalan, kota..."
+          autocomplete="off"
+          style="width:100%;padding:13px 44px 13px 14px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:#1A1F36;outline:none;transition:border-color 0.2s,background 0.2s;"
+          onfocus="this.style.borderColor='#1A1F36';this.style.background='#fff'"
+          onblur="setTimeout(()=>{this.style.borderColor='#E4EDFF';this.style.background='#F4F7FF'},200)"
+          oninput="onOsmInput(this.value)">
+        <div id="osmSpinner" style="display:none;position:absolute;right:14px;top:50%;transform:translateY(-50%);">
+          <div style="width:16px;height:16px;border:2px solid #E4EDFF;border-top-color:#1A1F36;border-radius:50%;animation:spin 0.7s linear infinite;"></div>
+        </div>
+        <div id="osmSearchIcon" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:16px;color:#8898AA;">🔍</div>
+      </div>
+
+      <!-- Dropdown suggestions -->
+      <div id="osmSuggestions" style="display:none;background:#fff;border:1.5px solid #E4EDFF;border-radius:12px;overflow:hidden;box-shadow:0 6px 24px rgba(0,70,180,0.10);margin-bottom:8px;max-height:180px;overflow-y:auto;"></div>
+
+      <!-- Selected location card -->
+      <div id="osmSelectedCard" style="display:none;background:linear-gradient(135deg,#1A1F36,#2D3561);border-radius:14px;padding:14px;margin-bottom:4px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+          <div style="font-size:22px;flex-shrink:0;">📍</div>
+          <div style="flex:1;min-width:0;">
+            <div id="osmSelectedName" style="font-size:13px;font-weight:800;color:#fff;line-height:1.4;"></div>
+            <div id="osmSelectedAddress" style="font-size:10px;color:rgba(255,255,255,0.55);margin-top:4px;line-height:1.5;"></div>
+            <div id="osmSelectedCoord" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(100,160,255,0.7);margin-top:6px;"></div>
+          </div>
+          <button onclick="clearOsmSelection()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:rgba(255,255,255,0.5);font-size:12px;padding:4px 8px;cursor:pointer;flex-shrink:0;">✕</button>
+        </div>
+        <!-- Mini OSM static map preview -->
+        <div id="osmMapPreview" style="margin-top:10px;border-radius:10px;overflow:hidden;height:100px;background:#0a0f2e;display:flex;align-items:center;justify-content:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);">Memuat peta...</div>
+        </div>
+      </div>
+
+      <div id="osmError" style="font-size:11px;color:#E5303A;font-weight:700;min-height:16px;text-align:center;"></div>
+
+      <style>
+        @keyframes spin { from{transform:translateY(-50%) rotate(0deg)} to{transform:translateY(-50%) rotate(360deg)} }
+      </style>
+    `;
+
+    document.getElementById('menuBottomBtn').innerHTML = `
+      <button id="osmConfirmBtn" onclick="submitDestination()" disabled
+        style="width:100%;padding:14px;background:#9AA0B0;color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;cursor:not-allowed;transition:background 0.2s,box-shadow 0.2s;">
+        🗺️ PILIH LOKASI DULU
+      </button>
+      <button onclick="closeModalMenu()" style="width:100%;padding:12px;background:none;border:none;color:#8898AA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;">Batal</button>
+    `;
+
+    openModal();
+    setTimeout(() => { const inp = document.getElementById('osmSearchInput'); if(inp) inp.focus(); }, 350);
+
+    // Init state
+    window._osmSelected = null;
+    window._osmDebounceTimer = null;
+    return;
+  }
+
+  // ── HELICOPTER: original area selector ──
+  const ph = 'Pilih area tujuan...';
+  const inputHtml = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px;">
+      ${HELI_AREAS.map(a=>`<button onclick="selectHeliArea(this,'${a}')" class="heli-area-btn" style="padding:10px 8px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#1A1F36;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;">${a}</button>`).join('')}
+    </div>
+    <input id="destInput" type="hidden" value="">
+    <div id="heliAreaError" style="font-size:11px;color:#E5303A;font-weight:700;min-height:16px;margin-top:4px;text-align:center;"></div>`;
+
+  const coverageNote = `
     <div style="background:#E6F7F2;border:1px solid #B3EDD8;border-radius:10px;padding:10px 12px;margin-bottom:16px;display:flex;align-items:flex-start;gap:8px;">
       <span style="font-size:14px;">📡</span>
       <div style="font-size:11px;color:#007A56;font-weight:600;line-height:1.6;">
@@ -1842,12 +1978,12 @@ function showDestinationForm(type) {
       <div style="width:52px;height:52px;border-radius:16px;background:${color};display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 4px 16px rgba(0,0,0,0.2);">${icon}</div>
       <div>
         <div style="font-size:17px;font-weight:900;color:#1A1F36;">Request ${label}</div>
-        <div style="font-size:12px;color:#8898AA;margin-top:2px;">${isParade ? 'Masukkan tujuan Anda' : 'Pilih area tujuan Anda'}</div>
+        <div style="font-size:12px;color:#8898AA;margin-top:2px;">Pilih area tujuan Anda</div>
       </div>
     </div>
     ${coverageNote}
     <div>
-      <div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">📍 ${isParade ? 'Tujuan' : 'Pilih Area'}</div>
+      <div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">📍 Pilih Area</div>
       ${inputHtml}
     </div>
   `;
@@ -1856,7 +1992,261 @@ function showDestinationForm(type) {
     <button onclick="closeModalMenu()" style="width:100%;padding:12px;background:none;border:none;color:#8898AA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;">Batal</button>
   `;
   openModal();
-  setTimeout(() => { const inp = document.getElementById('destInput'); if(inp && inp.type==='text') inp.focus(); }, 350);
+}
+
+// ── NOMINATIM OSM FUNCTIONS ──────────────────────────────
+function onOsmInput(val) {
+  clearTimeout(window._osmDebounceTimer);
+  const spinner = document.getElementById('osmSpinner');
+  const icon = document.getElementById('osmSearchIcon');
+  const suggestions = document.getElementById('osmSuggestions');
+  const errEl = document.getElementById('osmError');
+  if (errEl) errEl.textContent = '';
+
+  if (val.trim().length < 3) {
+    if (suggestions) suggestions.style.display = 'none';
+    if (spinner) spinner.style.display = 'none';
+    if (icon) icon.style.display = 'block';
+    return;
+  }
+
+  if (spinner) { spinner.style.display = 'block'; icon.style.display = 'none'; }
+
+  window._osmDebounceTimer = setTimeout(async () => {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(val)}&format=json&limit=6&addressdetails=1&accept-language=id`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'id' } });
+      const data = await res.json();
+      if (spinner) { spinner.style.display = 'none'; icon.style.display = 'block'; }
+      renderOsmSuggestions(data);
+    } catch(e) {
+      if (spinner) { spinner.style.display = 'none'; icon.style.display = 'block'; }
+      const errEl = document.getElementById('osmError');
+      if (errEl) errEl.textContent = '⚠️ Gagal memuat. Periksa koneksi internet.';
+    }
+  }, 450);
+}
+
+function renderOsmSuggestions(results) {
+  const box = document.getElementById('osmSuggestions');
+  if (!box) return;
+  if (!results || results.length === 0) {
+    box.style.display = 'block';
+    box.innerHTML = `<div style="padding:14px;text-align:center;font-size:12px;color:#8898AA;font-weight:600;">Lokasi tidak ditemukan 😔</div>`;
+    return;
+  }
+  box.style.display = 'block';
+  box.innerHTML = results.map((r, i) => {
+    const name = r.name || r.display_name.split(',')[0];
+    const shortAddr = r.display_name.split(',').slice(1,4).join(',').trim();
+    const typeIcon = getOsmTypeIcon(r.type, r.class);
+    return `<div onclick="selectOsmResult(${i})" data-osmidx="${i}"
+      style="padding:11px 14px;border-bottom:1px solid #F0F4FF;cursor:pointer;transition:background 0.12s;display:flex;align-items:flex-start;gap:10px;-webkit-tap-highlight-color:transparent;"
+      onmouseover="this.style.background='#F4F7FF'" onmouseout="this.style.background=''"
+      ontouchstart="this.style.background='#F4F7FF'" ontouchend="this.style.background=''">
+      <span style="font-size:16px;flex-shrink:0;margin-top:1px;">${typeIcon}</span>
+      <div style="min-width:0;flex:1;">
+        <div style="font-size:13px;font-weight:700;color:#1A1F36;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
+        <div style="font-size:10px;color:#8898AA;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${shortAddr}</div>
+      </div>
+    </div>`;
+  }).join('');
+  window._osmResults = results;
+}
+
+function getOsmTypeIcon(type, cls) {
+  const map = {
+    city:'🏙️', town:'🏘️', village:'🏡', suburb:'🏘️',
+    road:'🛣️', street:'🛣️', residential:'🏠',
+    hospital:'🏥', school:'🏫', university:'🎓',
+    restaurant:'🍽️', cafe:'☕', hotel:'🏨',
+    airport:'✈️', station:'🚉', bus_stop:'🚌',
+    park:'🌳', forest:'🌲', beach:'🏖️',
+    mosque:'🕌', church:'⛪', temple:'🛕',
+    mall:'🏬', shop:'🏪', supermarket:'🛒',
+    building:'🏢', office:'🏢',
+  };
+  return map[type] || map[cls] || '📍';
+}
+
+function selectOsmResult(idx) {
+  const results = window._osmResults;
+  if (!results || !results[idx]) return;
+  const r = results[idx];
+  window._osmSelected = r;
+
+  const suggestions = document.getElementById('osmSuggestions');
+  if (suggestions) suggestions.style.display = 'none';
+
+  const inp = document.getElementById('osmSearchInput');
+  if (inp) inp.value = r.name || r.display_name.split(',')[0];
+
+  // Show selected card
+  const card = document.getElementById('osmSelectedCard');
+  const nameEl = document.getElementById('osmSelectedName');
+  const addrEl = document.getElementById('osmSelectedAddress');
+  const coordEl = document.getElementById('osmSelectedCoord');
+  const mapEl = document.getElementById('osmMapPreview');
+
+  if (nameEl) nameEl.textContent = r.name || r.display_name.split(',')[0];
+  if (addrEl) addrEl.textContent = r.display_name;
+  if (coordEl) coordEl.textContent = `${parseFloat(r.lat).toFixed(5)}, ${parseFloat(r.lon).toFixed(5)}`;
+
+  // OSM static tile map preview (using OpenStreetMap tile)
+  const lat = parseFloat(r.lat);
+  const lon = parseFloat(r.lon);
+  const zoom = 15;
+  // Use leaflet-like approach: show iframe embed from OSM
+  if (mapEl) {
+    mapEl.innerHTML = `<iframe
+      src="https://www.openstreetmap.org/export/embed.html?bbox=${(lon-0.01).toFixed(4)},${(lat-0.007).toFixed(4)},${(lon+0.01).toFixed(4)},${(lat+0.007).toFixed(4)}&layer=mapnik&marker=${lat},${lon}"
+      style="width:100%;height:100%;border:none;border-radius:10px;"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+    ></iframe>`;
+  }
+
+  if (card) card.style.display = 'block';
+
+  // Enable confirm button
+  const btn = document.getElementById('osmConfirmBtn');
+  if (btn) {
+    btn.disabled = false;
+    btn.style.background = 'linear-gradient(135deg,#1A1F36,#2D3561)';
+    btn.style.boxShadow = '0 6px 20px rgba(26,31,54,0.35)';
+    btn.style.cursor = 'pointer';
+    btn.textContent = '🚗 KONFIRMASI TUJUAN';
+  }
+}
+
+function clearOsmSelection() {
+  window._osmSelected = null;
+  const card = document.getElementById('osmSelectedCard');
+  if (card) card.style.display = 'none';
+  const inp = document.getElementById('osmSearchInput');
+  if (inp) { inp.value = ''; inp.focus(); }
+  const btn = document.getElementById('osmConfirmBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.style.background = '#9AA0B0';
+    btn.style.boxShadow = 'none';
+    btn.style.cursor = 'not-allowed';
+    btn.textContent = '🗺️ PILIH LOKASI DULU';
+  }
+}
+
+async function detectMyLocation() {
+  const gpsBtn = document.getElementById('osmGpsBtn');
+  const gpsIcon = document.getElementById('osmGpsIcon');
+  const gpsLabel = document.getElementById('osmGpsLabel');
+  const errEl = document.getElementById('osmError');
+
+  if (!navigator.geolocation) {
+    if (errEl) errEl.textContent = '⚠️ Browser tidak mendukung GPS.';
+    return;
+  }
+
+  // Loading state
+  if (gpsBtn) { gpsBtn.disabled = true; gpsBtn.style.opacity = '0.7'; }
+  if (gpsIcon) gpsIcon.textContent = '⏳';
+  if (gpsLabel) gpsLabel.textContent = 'Mendeteksi lokasi...';
+  if (errEl) errEl.textContent = '';
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      const acc = Math.round(pos.coords.accuracy);
+
+      if (gpsIcon) gpsIcon.textContent = '🔄';
+      if (gpsLabel) gpsLabel.textContent = 'Memuat alamat...';
+
+      try {
+        // Reverse geocode with Nominatim
+        const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&accept-language=id`;
+        const res = await fetch(url, { headers: { 'Accept-Language': 'id' } });
+        const data = await res.json();
+
+        // Build a fake OSM result object compatible with selectOsmResult flow
+        const fakeResult = {
+          lat: String(lat),
+          lon: String(lon),
+          name: data.name || data.address?.road || data.address?.suburb || 'Lokasi Saya',
+          display_name: data.display_name,
+          type: data.type,
+          class: data.class,
+          _isGps: true,
+          _accuracy: acc
+        };
+
+        window._osmSelected = fakeResult;
+        window._osmSelectedCoord = { lat, lon, display: data.display_name };
+
+        // Update search input
+        const inp = document.getElementById('osmSearchInput');
+        const shortName = data.name || data.address?.road || data.address?.suburb || 'Lokasi GPS Saya';
+        if (inp) inp.value = '📡 ' + shortName;
+
+        // Show selected card
+        const card = document.getElementById('osmSelectedCard');
+        const nameEl = document.getElementById('osmSelectedName');
+        const addrEl = document.getElementById('osmSelectedAddress');
+        const coordEl = document.getElementById('osmSelectedCoord');
+        const mapEl = document.getElementById('osmMapPreview');
+
+        if (nameEl) nameEl.innerHTML = `<span style="font-size:10px;background:rgba(0,179,125,0.25);color:#6FFFCA;border-radius:4px;padding:1px 6px;margin-right:5px;font-weight:700;">📡 GPS</span>${shortName}`;
+        if (addrEl) addrEl.textContent = data.display_name;
+        if (coordEl) coordEl.textContent = `${lat.toFixed(6)}, ${lon.toFixed(6)}  ±${acc}m`;
+
+        if (mapEl) {
+          mapEl.innerHTML = `<iframe
+            src="https://www.openstreetmap.org/export/embed.html?bbox=${(lon-0.01).toFixed(4)},${(lat-0.007).toFixed(4)},${(lon+0.01).toFixed(4)},${(lat+0.007).toFixed(4)}&layer=mapnik&marker=${lat},${lon}"
+            style="width:100%;height:100%;border:none;border-radius:10px;"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+          ></iframe>`;
+        }
+        if (card) card.style.display = 'block';
+
+        // Enable confirm button
+        const confirmBtn = document.getElementById('osmConfirmBtn');
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.style.background = 'linear-gradient(135deg,#1A1F36,#2D3561)';
+          confirmBtn.style.boxShadow = '0 6px 20px rgba(26,31,54,0.35)';
+          confirmBtn.style.cursor = 'pointer';
+          confirmBtn.textContent = '🚗 KONFIRMASI TUJUAN';
+        }
+
+        // Reset GPS button
+        if (gpsBtn) { gpsBtn.disabled = false; gpsBtn.style.opacity = '1'; }
+        if (gpsIcon) gpsIcon.textContent = '✅';
+        if (gpsLabel) gpsLabel.textContent = 'Lokasi terdeteksi!';
+        setTimeout(() => {
+          if (gpsIcon) gpsIcon.textContent = '📡';
+          if (gpsLabel) gpsLabel.textContent = 'Deteksi Ulang Lokasi';
+        }, 2500);
+
+      } catch(e) {
+        if (errEl) errEl.textContent = '⚠️ Gagal reverse geocode. Coba lagi.';
+        if (gpsBtn) { gpsBtn.disabled = false; gpsBtn.style.opacity = '1'; }
+        if (gpsIcon) gpsIcon.textContent = '📡';
+        if (gpsLabel) gpsLabel.textContent = 'Deteksi Lokasi Saya Sekarang';
+      }
+    },
+    (err) => {
+      if (gpsBtn) { gpsBtn.disabled = false; gpsBtn.style.opacity = '1'; }
+      if (gpsIcon) gpsIcon.textContent = '📡';
+      if (gpsLabel) gpsLabel.textContent = 'Deteksi Lokasi Saya Sekarang';
+      const msgs = {
+        1: '⚠️ Izin lokasi ditolak. Aktifkan GPS di pengaturan browser.',
+        2: '⚠️ Sinyal GPS lemah. Coba di area terbuka.',
+        3: '⚠️ Timeout deteksi GPS. Coba lagi.'
+      };
+      if (errEl) errEl.textContent = msgs[err.code] || '⚠️ Gagal mendeteksi lokasi.';
+    },
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+  );
 }
 
 function selectHeliArea(btn, area) {
@@ -2015,9 +2405,25 @@ function showJetConfirmed(dest, dateRange) {
 }
 
 function submitDestination() {
-  const destEl = document.getElementById('destInput');
-  const dest = destEl ? destEl.value.trim() : '';
   const type = window._currentMenuType;
+  let dest = '';
+
+  // Black Parade: use OSM selection
+  if (type === 'parade') {
+    const osmSel = window._osmSelected;
+    if (!osmSel) {
+      const errEl = document.getElementById('osmError');
+      if (errEl) errEl.textContent = '⚠️ Pilih lokasi tujuan dari hasil pencarian.';
+      return;
+    }
+    const name = osmSel.name || osmSel.display_name.split(',')[0];
+    const addr = osmSel.display_name.split(',').slice(0,3).join(',').trim();
+    dest = name + (addr ? ' — ' + addr : '');
+    window._osmSelectedCoord = { lat: parseFloat(osmSel.lat), lon: parseFloat(osmSel.lon), display: osmSel.display_name };
+  } else {
+    const destEl = document.getElementById('destInput');
+    dest = destEl ? destEl.value.trim() : '';
+  }
 
   // Validate helicopter area
   if (type === 'heli') {
@@ -2125,11 +2531,20 @@ function showUnitConnected(dest, type) {
         <div style="font-size:10px;color:#8898AA;margin-top:3px;">menuju lokasi Anda</div>
       </div>
     </div>
-    <div style="background:#F4F7FF;border:1px solid #E4EDFF;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
-      <div style="font-size:20px;">🎯</div>
-      <div>
+    <div style="background:#F4F7FF;border:1px solid #E4EDFF;border-radius:12px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;">
+      <div style="font-size:20px;flex-shrink:0;">🎯</div>
+      <div style="flex:1;min-width:0;">
         <div style="font-size:10px;font-weight:700;color:#8898AA;letter-spacing:0.08em;">TUJUAN</div>
-        <div style="font-size:13px;font-weight:700;color:#1A1F36;margin-top:2px;">${dest || '—'}</div>
+        <div style="font-size:13px;font-weight:700;color:#1A1F36;margin-top:2px;line-height:1.4;">${dest || '—'}</div>
+        ${isParade && window._osmSelectedCoord ? `
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#8898AA;margin-top:5px;">
+          📡 ${window._osmSelectedCoord.lat.toFixed(5)}, ${window._osmSelectedCoord.lon.toFixed(5)}
+        </div>
+        <a href="https://www.openstreetmap.org/?mlat=${window._osmSelectedCoord.lat}&mlon=${window._osmSelectedCoord.lon}#map=16/${window._osmSelectedCoord.lat}/${window._osmSelectedCoord.lon}"
+           target="_blank" rel="noopener"
+           style="display:inline-block;margin-top:6px;font-size:10px;font-weight:700;color:#0066FF;text-decoration:none;">
+          🗺️ Buka di OpenStreetMap →
+        </a>` : ''}
       </div>
     </div>
   `;
@@ -3304,8 +3719,8 @@ function numOk() {
       main.style.display = 'block';
       main.style.animation = 'fadeInMain 0.5s ease both';
       showGreeting(selectedUser);
-      // Show My Orders button
-      const ob = document.getElementById('myOrdersBtn');
+      // Show floating side menu
+      const ob = document.getElementById('floatingSideMenu');
       if (ob) { ob.style.display = 'flex'; }
     }, 650);
   } else {
@@ -3433,13 +3848,30 @@ document.addEventListener('keydown', (e) => {
   </div>
 </div>
 
-<!-- MY ORDERS FLOATING BUTTON -->
-<div id="myOrdersBtn" onclick="openOrdersPanel()" style="position:fixed;bottom:24px;right:20px;z-index:4000;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#0066FF,#0044CC);display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(0,102,255,0.35);-webkit-tap-highlight-color:transparent;transition:all 0.2s;">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M9 12h6M9 16h4" stroke="white" stroke-width="2" stroke-linecap="round"/>
-  </svg>
-  <div id="orderBadge" style="display:none;position:absolute;top:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:#E5303A;color:#fff;font-size:10px;font-weight:800;align-items:center;justify-content:center;border:2px solid #fff;font-family:'Nunito',sans-serif;"></div>
+<!-- FLOATING SIDE MENU (center kanan) -->
+<div id="floatingSideMenu" style="position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:4000;display:none;flex-direction:column;gap:0;align-items:flex-end;">
+  <!-- My Orders Button -->
+  <div onclick="openOrdersPanel()" style="position:relative;display:flex;align-items:center;cursor:pointer;margin-bottom:3px;-webkit-tap-highlight-color:transparent;" id="myOrdersBtn">
+    <div style="background:linear-gradient(135deg,#0066FF,#0044CC);width:52px;height:52px;border-radius:14px 0 0 14px;display:flex;align-items:center;justify-content:center;box-shadow:-4px 4px 16px rgba(0,102,255,0.35);transition:all 0.2s;flex-direction:column;gap:2px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9 12h6M9 16h4" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span style="font-size:7px;font-weight:800;color:rgba(255,255,255,0.85);letter-spacing:0.04em;font-family:'Nunito',sans-serif;">ORDERS</span>
+    </div>
+    <div id="orderBadge" style="display:none;position:absolute;top:-4px;left:-4px;width:18px;height:18px;border-radius:50%;background:#E5303A;color:#fff;font-size:9px;font-weight:800;align-items:center;justify-content:center;border:2px solid #fff;font-family:'Nunito',sans-serif;"></div>
+  </div>
+  <!-- My Card Button -->
+  <div onclick="openCardPanel()" style="display:flex;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+    <div style="background:linear-gradient(135deg,#1A1F36,#0D1340);width:52px;height:52px;border-radius:14px 0 0 14px;display:flex;align-items:center;justify-content:center;box-shadow:-4px 4px 16px rgba(0,0,60,0.35);transition:all 0.2s;flex-direction:column;gap:2px;border:1px solid rgba(255,215,0,0.2);border-right:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <rect x="2" y="5" width="20" height="14" rx="3" stroke="#FFD700" stroke-width="2"/>
+        <path d="M2 10h20" stroke="#FFD700" stroke-width="2"/>
+        <path d="M6 15h4" stroke="rgba(255,215,0,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span style="font-size:7px;font-weight:800;color:rgba(255,215,0,0.85);letter-spacing:0.04em;font-family:'Nunito',sans-serif;">MY CARD</span>
+    </div>
+  </div>
 </div>
 
 <!-- MY ORDERS PANEL -->
@@ -3470,7 +3902,378 @@ document.addEventListener('keydown', (e) => {
 #myOrdersPanel.open { display:flex; }
 </style>
 
-<!-- ACCESS DENIED POPUP (untuk user LSS) -->
+<!-- MY CARD PANEL -->
+<div id="myCardPanel" onclick="if(event.target===this)closeCardPanel()" style="display:none;position:fixed;inset:0;z-index:4500;background:rgba(10,15,46,0.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);align-items:flex-end;justify-content:center;opacity:0;transition:opacity 0.28s ease;">
+  <div onclick="event.stopPropagation()" style="background:#F4F6FB;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,50,150,0.18);transform:translateY(20px);transition:transform 0.28s cubic-bezier(0.16,1,0.3,1);" id="myCardPanelInner">
+    <!-- Handle -->
+    <div style="width:36px;height:4px;background:#D0DCFF;border-radius:2px;margin:14px auto 0;flex-shrink:0;"></div>
+    <!-- Header -->
+    <div style="padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid #E4E9F2;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="3" stroke="#0066FF" stroke-width="2"/><path d="M2 10h20" stroke="#0066FF" stroke-width="2"/></svg>
+        <span style="font-size:15px;font-weight:900;color:#1A1F36;letter-spacing:-0.2px;">My Card</span>
+        <span style="background:#1A1A1A;color:#ccc;font-size:10px;font-weight:800;padding:2px 8px;border-radius:8px;letter-spacing:0.06em;">AMEX</span>
+      </div>
+      <div onclick="closeCardPanel()" style="width:30px;height:30px;border-radius:50%;background:#F0F4FF;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#8898AA;">✕</div>
+    </div>
+    <!-- Content -->
+    <div style="flex:1;overflow-y:auto;padding:20px 16px 32px;-webkit-overflow-scrolling:touch;">
+
+      <!-- AMEX CENTURION STYLE CARD -->
+      <div style="background:linear-gradient(160deg,#2a2a2a 0%,#1a1a1a 40%,#111 70%,#0d0d0d 100%);border-radius:20px;padding:20px 22px 18px;position:relative;overflow:hidden;box-shadow:0 16px 50px rgba(0,0,0,0.6),0 2px 0 rgba(255,255,255,0.06) inset;margin-bottom:22px;min-height:200px;border:1px solid rgba(255,255,255,0.07);">
+
+        <!-- Engraved texture overlay -->
+        <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,0.012) 3px,rgba(255,255,255,0.012) 4px);pointer-events:none;border-radius:20px;"></div>
+
+        <!-- Subtle border shine top -->
+        <div style="position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);pointer-events:none;"></div>
+
+        <!-- AMERICAN EXPRESS text top -->
+        <div style="position:absolute;top:18px;left:50%;transform:translateX(-50%);white-space:nowrap;">
+          <div style="font-family:'Nunito',sans-serif;font-size:9px;font-weight:900;letter-spacing:0.32em;color:rgba(255,255,255,0.55);text-transform:uppercase;">AMERICAN EXPRESS</div>
+        </div>
+
+        <!-- Last 4 digits top right (like real Amex) -->
+        <div style="position:absolute;top:14px;right:20px;">
+          <div id="cardNum4" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.1em;">••••</div>
+        </div>
+
+        <!-- Centurion Roman portrait SVG - detailed engraved style -->
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-46%);width:110px;height:110px;">
+          <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Outer oval decorative border with tick marks -->
+            <ellipse cx="55" cy="55" rx="52" ry="52" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" fill="rgba(255,255,255,0.025)"/>
+            <ellipse cx="55" cy="55" rx="48" ry="48" stroke="rgba(255,255,255,0.1)" stroke-width="0.6" fill="none"/>
+            <!-- Tick marks around oval -->
+            <line x1="55" y1="3" x2="55" y2="8" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <line x1="55" y1="102" x2="55" y2="107" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <line x1="3" y1="55" x2="8" y2="55" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <line x1="102" y1="55" x2="107" y2="55" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+            <line x1="19" y1="14" x2="22" y2="18" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+            <line x1="88" y1="14" x2="85" y2="18" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+            <line x1="19" y1="96" x2="22" y2="92" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+            <line x1="88" y1="96" x2="85" y2="92" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+
+            <!-- ═══ HELMET ═══ -->
+            <!-- Helmet base/brim - curves around head -->
+            <path d="M30 46 Q32 40 38 37 Q43 35 55 35 Q67 35 72 37 Q78 40 80 46" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.45)" stroke-width="1.2"/>
+            <!-- Helmet dome -->
+            <path d="M38 37 Q40 28 55 25 Q70 28 72 37" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.4)" stroke-width="1.1"/>
+            <!-- Helmet brim detail line -->
+            <path d="M31 48 Q33 43 38 40 Q43 37 55 37 Q67 37 72 40 Q77 43 79 48" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.6"/>
+            <!-- Cheek guards (left) -->
+            <path d="M30 46 Q27 50 27 57 Q27 63 31 67" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.1"/>
+            <path d="M31 47 Q29 51 29 57 Q29 62 33 66" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
+            <!-- Cheek guards (right) -->
+            <path d="M80 46 Q83 50 83 57 Q83 63 79 67" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.1"/>
+            <path d="M79 47 Q81 51 81 57 Q81 62 77 66" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
+
+            <!-- ═══ CREST / PLUME ═══ -->
+            <!-- Crest base ridge -->
+            <path d="M44 26 Q55 20 66 26" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.3"/>
+            <!-- Crest feathers - flowing right/upward like in photo -->
+            <path d="M55 22 Q62 10 72 6 Q78 4 82 8" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.2"/>
+            <path d="M57 23 Q65 12 74 9 Q80 7 83 11" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.9"/>
+            <path d="M59 24 Q67 14 76 12 Q81 11 83 15" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
+            <path d="M61 25 Q68 17 77 15 Q81 14 82 18" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.6"/>
+            <path d="M53 22 Q58 8 68 5 Q75 3 78 7" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+            <!-- Crest spine -->
+            <path d="M44 26 Q50 18 55 14 Q60 10 65 8" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
+
+            <!-- ═══ FACE ═══ -->
+            <!-- Head/face outline -->
+            <path d="M34 55 Q34 44 38 40 Q43 37 55 37 Q67 37 72 40 Q76 44 76 55 Q76 66 70 72 Q63 78 55 79 Q47 78 40 72 Q34 66 34 55Z" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+
+            <!-- Forehead lines (engraving texture) -->
+            <path d="M42 43 Q55 41 68 43" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+            <path d="M41 46 Q55 44 69 46" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.4"/>
+
+            <!-- Eye sockets (shadowed) -->
+            <ellipse cx="46" cy="53" rx="5" ry="3.5" fill="rgba(0,0,0,0.3)" stroke="rgba(255,255,255,0.28)" stroke-width="0.8"/>
+            <ellipse cx="64" cy="53" rx="5" ry="3.5" fill="rgba(0,0,0,0.3)" stroke="rgba(255,255,255,0.28)" stroke-width="0.8"/>
+            <!-- Iris left -->
+            <ellipse cx="46" cy="53" rx="2.5" ry="2" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.4)" stroke-width="0.7"/>
+            <!-- Iris right -->
+            <ellipse cx="64" cy="53" rx="2.5" ry="2" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.4)" stroke-width="0.7"/>
+            <!-- Eyebrows -->
+            <path d="M41 49 Q46 47 51 49" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1"/>
+            <path d="M59 49 Q64 47 69 49" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1"/>
+
+            <!-- Nose - Roman nose (strong bridge) -->
+            <path d="M55 56 L54 63 Q54 65 55 66 Q56 65 56 63 L55 56Z" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
+            <!-- Nose bridge -->
+            <line x1="55" y1="50" x2="55" y2="56" stroke="rgba(255,255,255,0.2)" stroke-width="0.6"/>
+            <!-- Nose wings -->
+            <path d="M51 64 Q53 66 55 66 Q57 66 59 64" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
+
+            <!-- Mouth / lips -->
+            <path d="M49 70 Q52 68 55 69 Q58 68 61 70" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.9"/>
+            <path d="M50 72 Q52 74 55 73 Q58 74 60 72" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.7"/>
+            <!-- Chin cleft -->
+            <path d="M53 76 Q55 78 57 76" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.6"/>
+
+            <!-- Cheekbone shading lines -->
+            <path d="M36 58 Q38 60 40 61" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
+            <path d="M36 61 Q38 63 40 64" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+            <path d="M74 58 Q72 60 70 61" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
+
+            <!-- Jaw definition -->
+            <path d="M34 63 Q36 70 40 74 Q47 80 55 81 Q63 80 70 74 Q74 70 76 63" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.7"/>
+
+            <!-- ═══ NECK & ARMOR ═══ -->
+            <!-- Neck -->
+            <path d="M48 79 L47 88 Q47 90 55 91 Q63 90 63 88 L62 79" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.3)" stroke-width="0.9"/>
+            <!-- Neck lines (engraving) -->
+            <line x1="49" y1="82" x2="61" y2="82" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+            <line x1="49" y1="85" x2="61" y2="85" stroke="rgba(255,255,255,0.09)" stroke-width="0.4"/>
+
+            <!-- Shoulder armor / pauldron -->
+            <path d="M30 92 Q35 86 47 88 Q55 91 63 88 Q75 86 80 92 Q85 96 85 102" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+            <path d="M28 96 Q34 88 47 90 Q55 93 63 90 Q76 88 82 96" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.6"/>
+            <!-- Armor detail lines -->
+            <path d="M32 95 Q38 91 46 92 Q55 94 64 92 Q72 91 78 95" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="0.5"/>
+            <!-- Armor rivets/studs suggestion -->
+            <circle cx="37" cy="94" r="1" fill="rgba(255,255,255,0.2)"/>
+            <circle cx="55" cy="95" r="1" fill="rgba(255,255,255,0.2)"/>
+            <circle cx="73" cy="94" r="1" fill="rgba(255,255,255,0.2)"/>
+
+            <!-- Chest/breastplate curves -->
+            <path d="M36 100 Q45 96 55 97 Q65 96 74 100" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.7"/>
+
+            <!-- Radial light lines from behind head (engraving halo) -->
+            <line x1="55" y1="14" x2="55" y2="8" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+            <line x1="65" y1="16" x2="68" y2="10" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+            <line x1="45" y1="16" x2="42" y2="10" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+            <line x1="73" y1="22" x2="77" y2="17" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+            <line x1="37" y1="22" x2="33" y2="17" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+          </svg>
+        </div>
+
+        <!-- Member Since + right side info -->
+        <div style="position:absolute;right:20px;top:50%;transform:translateY(-30%);">
+          <div style="font-size:7px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;text-align:center;">MEMBER</div>
+          <div style="font-size:7px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.35);text-transform:uppercase;text-align:center;">SINCE</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:rgba(255,255,255,0.5);text-align:center;margin-top:2px;">20</div>
+        </div>
+
+        <!-- Chip -->
+        <div style="position:absolute;left:20px;top:50%;transform:translateY(-10%);width:38px;height:28px;background:linear-gradient(135deg,#b0a060,#8a7840,#c0a860);border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,0.5);overflow:hidden;">
+          <div style="position:absolute;inset:5px 0;border-top:1px solid rgba(0,0,0,0.2);border-bottom:1px solid rgba(0,0,0,0.2);"></div>
+          <div style="position:absolute;top:0;bottom:0;left:12px;width:1px;background:rgba(0,0,0,0.15);"></div>
+          <div style="position:absolute;top:0;bottom:0;right:12px;width:1px;background:rgba(0,0,0,0.15);"></div>
+        </div>
+
+        <!-- Bottom: Cardholder name left, eye toggle right -->
+        <div style="position:absolute;bottom:18px;left:20px;right:20px;display:flex;align-items:flex-end;justify-content:space-between;">
+          <div>
+            <div style="font-size:7px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px;">Card Holder</div>
+            <div style="font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:rgba(255,255,255,0.75);letter-spacing:0.1em;text-transform:uppercase;">GAVIN W. L. HEBERT</div>
+          </div>
+          <div onclick="toggleCardReveal()" style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" id="cardEyeBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="rgba(255,255,255,0.6)" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="rgba(255,255,255,0.6)" stroke-width="2"/><line x1="3" y1="3" x2="21" y2="21" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" id="cardEyeSlash"/></svg>
+          </div>
+        </div>
+
+        <!-- Hidden card number spans (for JS logic, not visible on card) -->
+        <span id="cardNum1" style="display:none"></span>
+        <span id="cardNum2" style="display:none"></span>
+        <span id="cardNum3" style="display:none"></span>
+        <div id="cardExpiry" style="display:none"></div>
+
+        <!-- ©AMEX watermark -->
+        <div style="position:absolute;bottom:6px;right:20px;font-size:7px;color:rgba(255,255,255,0.15);font-family:'Nunito',sans-serif;letter-spacing:0.06em;">©AMEX</div>
+      </div>
+
+      <!-- DETAIL ROWS (Bank Jago style) -->
+      <div style="display:flex;flex-direction:column;gap:0;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 2px 16px rgba(0,80,200,0.08);">
+        <!-- No Kartu -->
+        <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid #F0F4FA;">
+          <div style="width:40px;height:40px;border-radius:12px;background:#FFF4E0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="3" stroke="#F5A623" stroke-width="2"/><path d="M2 10h20" stroke="#F5A623" stroke-width="2"/><rect x="5" y="13" width="3" height="2" rx="1" fill="#F5A623"/><rect x="10" y="13" width="3" height="2" rx="1" fill="#F5A623"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:700;color:#1A1F36;">No. Kartu</div>
+          </div>
+          <div id="detailCardNum" style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:#8898AA;letter-spacing:0.08em;">•••• •••• •••• ••••</div>
+          <div onclick="copyCardNum()" style="width:28px;height:28px;border-radius:8px;background:#F4F6FB;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#8898AA" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#8898AA" stroke-width="2"/></svg>
+          </div>
+        </div>
+        <!-- Berlaku Sampai -->
+        <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid #F0F4FA;">
+          <div style="width:40px;height:40px;border-radius:12px;background:#FFF4E0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke="#F5A623" stroke-width="2"/><path d="M3 9h18M8 2v4M16 2v4" stroke="#F5A623" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="14" r="1.5" fill="#F5A623"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:700;color:#1A1F36;">Berlaku Sampai</div>
+          </div>
+          <div id="detailExpiry" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#8898AA;">••/••</div>
+        </div>
+        <!-- CVV -->
+        <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;">
+          <div style="width:40px;height:40px;border-radius:12px;background:#FFF4E0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#F5A623" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="#F5A623" stroke-width="2"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:700;color:#1A1F36;">CVV (3-digit kode keamanan)</div>
+          </div>
+          <div id="detailCvv" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#8898AA;">•••</div>
+        </div>
+      </div>
+
+      <!-- Password Gate (shown when locked) -->
+      <div id="cardPasswordGate" style="margin-top:20px;background:#fff;border-radius:18px;padding:20px;box-shadow:0 2px 16px rgba(0,80,200,0.08);">
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="width:48px;height:48px;background:#EBF2FF;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="3" stroke="#0066FF" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#0066FF" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div style="font-size:14px;font-weight:800;color:#1A1F36;margin-bottom:4px;">Detail Kartu Terkunci</div>
+          <div style="font-size:12px;color:#8898AA;line-height:1.5;">Masukkan password untuk melihat<br>detail kartu Anda</div>
+        </div>
+        <div style="position:relative;margin-bottom:12px;">
+          <input id="cardPwInput" type="password" placeholder="Masukkan password" autocomplete="off"
+            style="width:100%;padding:13px 44px 13px 14px;border:1.5px solid #E4E9F2;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:#1A1F36;background:#F4F6FB;outline:none;transition:border-color 0.2s;"
+            onkeydown="if(event.key==='Enter')verifyCardPassword()"
+            onfocus="this.style.borderColor='#0066FF';this.style.background='#fff'"
+            onblur="this.style.borderColor='#E4E9F2';this.style.background='#F4F6FB'">
+          <button onclick="toggleCardPw()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#8898AA;padding:0;">👁</button>
+        </div>
+        <div id="cardPwError" style="font-size:11px;font-weight:700;color:#E5303A;margin-bottom:10px;min-height:16px;text-align:center;"></div>
+        <button onclick="verifyCardPassword()" style="width:100%;padding:13px;background:linear-gradient(135deg,#0066FF,#0044CC);color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.1em;cursor:pointer;box-shadow:0 4px 16px rgba(0,102,255,0.35);text-transform:uppercase;-webkit-tap-highlight-color:transparent;">
+          Buka Detail Kartu
+        </button>
+      </div>
+
+      <!-- Lock again button (shown when unlocked) -->
+      <div id="cardLockAgainBtn" style="display:none;margin-top:16px;text-align:center;">
+        <button onclick="lockCardAgain()" style="background:#F4F6FB;border:1px solid #E4E9F2;color:#8898AA;border-radius:10px;padding:10px 22px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;">
+          🔒 Kunci Kembali
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+#myCardPanel { display:none; opacity:0; }
+</style>
+
+<script>
+// ── MY CARD LOGIC ────────────────────────────────────────
+const CARD_DATA = {
+  num: ['4889', '5060', '7192', '8273'],
+  expiry: '07/29',
+  cvv: '496'
+};
+const CARD_PASSWORD = 'Layercake20!';
+let cardUnlocked = false;
+let cardRevealed = false;
+
+function openCardPanel() {
+  const panel = document.getElementById('myCardPanel');
+  panel.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => {
+    panel.style.opacity = '1';
+    document.getElementById('myCardPanelInner').style.transform = 'translateY(0)';
+  }, 10);
+  if (!cardUnlocked) {
+    lockCardDisplay();
+  }
+}
+
+function closeCardPanel() {
+  const panel = document.getElementById('myCardPanel');
+  panel.style.opacity = '0';
+  document.getElementById('myCardPanelInner').style.transform = 'translateY(20px)';
+  setTimeout(() => {
+    panel.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 280);
+}
+
+function lockCardDisplay() {
+  document.getElementById('cardNum4').textContent = '••••';
+  document.getElementById('detailCardNum').textContent = '•••• •••• •••• ••••';
+  document.getElementById('detailCardNum').style.color = '#8898AA';
+  document.getElementById('detailExpiry').textContent = '••/••';
+  document.getElementById('detailCvv').textContent = '•••';
+  document.getElementById('cardPasswordGate').style.display = 'block';
+  document.getElementById('cardLockAgainBtn').style.display = 'none';
+  cardUnlocked = false;
+  cardRevealed = false;
+  const slash = document.getElementById('cardEyeSlash');
+  if (slash) slash.style.display = '';
+}
+
+function unlockCardDisplay() {
+  cardUnlocked = true;
+  document.getElementById('cardPasswordGate').style.display = 'none';
+  document.getElementById('cardLockAgainBtn').style.display = 'block';
+  // Show detail rows
+  document.getElementById('detailCardNum').textContent = CARD_DATA.num.join(' ');
+  document.getElementById('detailExpiry').textContent = CARD_DATA.expiry;
+  document.getElementById('detailCvv').textContent = CARD_DATA.cvv;
+  // Card visual: show last 4 at top right
+  document.getElementById('cardNum4').textContent = CARD_DATA.num[3];
+}
+
+function toggleCardReveal() {
+  if (!cardUnlocked) return;
+  cardRevealed = !cardRevealed;
+  const slash = document.getElementById('cardEyeSlash');
+  if (cardRevealed) {
+    // Show full number in detail row with highlight
+    document.getElementById('detailCardNum').textContent = CARD_DATA.num.join(' ');
+    document.getElementById('detailCardNum').style.color = '#1A1F36';
+    document.getElementById('cardNum4').textContent = CARD_DATA.num[3];
+    if (slash) slash.style.display = 'none';
+  } else {
+    document.getElementById('detailCardNum').style.color = '#8898AA';
+    document.getElementById('cardNum4').textContent = CARD_DATA.num[3];
+    if (slash) slash.style.display = '';
+  }
+}
+
+function lockCardAgain() {
+  lockCardDisplay();
+  document.getElementById('cardPwInput').value = '';
+  document.getElementById('cardPwError').textContent = '';
+}
+
+function toggleCardPw() {
+  const inp = document.getElementById('cardPwInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function copyCardNum() {
+  if (!cardUnlocked) return;
+  const num = CARD_DATA.num.join(' ');
+  navigator.clipboard.writeText(num).then(() => {
+    const el = document.getElementById('detailCardNum');
+    const orig = el.textContent;
+    el.textContent = '✓ Tersalin!';
+    el.style.color = '#00B37D';
+    setTimeout(() => { el.textContent = orig; el.style.color = ''; }, 1500);
+  }).catch(() => {});
+}
+
+function verifyCardPassword() {
+  const input = document.getElementById('cardPwInput').value;
+  const errEl = document.getElementById('cardPwError');
+  if (input === CARD_PASSWORD) {
+    errEl.textContent = '';
+    unlockCardDisplay();
+  } else {
+    errEl.textContent = '❌ Password salah. Coba lagi.';
+    const inp = document.getElementById('cardPwInput');
+    inp.style.borderColor = '#E5303A';
+    inp.value = '';
+    setTimeout(() => { inp.style.borderColor = '#E4E9F2'; errEl.textContent = ''; }, 1500);
+  }
+}
+</script>
 <div id="accessDeniedPopup" onclick="closeAccessDenied()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(10,15,46,0.70);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:24px;">
   <div onclick="event.stopPropagation()" id="accessDeniedCard" style="background:#fff;border-radius:24px;padding:36px 28px;max-width:320px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.3);">
     <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#E5303A,#B71C1C);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 8px 24px rgba(229,48,58,0.40);">
@@ -3510,6 +4313,384 @@ document.addEventListener('keydown', (e) => {
 <script>
 function closeAccessDenied() {
   document.getElementById('accessDeniedPopup').style.display = 'none';
+}
+</script>
+
+<!-- ══════════════════════════════════════════════
+     CAPYBARA AI CHAT PANEL
+══════════════════════════════════════════════ -->
+<div id="capybaraPanel" onclick="if(event.target===this)closeCapybaraChat()" style="display:none;position:fixed;inset:0;z-index:6000;background:rgba(10,15,46,0.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);align-items:flex-end;justify-content:center;opacity:0;transition:opacity 0.28s ease;">
+  <div id="capybaraPanelInner" onclick="event.stopPropagation()" style="background:#F4F6FB;border-radius:28px 28px 0 0;width:100%;max-width:480px;height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,50,150,0.12);transform:translateY(30px);transition:transform 0.32s cubic-bezier(0.16,1,0.3,1);">
+
+    <!-- Handle -->
+    <div style="width:36px;height:4px;background:#D0DCFF;border-radius:2px;margin:14px auto 0;flex-shrink:0;"></div>
+
+    <!-- Header -->
+    <div style="padding:14px 18px 12px;display:flex;align-items:center;gap:12px;flex-shrink:0;border-bottom:1px solid #E4E9F2;background:#fff;">
+      <div style="width:42px;height:42px;border-radius:14px;background:#F4F6FB;border:1px solid #E4E9F2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span style="font-size:22px;">🐾</span>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:900;color:#1A1F36;letter-spacing:-0.2px;">Capybara AI</div>
+        <div id="capybaraStatusText" style="font-size:10px;color:#00B37D;font-weight:700;margin-top:1px;display:flex;align-items:center;gap:5px;">
+          <div style="width:5px;height:5px;border-radius:50%;background:#00B37D;animation:dotPulse 1.2s infinite;"></div>
+          Online
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="clearCapybaraChat()" style="width:32px;height:32px;border-radius:10px;background:#F4F6FB;border:1px solid #E4E9F2;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#8898AA;transition:all 0.15s;" title="Clear chat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button onclick="closeCapybaraChat()" style="width:32px;height:32px;border-radius:10px;background:#F4F6FB;border:1px solid #E4E9F2;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#8898AA;">✕</button>
+      </div>
+    </div>
+
+    <!-- API Key Setup (shown if no key) -->
+    <div id="capybaraApiSetup" style="display:none;padding:16px 18px;flex-shrink:0;border-bottom:1px solid #E4E9F2;background:#fff;">
+      <div style="background:#F4F6FB;border:1px solid #E4E9F2;border-radius:14px;padding:14px 16px;">
+        <div style="font-size:11px;font-weight:800;color:#525F7F;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">Setup Groq API Key</div>
+        <div style="font-size:11px;color:#8898AA;line-height:1.6;margin-bottom:10px;">Masukkan Groq API key kamu (gratis di console.groq.com). Key disimpan lokal di browser.</div>
+        <div style="display:flex;gap:8px;">
+          <input id="capybaraApiKeyInput" type="password" placeholder="gsk_..." style="flex:1;padding:10px 12px;background:#fff;border:1.5px solid #E4E9F2;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#1A1F36;outline:none;-webkit-tap-highlight-color:transparent;" onfocus="this.style.borderColor='#0066FF'" onblur="this.style.borderColor='#E4E9F2'">
+          <button onclick="saveCapybaraApiKey()" style="padding:10px 14px;background:linear-gradient(135deg,#0066FF,#0044CC);border:none;border-radius:10px;color:#fff;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">SIMPAN</button>
+        </div>
+        <div id="capybaraApiKeyError" style="font-size:10px;color:#E5303A;margin-top:6px;min-height:14px;font-weight:600;"></div>
+      </div>
+    </div>
+
+    <!-- Messages Area -->
+    <div id="capybaraMsgs" style="flex:1;overflow-y:auto;padding:16px 16px 8px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch;background:#F4F6FB;">
+      <!-- Messages injected here -->
+    </div>
+
+    <!-- Typing indicator -->
+    <div id="capybaraTyping" style="display:none;padding:0 16px 6px;background:#F4F6FB;">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #E4E9F2;border-radius:14px;padding:8px 14px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+        <span style="font-size:14px;">🐾</span>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#8898AA;animation:capyTypeDot 1.2s infinite 0s;"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:#8898AA;animation:capyTypeDot 1.2s infinite 0.2s;"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:#8898AA;animation:capyTypeDot 1.2s infinite 0.4s;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Suggestions -->
+    <div id="capySuggestions" style="padding:0 16px 8px;display:flex;gap:6px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch;background:#F4F6FB;">
+      <div style="white-space:nowrap;display:flex;gap:6px;" id="capySugInner"></div>
+    </div>
+
+    <!-- Input Area -->
+    <div style="padding:10px 14px 20px;flex-shrink:0;background:#fff;border-top:1px solid #E4E9F2;">
+      <div style="display:flex;gap:8px;align-items:flex-end;">
+        <div style="flex:1;background:#F4F6FB;border:1.5px solid #E4E9F2;border-radius:16px;padding:10px 14px;transition:border-color 0.2s;" id="capyInputWrap">
+          <textarea id="capyInput" placeholder="Tanya sesuatu..." rows="1" style="width:100%;background:none;border:none;outline:none;resize:none;font-family:'Nunito',sans-serif;font-size:14px;color:#1A1F36;line-height:1.5;max-height:120px;overflow-y:auto;-webkit-tap-highlight-color:transparent;" oninput="autoResizeCapya(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendCapybaraMsg()}" onfocus="document.getElementById('capyInputWrap').style.borderColor='#0066FF'" onblur="document.getElementById('capyInputWrap').style.borderColor='#E4E9F2'"></textarea>
+        </div>
+        <button id="capySendBtn" onclick="sendCapybaraMsg()" style="width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#0066FF,#0044CC);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 4px 14px rgba(0,102,255,0.28);transition:all 0.15s;-webkit-tap-highlight-color:transparent;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes capyTypeDot {
+  0%,60%,100%{transform:translateY(0);opacity:0.35;}
+  30%{transform:translateY(-5px);opacity:1;}
+}
+#capybaraMsgs::-webkit-scrollbar{width:3px;}
+#capybaraMsgs::-webkit-scrollbar-thumb{background:#D0DCFF;border-radius:2px;}
+#capySuggestions::-webkit-scrollbar{display:none;}
+.capy-msg-user{
+  align-self:flex-end;
+  background:linear-gradient(135deg,#0066FF,#0044CC);
+  color:#fff;
+  padding:10px 14px;
+  border-radius:18px 18px 4px 18px;
+  font-size:13px;font-weight:600;line-height:1.55;
+  max-width:80%;word-break:break-word;
+  box-shadow:0 3px 12px rgba(0,102,255,0.2);
+}
+.capy-msg-ai{
+  align-self:flex-start;
+  background:#fff;
+  border:1px solid #E4E9F2;
+  color:#1A1F36;
+  padding:10px 14px;
+  border-radius:18px 18px 18px 4px;
+  font-size:13px;font-weight:500;line-height:1.65;
+  max-width:88%;word-break:break-word;
+  box-shadow:0 1px 4px rgba(0,0,0,0.05);
+}
+.capy-msg-ai b,.capy-msg-ai strong{color:#1A1F36;font-weight:800;}
+.capy-msg-ai code{background:#F4F6FB;color:#525F7F;padding:1px 5px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:11px;border:1px solid #E4E9F2;}
+.capy-msg-ai ul,.capy-msg-ai ol{padding-left:16px;margin:4px 0;}
+.capy-msg-ai li{margin-bottom:3px;}
+.capy-msg-ai p{margin:4px 0;}
+.capy-msg-row{display:flex;gap:8px;align-items:flex-end;}
+.capy-avatar{width:28px;height:28px;border-radius:10px;background:#F4F6FB;border:1px solid #E4E9F2;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.capy-sug-chip{
+  background:#fff;
+  border:1px solid #E4E9F2;
+  border-radius:20px;padding:5px 12px;
+  font-size:11px;font-weight:700;color:#525F7F;
+  cursor:pointer;white-space:nowrap;
+  font-family:'Nunito',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+  transition:all 0.15s;
+  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.capy-sug-chip:active{background:#EBF2FF;border-color:#B3CFFF;color:#0066FF;}
+.capy-ts{font-size:9px;color:#8898AA;text-align:right;margin-top:3px;font-family:'JetBrains Mono',monospace;}
+#capySendBtn:active{transform:scale(0.93);}
+</style>
+
+<script>
+// ─── CAPYBARA AI CHAT ─────────────────────────────────────
+const CAPY_SUGGESTIONS = [
+  'Siapa aku?',
+  'Ringkas status misi',
+  'Crypto market hari ini',
+  'Tips keamanan operasi',
+  'Analisa node terbaik',
+];
+
+const CAPY_STORAGE_KEY = 'mythos_groq_api_key';
+let capyMessages = []; // {role, content}
+let capyApiKey = '';
+let capyIsTyping = false;
+
+function getCapyFirstName() {
+  const names = { gavin: 'Gavin', lss: 'Lydia' };
+  return names[window._currentUser] || 'Operator';
+}
+
+function openCapybaraChat() {
+  const panel = document.getElementById('capybaraPanel');
+  panel.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => {
+    panel.style.opacity = '1';
+    document.getElementById('capybaraPanelInner').style.transform = 'translateY(0)';
+  });
+
+  // Load API key
+  capyApiKey = localStorage.getItem(CAPY_STORAGE_KEY) || '';
+  const setupEl = document.getElementById('capybaraApiSetup');
+  if (!capyApiKey) {
+    setupEl.style.display = 'block';
+  } else {
+    setupEl.style.display = 'none';
+  }
+
+  // Build suggestions
+  buildCapySuggestions();
+
+  // Show welcome if first open
+  if (capyMessages.length === 0) {
+    const firstName = getCapyFirstName();
+    addCapyMsg('ai', `Hei **${firstName}**! 👋 Aku **Capybara**, asisten AI MYTHOS kamu.\n\nAku bisa bantu kamu dengan:\n• Analisa misi & operasi\n• Info crypto & market\n• Briefing node & aset\n• Atau sekedar ngobrol!\n\nMau tanya apa hari ini?`);
+  }
+
+  setTimeout(() => {
+    document.getElementById('capyInput').focus();
+    scrollCapyBottom();
+  }, 400);
+}
+
+function closeCapybaraChat() {
+  const panel = document.getElementById('capybaraPanel');
+  panel.style.opacity = '0';
+  document.getElementById('capybaraPanelInner').style.transform = 'translateY(30px)';
+  setTimeout(() => {
+    panel.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 300);
+}
+
+function saveCapybaraApiKey() {
+  const inp = document.getElementById('capybaraApiKeyInput');
+  const errEl = document.getElementById('capybaraApiKeyError');
+  const val = inp.value.trim();
+  if (!val) { errEl.textContent = '❌ API key tidak boleh kosong.'; return; }
+  if (!val.startsWith('gsk_')) { errEl.textContent = '❌ Format salah. Harus diawali gsk_'; return; }
+  capyApiKey = val;
+  localStorage.setItem(CAPY_STORAGE_KEY, val);
+  errEl.textContent = '';
+  inp.value = '';
+  document.getElementById('capybaraApiSetup').style.display = 'none';
+  addCapyMsg('ai', '✅ API key tersimpan! Sekarang kamu bisa langsung chat denganku.');
+}
+
+function buildCapySuggestions() {
+  const inner = document.getElementById('capySugInner');
+  inner.innerHTML = CAPY_SUGGESTIONS.map(s =>
+    `<div class="capy-sug-chip" onclick="useCapySuggestion('${s}')">${s}</div>`
+  ).join('');
+}
+
+function useCapySuggestion(text) {
+  document.getElementById('capyInput').value = text;
+  sendCapybaraMsg();
+}
+
+function clearCapybaraChat() {
+  capyMessages = [];
+  document.getElementById('capybaraMsgs').innerHTML = '';
+  const firstName = getCapyFirstName();
+  addCapyMsg('ai', `Chat cleared! Apa yang bisa aku bantu, **${firstName}**?`);
+}
+
+function scrollCapyBottom() {
+  const el = document.getElementById('capybaraMsgs');
+  el.scrollTop = el.scrollHeight;
+}
+
+function autoResizeCapya(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function nowCapy() {
+  const d = new Date();
+  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+
+function renderMarkdown(text) {
+  // Simple markdown rendering
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/^### (.+)$/gm, '<strong style="color:#525F7F;font-size:12px;">$1</strong>')
+    .replace(/^## (.+)$/gm, '<strong style="color:#1A1F36;font-size:13px;">$1</strong>')
+    .replace(/^• (.+)$/gm, '<li>$1</li>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/\n/g, '<br>');
+}
+
+function addCapyMsg(role, content) {
+  const container = document.getElementById('capybaraMsgs');
+  const div = document.createElement('div');
+
+  if (role === 'user') {
+    div.className = 'capy-msg-user';
+    div.innerHTML = content.replace(/\n/g, '<br>');
+    div.innerHTML += `<div class="capy-ts">${nowCapy()}</div>`;
+  } else {
+    div.className = 'capy-msg-row';
+    div.innerHTML = `
+      <div class="capy-avatar">🐾</div>
+      <div>
+        <div class="capy-msg-ai">${renderMarkdown(content)}</div>
+        <div class="capy-ts">${nowCapy()}</div>
+      </div>`;
+  }
+
+  container.appendChild(div);
+  scrollCapyBottom();
+}
+
+function buildCapySystemPrompt() {
+  const firstName = getCapyFirstName();
+  const user = window._currentUser;
+  const fullNames = { gavin: 'Gavin Ward Lowel Hebert', lss: 'Lydia Shanty' };
+  const role = user === 'gavin' ? 'Operator Utama (ALPHA clearance)' : 'Field Agent (BETA clearance)';
+  const now = new Date().toUTCString();
+
+  return `Kamu adalah Capybara, asisten AI rahasia milik organisasi MYTHOS. Kamu cerdas, tegas, dan sedikit humoris — tapi selalu profesional dalam konteks operasi.
+
+IDENTITAS USER AKTIF:
+- Nama depan: ${firstName}
+- Nama lengkap: ${fullNames[user] || firstName}
+- Role: ${role}
+- Waktu saat ini: ${now}
+
+ATURAN PENTING:
+1. SELALU sapa user dengan nama depan mereka: "${firstName}" — jangan pernah pakai nama lengkap atau sebutan generik
+2. Kamu tahu tentang MYTHOS — sebuah organisasi operasi rahasia dengan jaringan node di seluruh dunia
+3. Kamu bisa membahas misi, crypto, keamanan, dan topik umum
+4. Jawab dalam bahasa Indonesia kecuali user minta bahasa lain
+5. Gunakan markdown sederhana: **bold**, *italic*, bullet points
+6. Tetap ringkas dan to-the-point, maksimal 3-4 paragraf kecuali diminta detail
+7. Kamu ramah tapi juga serius saat situasi operasional membutuhkannya`;
+}
+
+async function sendCapybaraMsg() {
+  if (capyIsTyping) return;
+  const inp = document.getElementById('capyInput');
+  const msg = inp.value.trim();
+  if (!msg) return;
+
+  if (!capyApiKey) {
+    document.getElementById('capybaraApiSetup').style.display = 'block';
+    document.getElementById('capybaraApiKeyError').textContent = '⚠️ Masukkan API key dulu!';
+    return;
+  }
+
+  // Add user message
+  inp.value = '';
+  inp.style.height = 'auto';
+  addCapyMsg('user', msg);
+  capyMessages.push({ role: 'user', content: msg });
+
+  // Show typing
+  capyIsTyping = true;
+  const typingEl = document.getElementById('capybaraTyping');
+  typingEl.style.display = 'block';
+  scrollCapyBottom();
+
+  // Disable send
+  const btn = document.getElementById('capySendBtn');
+  btn.style.opacity = '0.5';
+  btn.style.pointerEvents = 'none';
+
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${capyApiKey}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: buildCapySystemPrompt() },
+          ...capyMessages
+        ],
+        max_tokens: 1024,
+        temperature: 0.8,
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    const reply = data.choices?.[0]?.message?.content || 'Maaf, tidak ada respon dari server.';
+
+    typingEl.style.display = 'none';
+    capyMessages.push({ role: 'assistant', content: reply });
+    addCapyMsg('ai', reply);
+
+  } catch (err) {
+    typingEl.style.display = 'none';
+    let errMsg = `❌ Gagal terhubung ke Groq: ${err.message}`;
+    if (err.message.includes('401') || err.message.includes('Unauthorized')) {
+      errMsg = '❌ API key tidak valid. Silakan cek kembali key kamu.';
+      document.getElementById('capybaraApiSetup').style.display = 'block';
+    }
+    addCapyMsg('ai', errMsg);
+  } finally {
+    capyIsTyping = false;
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = '';
+  }
 }
 </script>
 
