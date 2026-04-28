@@ -232,14 +232,13 @@
   }
 
   /* main content hidden until unlocked */
-  #mainContent { display: none; }
+  #mainContent { display: none; height: 100vh; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
 
   /* ─── HEADER ─── */
   .header {
     background: var(--white);
     border-bottom: 1px solid var(--border);
     padding: 0 18px;
-    position: sticky; top: 0; z-index: 100;
     box-shadow: 0 1px 8px rgba(0,70,180,0.06);
   }
   .header-inner {
@@ -306,7 +305,7 @@
   .ticker-sep { color: rgba(255,255,255,0.2); }
 
   /* ─── DASHBOARD ─── */
-  .dashboard { padding: 16px; display: flex; flex-direction: column; gap: 20px; }
+  .dashboard { padding: 16px; padding-bottom: 80px; display: flex; flex-direction: column; gap: 20px; }
 
   /* ─── CARD BASE ─── */
   .card {
@@ -895,10 +894,13 @@
 <div id="mainContent">
 
 <!-- HEADER -->
+<div style="position:sticky;top:0;z-index:200;">
 <div class="header">
   <div class="header-inner">
     <div class="logo">
-      <span class="logo-dot"></span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
+        <path d="M13 2L4.5 13.5H11L10 22L20 10H13.5L13 2Z" fill="#FF6B35" stroke="#FF6B35" stroke-width="1" stroke-linejoin="round"/>
+      </svg>
       MYTHOS<span style="margin-left:4px">V.2.1</span>
     </div>
     <div class="header-right">
@@ -911,6 +913,7 @@
 <!-- TICKER -->
 <div class="ticker-wrap">
   <div class="ticker-inner" id="tickerInner"></div>
+</div>
 </div>
 
 <!-- GREETING BANNER -->
@@ -1049,24 +1052,119 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     UPCOMING MISSIONS
+     UPCOMING MISSIONS — ACCORDION STACK
 ════════════════════════════════════════════════════ -->
-<div style="padding:0 16px 4px;margin-top:14px;">
-  <div style="background:#fff;border:1px solid #E4E9F2;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,70,180,0.08);">
+<style>
+/* ── MISSION ACCORDION — clean separated cards ─── */
+.mission-acc-stack {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  margin-bottom: 20px;
+}
 
-    <!-- Header -->
-    <div style="padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F0F4FB;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div style="width:6px;height:6px;border-radius:50%;background:#0066FF;opacity:0.5;"></div>
-        <span style="font-size:10px;font-weight:700;letter-spacing:0.12em;color:#8898AA;text-transform:uppercase;">Upcoming Missions</span>
-      </div>
-      <div style="background:#EBF2FF;color:#0066FF;font-size:9px;font-weight:700;padding:3px 9px;border-radius:8px;letter-spacing:0.06em;">10 OPS</div>
-    </div>
+/* Section label bar */
+.mission-section-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #E4E9F2;
+  box-shadow: 0 2px 8px rgba(0,70,180,0.06);
+}
 
-    <!-- Mission List -->
-    <div id="missionList" style="display:flex;flex-direction:column;"></div>
+.mission-acc-item {
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #E4E9F2;
+  box-shadow: 0 2px 8px rgba(0,70,180,0.06);
+  overflow: hidden;
+  transition: box-shadow 0.25s, border-color 0.25s;
+}
+.mission-acc-item.mopen {
+  border-color: #C5D9FF;
+  box-shadow: 0 4px 18px rgba(0,70,180,0.12);
+}
 
-  </div>
+/* Header row */
+.mission-acc-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  cursor: pointer;
+  gap: 10px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.mission-acc-header:active { background: #F8FAFF; }
+
+.mission-acc-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.mission-acc-flag {
+  width: 40px; height: 40px; border-radius: 11px;
+  background: #F4F7FF; border: 1px solid #E4EDFF;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.mission-acc-info { flex: 1; min-width: 0; }
+.mission-acc-city {
+  font-size: 14px; font-weight: 800; color: #1A1F36;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; gap: 5px;
+}
+.mission-acc-country {
+  font-size: 11px; color: #8898AA; font-weight: 500;
+}
+.mission-acc-meta {
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 3px;
+}
+.mission-acc-opnum {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; color: #8898AA; font-weight: 600;
+}
+
+.mission-acc-right {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.mission-acc-date {
+  font-size: 10px; font-weight: 700; color: #0066FF;
+  white-space: nowrap;
+}
+.mission-acc-chevron {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #EBF2FF;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.mission-acc-item.mopen .mission-acc-chevron { background: #0066FF; }
+.mission-acc-chevron-icon {
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.mission-acc-item.mopen .mission-acc-chevron-icon { transform: rotate(180deg); }
+.mission-acc-chevron-icon path { stroke: #0066FF; }
+.mission-acc-item.mopen .mission-acc-chevron-icon path { stroke: #fff; }
+
+/* Expand body */
+.mission-acc-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.42s cubic-bezier(0.4,0,0.2,1);
+}
+.mission-acc-item.mopen .mission-acc-body {
+  max-height: 3000px;
+}
+.mission-acc-body-inner {
+  border-top: 1px solid #F0F4FB;
+}
+</style>
+
+<div class="mission-acc-stack" id="missionAccStack">
+  <!-- populated by JS below -->
 </div>
 
 <style>
@@ -1092,35 +1190,99 @@
 const MISSIONS = [
   {num:'01',date:'01 – 04 May 2026',flag:'🇭🇺',city:'Budapest',country:'Hungary',mission:'Extract ASML blueprints & inject Capybara protocol.',type:'MANDATORY',
    pw:'CAPYBARA01',
-   detail:{codename:'OP-CAPYBARA',assets:'ASML HQ Server Room B-7',contact:'Asset VIPER — László Kovács',exfil:'Vienna airport 04:30L',risk:'HIGH',clearance:'ALPHA-7'}},
+   detail:{codename:'OP-CAPYBARA',assets:'ASML HQ Server Room B-7',contact:'Asset VIPER — László Kovács',exfil:'Vienna Airport 04:30L',risk:'HIGH',clearance:'ALPHA-7'},
+   personnel:[
+     {name:'Gavin',role:'Mission Commander',icon:'⭐',tasks:['Lead and authorize all field operations','Direct contact with Asset VIPER','Final sign-off on blueprint extraction']},
+     {name:'Christabel',role:'Field Lead',icon:'🎯',tasks:['Coordinate on-ground team movements','Secure access to Server Room B-7','Confirm Capybara protocol injection success']},
+     {name:'Hendrik',role:'Tech Specialist',icon:'💻',tasks:['Deploy Capybara protocol to mainframe','Bypass ASML firewall encryption','Erase all access logs post-extraction']},
+     {name:'Putra',role:'Field Security',icon:'🛡️',tasks:['Secure building perimeter at HQ','Monitor CCTV & neutralize guard rotation','Cover team retreat to exfil point']},
+   ]},
   {num:'02',date:'08 – 10 May 2026',flag:'🇹🇼',city:'Taipei',country:'Taiwan',mission:'Infiltrate TSMC supply-chain network. Retrieve Phantom-7 encryption keys.',type:'MANDATORY',
    pw:'PHANTOM702',
-   detail:{codename:'OP-PHANTOM',assets:'TSMC Fab 18 — Network Core',contact:'Asset JADE — Lin Wei-Chen',exfil:'Taoyuan Airport Gate C',risk:'CRITICAL',clearance:'ALPHA-9'}},
+   detail:{codename:'OP-PHANTOM',assets:'TSMC Fab 18 — Network Core',contact:'Asset JADE — Lin Wei-Chen',exfil:'Taoyuan Airport Gate C',risk:'CRITICAL',clearance:'ALPHA-9'},
+   personnel:[
+     {name:'Gavin',role:'Mission Commander',icon:'⭐',tasks:['Lead Fab 18 infiltration operation','Negotiate and verify Asset JADE identity','Authenticate retrieved Phantom-7 keys']},
+     {name:'Christabel',role:'Operations Officer',icon:'🎯',tasks:['Manage team positioning inside Fab 18','Coordinate with Asset JADE on entry timing','Confirm key extraction is complete']},
+     {name:'Charles',role:'Network Intrusion',icon:'🔓',tasks:['Penetrate TSMC supply-chain network','Extract encryption keys from core server','Plant hidden backdoor for future access']},
+     {name:'Anita',role:'Cover Identity',icon:'🎭',tasks:['Pose as TSMC external auditor','Distract security checkpoint at Fab 18','Secure exit route via Gate C']},
+     {name:'Dave',role:'Surveillance',icon:'👁️',tasks:['Monitor TSMC counter-intelligence activity','Identify internal moles','Report security movements in real-time']},
+   ]},
   {num:'03',date:'14 – 16 May 2026',flag:'🇸🇬',city:'Singapore',country:'Singapore',mission:'Monitor Meridian financial hub. Tag and trace Vortex shell accounts.',type:'OPTIONAL',
    pw:'VORTEX2026',
-   detail:{codename:'OP-MERIDIAN',assets:'Raffles Place Financial District',contact:'Asset MARINA — Tan Hui Lin',exfil:'Changi Airport T3 23:00L',risk:'MEDIUM',clearance:'BETA-4'}},
+   detail:{codename:'OP-MERIDIAN',assets:'Raffles Place Financial District',contact:'Asset MARINA — Tan Hui Lin',exfil:'Changi Airport T3 23:00L',risk:'MEDIUM',clearance:'BETA-4'},
+   personnel:[
+     {name:'Gavin',role:'Mission Commander',icon:'⭐',tasks:['Oversee Meridian monitoring operation','Authorize tagging of Vortex shell accounts','Approve final intelligence report to HQ']},
+     {name:'Renata',role:'Financial Analyst',icon:'📊',tasks:['Identify and tag Vortex shell accounts','Trace suspicious fund flows','Document evidence of illegal transactions']},
+     {name:'Morgan',role:'Field Monitor',icon:'📡',tasks:['Install tap on Raffles Place network','Monitor executive communications of target','Transmit real-time data to MYTHOS HQ']},
+     {name:'Putra',role:'Logistics',icon:'🚗',tasks:['Prepare standby vehicle in CBD area','Coordinate exfil schedule at Changi T3','Handle emergency evacuation if required']},
+   ]},
   {num:'04',date:'20 – 23 May 2026',flag:'🇹🇭',city:'Bangkok',country:'Thailand',mission:'Rendezvous with Asset ORCHID. Secure transfer of Delta manifest files.',type:'MANDATORY',
    pw:'ORCHID2026',
-   detail:{codename:'OP-DELTA',assets:'Sukhumvit Safe House 14-A',contact:'Asset ORCHID — Classified',exfil:'Suvarnabhumi Airport 02:15L',risk:'HIGH',clearance:'ALPHA-6'}},
+   detail:{codename:'OP-DELTA',assets:'Sukhumvit Safe House 14-A',contact:'Asset ORCHID — Classified',exfil:'Suvarnabhumi Airport 02:15L',risk:'HIGH',clearance:'ALPHA-6'},
+   personnel:[
+     {name:'Gavin',role:'Mission Commander',icon:'⭐',tasks:['Authenticate Asset ORCHID identity','Receive and verify Delta manifest files','Authorize transfer to MYTHOS HQ']},
+     {name:'Christabel',role:'Field Lead',icon:'🎯',tasks:['Coordinate rendezvous at Safe House 14-A','Confirm secure environment before meeting','Manage team exfil to Suvarnabhumi']},
+     {name:'Rayne',role:'Counter-Surveillance',icon:'🔍',tasks:['Sweep Safe House 14-A for bugs & trackers','Detect tailing before rendezvous','Secure 500m radius around safe house']},
+     {name:'Dave',role:'Secure Transfer',icon:'💾',tasks:['Encrypt and transfer Delta manifest files','Verify data integrity post-transfer','Erase all digital traces at safe house']},
+   ]},
   {num:'05',date:'28 – 30 May 2026',flag:'🇻🇳',city:'Ho Chi Minh City',country:'Vietnam',mission:'Intercept Red Lotus courier route. Confiscate biometric data cache.',type:'OPTIONAL',
    pw:'REDLOTUS05',
-   detail:{codename:'OP-LOTUS',assets:'District 7 Courier Hub',contact:'Asset PHOENIX — Nguyen Duc',exfil:'Tan Son Nhat Airport Dawn',risk:'MEDIUM',clearance:'BETA-3'}},
+   detail:{codename:'OP-LOTUS',assets:'District 7 Courier Hub',contact:'Asset PHOENIX — Nguyen Duc',exfil:'Tan Son Nhat Airport Dawn',risk:'MEDIUM',clearance:'BETA-3'},
+   personnel:[
+     {name:'Gavin',role:'Mission Commander',icon:'⭐',tasks:['Authorize intercept operation at District 7','Coordinate with Asset PHOENIX on ground','Confirm biometric cache is fully secured']},
+     {name:'Morgan',role:'Intercept Lead',icon:'🎯',tasks:['Identify intercept points along courier route','Stop and confiscate biometric cache','Coordinate directly with Asset PHOENIX']},
+     {name:'Anita',role:'Decoy Operator',icon:'🎭',tasks:['Create diversion in District 7','Pose as local vendor for cover','Ensure Red Lotus courier does not escape']},
+   ]},
   {num:'06',date:'04 – 07 Jun 2026',flag:'🇯🇵',city:'Tokyo',country:'Japan',mission:'Compromise Kurosawa Labs server farm. Deploy Specter-9 payload silently.',type:'MANDATORY',
    pw:'SPECTER906',
-   detail:{codename:'OP-SPECTER',assets:'Kurosawa Labs Shibuya Tower F22',contact:'Asset KITSUNE — Classified',exfil:'Haneda Airport VIP Terminal',risk:'CRITICAL',clearance:'ALPHA-9'}},
+   detail:{codename:'OP-SPECTER',assets:'Kurosawa Labs Shibuya Tower F22',contact:'Asset KITSUNE — Classified',exfil:'Haneda Airport VIP Terminal',risk:'CRITICAL',clearance:'ALPHA-9'},
+   personnel:[
+     {name:'Gavin',role:'Mission Commander',icon:'⭐',tasks:['Lead penetration of Shibuya Tower F22','Authorize Specter-9 payload deployment','Coordinate exfil via Haneda VIP Terminal']},
+     {name:'Christabel',role:'Operations Officer',icon:'🎯',tasks:['Manage team entry and positioning','Synchronize payload deployment timing','Confirm successful server compromise']},
+     {name:'Charles',role:'Payload Engineer',icon:'⚙️',tasks:['Inject Specter-9 into server farm','Configure payload to remain undetectable','Activate remote kill-switch if operation fails']},
+     {name:'Hendrik',role:'Electronic Warfare',icon:'📡',tasks:['Jam alarm systems and sensors at Kurosawa','Spoof employee access credentials','Monitor IT security response during operation']},
+     {name:'Rayne',role:'Extraction Security',icon:'🛡️',tasks:['Secure exit route from Shibuya Tower','Neutralize physical threats if they arise','Escort team to Haneda VIP Terminal']},
+   ]},
   {num:'07',date:'12 – 14 Jun 2026',flag:'🇰🇷',city:'Seoul',country:'South Korea',mission:'Extract double agent ECLIPSE. Destroy Nightfall listening station.',type:'MANDATORY',
    pw:'ECLIPSE707',
-   detail:{codename:'OP-NIGHTFALL',assets:'Gangnam Listening Station Grid-7',contact:'Asset ECLIPSE — Song Ji-Ho',exfil:'Incheon Airport Terminal 2',risk:'CRITICAL',clearance:'ALPHA-8'}},
+   detail:{codename:'OP-NIGHTFALL',assets:'Gangnam Listening Station Grid-7',contact:'Asset ECLIPSE — Song Ji-Ho',exfil:'Incheon Airport Terminal 2',risk:'CRITICAL',clearance:'ALPHA-8'},
+   personnel:[
+     {name:'Gavin',role:'Mission Commander',icon:'⭐',tasks:['Authenticate and extract Asset ECLIPSE','Verify intelligence carried by ECLIPSE','Authorize destruction of Nightfall station']},
+     {name:'Christabel',role:'Field Lead',icon:'🎯',tasks:['Manage ECLIPSE extraction sequence','Secure holding position at Grid-7','Coordinate team movement to Incheon']},
+     {name:'Putra',role:'Demolitions',icon:'💥',tasks:['Place charges at Nightfall Grid-7','Execute destruction of listening station','Ensure no hardware remains intact']},
+     {name:'Morgan',role:'Escort & Security',icon:'🛡️',tasks:['Escort ECLIPSE from Gangnam to Incheon','Detect and avoid enemy surveillance','Provide armed backup if contact occurs']},
+   ]},
   {num:'08',date:'20 – 22 Jun 2026',flag:'🇻🇳',city:'Hanoi',country:'Vietnam',mission:'Map underground tunnel network. Tag entry points for Ghost Squad.',type:'OPTIONAL',
    pw:'GHOST2608',
-   detail:{codename:'OP-GHOST',assets:'Ba Dinh District Subsurface Grid',contact:'Asset SHADOW — Classified',exfil:'Noi Bai Airport 03:40L',risk:'MEDIUM',clearance:'BETA-5'}},
+   detail:{codename:'OP-GHOST',assets:'Ba Dinh District Subsurface Grid',contact:'Asset SHADOW — Classified',exfil:'Noi Bai Airport 03:40L',risk:'MEDIUM',clearance:'BETA-5'},
+   personnel:[
+     {name:'Gavin',role:'Mission Commander',icon:'⭐',tasks:['Oversee tunnel mapping operation','Approve entry point tags for Ghost Squad','Transmit final coordinates to HQ']},
+     {name:'Dave',role:'Mapping Specialist',icon:'🗺️',tasks:['Map tunnel network in Ba Dinh District','Plant sensor tags at each entry point','Send coordinates to Ghost Squad HQ']},
+     {name:'Renata',role:'Ground Intelligence',icon:'🔎',tasks:['Gather intel from local contacts','Identify hidden access points and secret doors','Document tunnel capacity and conditions']},
+   ]},
   {num:'09',date:'28 – 30 Jun 2026',flag:'🇯🇵',city:'Osaka',country:'Japan',mission:'Neutralize Trident sleeper cell. Recover stolen Prometheus drive.',type:'MANDATORY',
    pw:'TRIDENT909',
-   detail:{codename:'OP-TRIDENT',assets:'Namba Underground Cell HQ',contact:'Asset PROMETHEUS — Classified',exfil:'Kansai Airport Dawn Charter',risk:'CRITICAL',clearance:'ALPHA-9'}},
+   detail:{codename:'OP-TRIDENT',assets:'Namba Underground Cell HQ',contact:'Asset PROMETHEUS — Classified',exfil:'Kansai Airport Dawn Charter',risk:'CRITICAL',clearance:'ALPHA-9'},
+   personnel:[
+     {name:'Gavin',role:'Mission Commander',icon:'⭐',tasks:['Lead raid on Namba underground HQ','Authorize neutralization of Trident members','Secure Prometheus drive after contact']},
+     {name:'Christabel',role:'Field Lead',icon:'🎯',tasks:['Coordinate assault team entry','Confirm Prometheus drive authenticity','Manage team exfil to Kansai Airport']},
+     {name:'Charles',role:'Data Recovery',icon:'💾',tasks:['Extract and verify Prometheus drive','Perform initial decryption to confirm authenticity','Backup data to MYTHOS server via satellite']},
+     {name:'Putra',role:'Assault Lead',icon:'⚔️',tasks:['Lead assault team into underground HQ','Neutralize Trident cell resistance','Secure area before extraction team enters']},
+     {name:'Anita',role:'Medic & Support',icon:'🏥',tasks:['Standby medical support for field team','Handle casualties if armed contact occurs','Coordinate emergency evacuation via Kansai']},
+   ]},
   {num:'10',date:'10 – 13 Jul 2026',flag:'🇸🇬',city:'Singapore',country:'Singapore',mission:'Final phase: Purge Mythos ghost nodes. Activate Blackout failsafe.',type:'MANDATORY',
    pw:'BLACKOUT10',
-   detail:{codename:'OP-BLACKOUT',assets:'MYTHOS Node Cluster — Marina Bay',contact:'Asset ZERO — Classified',exfil:'Classified — Protocol Omega',risk:'CRITICAL',clearance:'OMEGA-1'}},
-];
+   detail:{codename:'OP-BLACKOUT',assets:'MYTHOS Node Cluster — Marina Bay',contact:'Asset ZERO — Classified',exfil:'Classified — Protocol Omega',risk:'CRITICAL',clearance:'OMEGA-1'},
+   personnel:[
+     {name:'Gavin',role:'Supreme Commander',icon:'⭐',tasks:['Lead the final phase of MYTHOS operation','Authorize activation of Blackout failsafe','Confirm full purge of all ghost nodes']},
+     {name:'Christabel',role:'Operations Officer',icon:'🎯',tasks:['Coordinate all agents at Marina Bay cluster','Ensure all teams execute in sync','Report mission completion status to Gavin']},
+     {name:'Hendrik',role:'Systems Architect',icon:'🖥️',tasks:['Execute purge of all ghost nodes','Activate Blackout protocol at Node Cluster','Ensure zero trace after operation']},
+     {name:'Charles',role:'Network Terminator',icon:'⚡',tasks:['Cut all active connections on illegal nodes','Deploy auto-destruct script on each node','Monitor purge confirmation in real-time']},
+     {name:'Rayne',role:'Physical Security',icon:'🔒',tasks:['Secure Marina Bay Node Cluster physically','Prevent third-party intervention','Execute Protocol Omega if breach occurs']},
+     {name:'Dave',role:'Intel Sweep',icon:'🧹',tasks:['Erase all MYTHOS digital footprints','Verify system clean state post-blackout','Confirm mission complete to HQ']},
+   ]},
+]
+
 const cityIcons={'Budapest':'🏰','Taipei':'🖥️','Singapore':'🦁','Bangkok':'🛕','Ho Chi Minh City':'🌿','Tokyo':'⛩️','Seoul':'🗼','Hanoi':'🏯','Osaka':'🏯'};
 const missionUnlocked={};
 const missionFails={};
@@ -1157,6 +1319,11 @@ function acceptMission(i) {
 function rejectMission(i) {
   missionState[i] = { status: 'rejected', ts: Date.now() };
   _saveMissionStates();
+  renderMissionItem(i);
+}
+
+function lockMission(i) {
+  missionUnlocked[i] = false;
   renderMissionItem(i);
 }
 
@@ -1211,6 +1378,31 @@ function renderMissionItem(i){
   const riskColor={'HIGH':'#E5303A','CRITICAL':'#8B0000','MEDIUM':'#F5A623'}[m.detail.risk]||'#525F7F';
   const clearColor = m.detail.clearance.startsWith('OMEGA')?'#9B59B6':m.detail.clearance.startsWith('ALPHA')?'#E5303A':'#0066FF';
 
+  const personnelHtml = (m.personnel && isUnlocked) ? `
+    <div style="margin-top:8px;background:linear-gradient(135deg,#0D1B4B,#0a1438);border:1px solid rgba(77,159,255,0.2);border-radius:12px;padding:12px 14px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+        <span style="font-size:12px;">👥</span>
+        <span style="font-size:9px;font-weight:800;color:#4D9FFF;letter-spacing:0.14em;">PERSONNEL & ASSIGNMENTS</span>
+      </div>
+      ${m.personnel.map(p => `
+        <div style="margin-bottom:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 12px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="font-size:14px;">${p.icon}</span>
+            <div>
+              <div style="font-size:12px;font-weight:800;color:#fff;letter-spacing:0.02em;">${p.name}</div>
+              <div style="font-size:9px;font-weight:600;color:#4D9FFF;letter-spacing:0.06em;text-transform:uppercase;">${p.role}</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            ${p.tasks.map((t,ti) => `
+              <div style="display:flex;align-items:flex-start;gap:6px;">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#4D9FFF;font-weight:700;flex-shrink:0;margin-top:1px;">${String(ti+1).padStart(2,'0')}.</span>
+                <span style="font-size:10px;color:rgba(255,255,255,0.75);font-weight:500;line-height:1.4;">${t}</span>
+              </div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>` : '';
+
   const detailBox = isUnlocked ? `
     <div style="margin-top:10px;background:linear-gradient(135deg,#0D1B4B,#0a1438);border:1px solid rgba(0,102,255,0.25);border-radius:12px;padding:12px 14px;">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
@@ -1242,6 +1434,30 @@ function renderMissionItem(i){
           <div style="font-size:11px;color:rgba(255,255,255,0.85);font-weight:600;">${m.detail.exfil}</div>
         </div>
       </div>
+    </div>
+    ${personnelHtml}
+    <div style="margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+      <div style="width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(77,159,255,0.2),transparent);"></div>
+      <button onclick="lockMission(${i})" style="
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        padding:10px 24px;
+        background:linear-gradient(135deg,rgba(229,48,58,0.12),rgba(180,20,30,0.18));
+        border:1px solid rgba(229,48,58,0.35);
+        border-radius:10px;
+        color:rgba(255,100,100,0.85);
+        font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;
+        letter-spacing:0.12em;text-transform:uppercase;
+        cursor:pointer;
+        box-shadow:0 0 16px rgba(229,48,58,0.08);
+        transition:all 0.2s;
+        -webkit-tap-highlight-color:transparent;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="11" width="18" height="11" rx="2" stroke="rgba(255,100,100,0.85)" stroke-width="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="rgba(255,100,100,0.85)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Revoke Access
+      </button>
+      <span style="font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:0.06em;font-family:'JetBrains Mono',monospace;">CLEARANCE WILL BE RESET</span>
     </div>` :
     `<div style="margin-top:10px;background:#F8FAFF;border:1.5px solid #E4EDFF;border-radius:12px;padding:10px 12px;">
       <div style="font-size:9px;font-weight:700;color:#8898AA;letter-spacing:0.1em;margin-bottom:8px;">🔒 MISSION DETAIL — PASSWORD REQUIRED</div>
@@ -1276,15 +1492,75 @@ function renderMissionItem(i){
     ${btns}`;
 }
 
+// ── ACCORDION MISSION TOGGLE ─────────────────────────
+function toggleMissionAcc(i) {
+  const el = document.getElementById('macc-'+i);
+  const isOpen = el.classList.contains('mopen');
+  document.querySelectorAll('.mission-acc-item').forEach(x => x.classList.remove('mopen'));
+  if (!isOpen) el.classList.add('mopen');
+}
+
+function getMissionStateBadge(m, state) {
+  if (state === 'accepted') return '<span style="font-size:9px;font-weight:800;color:#00B37D;background:#E6F7F2;padding:2px 8px;border-radius:20px;">✓ ACCEPTED</span>';
+  if (state === 'rejected') return '<span style="font-size:9px;font-weight:800;color:#8898AA;background:#F4F6FB;padding:2px 8px;border-radius:20px;">✕ REJECTED</span>';
+  if (m.type === 'MANDATORY') return '<span style="font-size:9px;font-weight:800;color:#E5303A;background:#FDECEA;padding:2px 8px;border-radius:20px;">★ MANDATORY</span>';
+  return '<span style="font-size:9px;font-weight:800;color:#C07800;background:#FFF4E0;padding:2px 8px;border-radius:20px;">OPT</span>';
+}
+
 (function(){
-  const c=document.getElementById('missionList');
-  let h='';
-  MISSIONS.forEach((_,i)=>{
-    h+=`<div class="mission-item" id="mop-${i}"></div>`;
-    if(i<MISSIONS.length-1)h+=`<div class="mission-divider"></div>`;
+  const stack = document.getElementById('missionAccStack');
+
+  // Section label on top
+  let h = `
+  <div class="mission-section-label">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#0066FF;opacity:0.5;"></div>
+      <span style="font-size:10px;font-weight:700;letter-spacing:0.12em;color:#8898AA;text-transform:uppercase;">Upcoming Missions</span>
+    </div>
+    <div style="background:#EBF2FF;color:#0066FF;font-size:9px;font-weight:700;padding:3px 10px;border-radius:8px;letter-spacing:0.06em;">10 OPS</div>
+  </div>`;
+
+  MISSIONS.forEach((m, i) => {
+    const locIcon = cityIcons[m.city] || '🎯';
+    const stateObj = missionState[i] || null;
+    const state = stateObj ? stateObj.status : null;
+    const stateBadge = getMissionStateBadge(m, state);
+    h += `
+    <div class="mission-acc-item${i === 0 ? ' mopen' : ''}" id="macc-${i}">
+      <div class="mission-acc-header" onclick="toggleMissionAcc(${i})">
+        <div class="mission-acc-left">
+          <div class="mission-acc-flag">${m.flag} ${locIcon}</div>
+          <div class="mission-acc-info">
+            <div class="mission-acc-city">
+              ${m.city}
+              <span class="mission-acc-country">${m.country}</span>
+            </div>
+            <div class="mission-acc-meta">
+              <span class="mission-acc-opnum">OP-${m.num}</span>
+              <span style="color:#D0DCFF;">·</span>
+              ${stateBadge}
+            </div>
+          </div>
+        </div>
+        <div class="mission-acc-right">
+          <div class="mission-acc-date">${m.date}</div>
+          <div class="mission-acc-chevron">
+            <svg class="mission-acc-chevron-icon" width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <path d="M2 4l4 4 4-4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="mission-acc-body">
+        <div class="mission-acc-body-inner">
+          <div class="mission-item" id="mop-${i}" style="padding:14px 16px;"></div>
+        </div>
+      </div>
+    </div>`;
   });
-  c.innerHTML=h;
-  MISSIONS.forEach((_,i)=>renderMissionItem(i));
+
+  stack.innerHTML = h;
+  MISSIONS.forEach((_, i) => renderMissionItem(i));
 })();
 </script>
 
@@ -2384,45 +2660,148 @@ function submitJetRequest() {
   }, 3500);
 }
 
+// Real flight durations (hours) from Jakarta HLP to each city
+const FLIGHT_DURATION_HOURS = {
+  'Budapest':        13.5,  // CGK–BUD via layover ~13–14h
+  'Taipei':           5.5,  // CGK–TPE ~5–6h
+  'Singapore':        1.75, // CGK–SIN ~1h45m
+  'Bangkok':          3.25, // CGK–BKK ~3h15m
+  'Ho Chi Minh City': 2.75, // CGK–SGN ~2h45m
+  'Tokyo':            7.5,  // CGK–NRT ~7–8h
+  'Seoul':            7.0,  // CGK–ICN ~7h
+  'Hanoi':            3.5,  // CGK–HAN ~3–3.5h
+  'Osaka':            7.5,  // CGK–KIX ~7–8h
+};
+const DEFAULT_FLIGHT_HOURS = 8;
+
+function parseMissionStartDate(dateRange) {
+  // dateRange e.g. "01 – 04 May 2026"
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const parts = dateRange.replace(/\s+/g,' ').trim().split(/\s*[–-]\s*/);
+  const startDay = parseInt(parts[0]);
+  const endParts = (parts[1] || '').trim().split(' ');
+  let mon = -1, yr = -1;
+  for (let k = 0; k < endParts.length; k++) {
+    const idx = monthNames.indexOf(endParts[k]);
+    if (idx >= 0) { mon = idx; yr = parseInt(endParts[k+1]); break; }
+  }
+  if (mon < 0 || isNaN(yr) || isNaN(startDay)) return null;
+  // Departure = start day at 17:00 WIB (local)
+  return new Date(yr, mon, startDay, 17, 0, 0);
+}
+
+function getFlightHours(cityCountry) {
+  // cityCountry e.g. "Budapest, Hungary"
+  const city = (cityCountry || '').split(',')[0].trim();
+  return FLIGHT_DURATION_HOURS[city] || DEFAULT_FLIGHT_HOURS;
+}
+
+function formatJetBoardingTime(departDate, cityCountry) {
+  if (!departDate) return { boardingStr: '16:00 WIB', arrivalStr: '—', departStr: '17:00 WIB', flightHours: DEFAULT_FLIGHT_HOURS, arrivalDate: null };
+  const pad = n => String(n).padStart(2,'0');
+  const flightHours = getFlightHours(cityCountry || '');
+  const flightMs = flightHours * 3600000;
+
+  // Boarding = 1h before departure
+  const boardingDate = new Date(departDate.getTime() - 3600000);
+  const boardingStr = `${pad(boardingDate.getHours())}:${pad(boardingDate.getMinutes())} WIB`;
+  const departStr = `${pad(departDate.getHours())}:${pad(departDate.getMinutes())} WIB`;
+
+  // ETA = departure + flight duration
+  const arrivalDate = new Date(departDate.getTime() + flightMs);
+  const monthsID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const arrivalTimeStr = `${pad(arrivalDate.getHours())}:${pad(arrivalDate.getMinutes())} waktu setempat`;
+  const arrivalDateStr = `${arrivalDate.getDate()} ${monthsID[arrivalDate.getMonth()]} ${arrivalDate.getFullYear()}`;
+
+  // Duration label e.g. "13j 30m"
+  const totalMin = Math.round(flightHours * 60);
+  const dh = Math.floor(totalMin / 60);
+  const dm = totalMin % 60;
+  const durationStr = `${dh}j ${dm > 0 ? dm + 'm' : ''}`.trim();
+
+  return { boardingStr, departStr, arrivalDate, arrivalTimeStr, arrivalDateStr, flightHours, durationStr };
+}
+
 function showJetConfirmed(dest, dateRange) {
-  // Add to My Orders
-  addOrder('jet', menuConfig['jet'], `${dest} | ${dateRange}`);
+  const departDate = parseMissionStartDate(dateRange);
+  const flightInfo = formatJetBoardingTime(departDate, dest);
+  const { boardingStr, departStr, arrivalTimeStr, arrivalDateStr, durationStr } = flightInfo;
+
+  // Format departure date label
+  let boardingDateStr = '';
+  if (departDate) {
+    const days = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+    const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    boardingDateStr = `${days[departDate.getDay()]}, ${departDate.getDate()} ${months[departDate.getMonth()]} ${departDate.getFullYear()}`;
+  }
+
+  // Add to My Orders — pass departure timestamp
+  addOrder('jet', menuConfig['jet'], `${dest} | ${dateRange}`, departDate ? departDate.getTime() : null);
   document.getElementById('menuModalContent').innerHTML = `
-    <div style="text-align:center;margin-bottom:18px;">
-      <div style="display:inline-flex;align-items:center;gap:6px;background:#EBF2FF;border:1px solid #B3CFFF;border-radius:20px;padding:5px 14px;margin-bottom:16px;">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="display:inline-flex;align-items:center;gap:6px;background:#EBF2FF;border:1px solid #B3CFFF;border-radius:20px;padding:5px 14px;margin-bottom:14px;">
         <div style="width:7px;height:7px;border-radius:50%;background:#0066FF;animation:dotPulse 1.2s infinite;"></div>
         <span style="font-size:11px;font-weight:800;color:#0066FF;letter-spacing:0.1em;">TERKONFIRMASI</span>
       </div>
-      <div style="font-size:52px;margin-bottom:4px;">✈️</div>
+      <div style="font-size:48px;margin-bottom:4px;">✈️</div>
       <div style="font-size:13px;font-weight:700;color:#8898AA;letter-spacing:0.12em;">PRIVATE JET</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#0066FF;font-weight:600;margin-top:3px;">PJ-${Math.floor(Math.random()*9000)+1000}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#0066FF;font-weight:600;margin-top:3px;">MYT-${genJetCode()}</div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;">
-      <div style="background:#EBF2FF;border:1px solid #D6E8FF;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
-        <span style="font-size:18px;">🛫</span>
-        <div>
-          <div style="font-size:10px;font-weight:700;color:#8898AA;letter-spacing:0.08em;">BANDARA KEBERANGKATAN</div>
-          <div style="font-size:13px;font-weight:800;color:#0044CC;margin-top:2px;">HLP – Halim Perdanakusuma</div>
-          <div style="font-size:11px;color:#525F7F;margin-top:1px;">Jakarta, Indonesia</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
+
+      <!-- Route row -->
+      <div style="display:flex;align-items:center;gap:8px;background:#F4F7FF;border:1px solid #E4EDFF;border-radius:12px;padding:11px 14px;">
+        <div style="flex:1;">
+          <div style="font-size:9px;font-weight:700;color:#8898AA;letter-spacing:0.08em;">🛫 DARI</div>
+          <div style="font-size:12px;font-weight:800;color:#0044CC;margin-top:2px;">HLP Jakarta</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
+          <div style="font-size:9px;color:#8898AA;font-weight:600;">${durationStr}</div>
+          <div style="width:60px;height:1.5px;background:linear-gradient(90deg,#0066FF,#FF6B35);border-radius:1px;position:relative;">
+            <span style="position:absolute;right:-4px;top:-5px;font-size:10px;">✈</span>
+          </div>
+        </div>
+        <div style="flex:1;text-align:right;">
+          <div style="font-size:9px;font-weight:700;color:#8898AA;letter-spacing:0.08em;">🛬 TUJUAN</div>
+          <div style="font-size:12px;font-weight:800;color:#1A1F36;margin-top:2px;">${dest.split(',')[0]}</div>
         </div>
       </div>
-      <div style="background:#F4F7FF;border:1px solid #E4EDFF;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
-        <span style="font-size:18px;">🎯</span>
-        <div>
-          <div style="font-size:10px;font-weight:700;color:#8898AA;letter-spacing:0.08em;">TUJUAN</div>
-          <div style="font-size:13px;font-weight:700;color:#1A1F36;margin-top:2px;">${dest}</div>
+
+      <!-- Schedule card -->
+      <div style="background:#FFF4E0;border:1px solid #FFE0A0;border-radius:12px;padding:12px 14px;">
+        <div style="font-size:10px;font-weight:700;color:#C07800;letter-spacing:0.08em;margin-bottom:6px;">📅 JADWAL PENERBANGAN</div>
+        <div style="font-size:11px;font-weight:800;color:#F5A623;margin-bottom:8px;">${boardingDateStr || dateRange}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="background:rgba(245,166,35,0.1);border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:8px;color:#C07800;font-weight:700;margin-bottom:3px;">🚶 BOARDING</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:900;color:#1A1F36;">${boardingStr}</div>
+          </div>
+          <div style="background:rgba(229,48,58,0.08);border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:8px;color:#B71C1C;font-weight:700;margin-bottom:3px;">✈️ TAKE OFF</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:900;color:#E5303A;">${departStr}</div>
+          </div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div style="background:#FFF4E0;border:1px solid #FFE0A0;border-radius:12px;padding:12px;text-align:center;">
-          <div style="font-size:10px;font-weight:700;color:#C07800;letter-spacing:0.08em;margin-bottom:4px;">📅 TANGGAL MISI</div>
-          <div style="font-size:11px;font-weight:800;color:#F5A623;line-height:1.4;">${dateRange}</div>
+
+      <!-- ETA card -->
+      <div style="background:linear-gradient(135deg,#0D1B4B,#0a1a48);border:1px solid rgba(0,102,255,0.3);border-radius:12px;padding:12px 14px;">
+        <div style="font-size:9px;font-weight:800;color:#4D9FFF;letter-spacing:0.12em;margin-bottom:8px;">🛬 ESTIMASI TIBA — SESUAI JARAK NYATA</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;">Tanggal Tiba</div>
+            <div style="font-size:13px;font-weight:800;color:#fff;margin-top:2px;">${arrivalDateStr || '—'}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;">Jam Tiba (Lokal)</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:900;color:#6FFFCA;margin-top:2px;">${arrivalTimeStr || '—'}</div>
+          </div>
         </div>
-        <div style="background:#FDECEA;border:1px solid #FFCCCC;border-radius:12px;padding:12px;text-align:center;">
-          <div style="font-size:10px;font-weight:700;color:#B71C1C;letter-spacing:0.08em;margin-bottom:4px;">🕔 JAM TERBANG</div>
-          <div style="font-size:13px;font-weight:800;color:#E5303A;line-height:1.4;">17:00 – 22:00</div>
+        <div style="margin-top:8px;background:rgba(255,255,255,0.06);border-radius:6px;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:9px;color:rgba(255,255,255,0.4);font-weight:600;">⏱ Total Penerbangan</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;color:#4D9FFF;">${durationStr}</span>
         </div>
       </div>
+
     </div>
   `;
   document.getElementById('menuBottomBtn').innerHTML = `
@@ -2619,7 +2998,7 @@ const orderStatusColors = {
 
 const orderETAs = {
   parade: 10,
-  jet:    240,
+  jet:    60,   // placeholder; real duration set from departureTs + FLIGHT_DURATION_HOURS
   heli:   20,
   sos:    5,
   doctor: 15,
@@ -2648,9 +3027,21 @@ function genJetCode() {
   return code; // e.g. PJ4287
 }
 
-function addOrder(type, cfg, detail) {
-  const etaMins = orderETAs[type] || 20;
+function addOrder(type, cfg, detail, departureTs) {
+  let etaMins = orderETAs[type] || 20;
   const now = Date.now();
+
+  // For jet: real duration = flight hours from mission destination
+  let realArrivalTs = now + etaMins * 60000;
+  if (type === 'jet' && departureTs) {
+    const cityCountry = (detail || '').split('|')[0].trim();
+    const flightHrs = getFlightHours(cityCountry);
+    const flightMs = flightHrs * 3600000;
+    etaMins = Math.round(flightHrs * 60);
+    // arrivalAt = departure time + flight duration
+    realArrivalTs = departureTs + flightMs;
+  }
+
   const order = {
     id: orderIdCounter++,
     type,
@@ -2660,15 +3051,52 @@ function addOrder(type, cfg, detail) {
     detail,
     etaMins,
     createdAt: now,
-    arrivalAt: now + etaMins * 60000,
+    arrivalAt: realArrivalTs,
     statusIndex: 0,
     done: false,
     // Jet-specific extras
     jetCode: type === 'jet' ? genJetCode() : null,
+    departureTs: type === 'jet' ? (departureTs || null) : null,
   };
   orders.unshift(order);
   updateOrderBadge();
   startOrderProgress(order);
+  if (type === 'jet' && order.departureTs) scheduleJetReminder(order);
+  showOrderToast(order);
+}
+
+function showOrderToast(order) {
+  const existing = document.getElementById('orderToast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'orderToast';
+  toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9998;background:#1A1F36;color:#fff;border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.3);opacity:0;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);font-family:Nunito,sans-serif;max-width:340px;';
+  toast.innerHTML = '<span style="font-size:18px;">' + order.icon + '</span><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:800;">' + order.label + ' ditambahkan</div><div style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px;">Tersimpan di riwayat order ✓</div></div><div onclick="this.closest("#orderToast").remove();openOrdersPanel();" style="font-size:10px;font-weight:800;color:#4D9FFF;cursor:pointer;white-space:nowrap;flex-shrink:0;">LIHAT →</div>';
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity='1'; toast.style.transform='translateX(-50%) translateY(0)'; }, 50);
+  setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translateX(-50%) translateY(10px)'; setTimeout(() => toast.remove(), 400); }, 3500);
+}
+
+function scheduleJetReminder(order) {
+  if (!order.departureTs) return;
+  const now = Date.now();
+  const departTs = order.departureTs;
+  if (!('Notification' in window)) return;
+  Notification.requestPermission().then(perm => {
+    if (perm !== 'granted') return;
+    const msToH1 = departTs - 86400000 - now;
+    if (msToH1 > 0 && msToH1 < 7 * 86400000) {
+      setTimeout(() => {
+        new Notification('MYTHOS — Jet Besok!', { body: 'Boarding besok ke ' + order.detail.split('|')[0].trim() + '. Pastikan semua siap.' });
+      }, msToH1);
+    }
+    const msTo3h = departTs - 4 * 3600000 - now;
+    if (msTo3h > 0 && msTo3h < 7 * 86400000) {
+      setTimeout(() => {
+        new Notification('MYTHOS — 3 Jam Lagi Boarding!', { body: 'Segera menuju HLP. Jet MYT-' + order.jetCode + ' siap terbang.' });
+      }, msTo3h);
+    }
+  });
 }
 
 function startOrderProgress(order) {
@@ -2756,25 +3184,107 @@ function formatCountdown(ms) {
   return `${s}d`;
 }
 
+let _currentOrderTab = 'active';
+
+function switchOrderTab(tab) {
+  _currentOrderTab = tab;
+  const tabActive = document.getElementById('tabActive');
+  const tabHistory = document.getElementById('tabHistory');
+  if (tabActive) {
+    tabActive.style.color = tab === 'active' ? '#0066FF' : '#8898AA';
+    tabActive.style.borderBottom = tab === 'active' ? '2px solid #0066FF' : '2px solid transparent';
+  }
+  if (tabHistory) {
+    tabHistory.style.color = tab === 'history' ? '#0066FF' : '#8898AA';
+    tabHistory.style.borderBottom = tab === 'history' ? '2px solid #0066FF' : '2px solid transparent';
+  }
+  refreshOrdersPanel();
+}
+
 function refreshOrdersPanel() {
   const container = document.getElementById('ordersContainer');
   if (!container) return;
 
+  const activeOrders = orders.filter(o => !o.done);
+  const historyOrders = orders.filter(o => o.done);
+
   const countEl = document.getElementById('ordersCount');
   if (countEl) countEl.textContent = orders.length;
+  const activeTabCount = document.getElementById('activeTabCount');
+  if (activeTabCount) activeTabCount.textContent = activeOrders.length;
+  const historyTabCount = document.getElementById('historyTabCount');
+  if (historyTabCount) historyTabCount.textContent = historyOrders.length;
 
-  if (orders.length === 0) {
+  const displayOrders = _currentOrderTab === 'history' ? historyOrders : activeOrders;
+
+  if (displayOrders.length === 0) {
     container.innerHTML = `
       <div style="text-align:center;padding:40px 20px;">
-        <div style="font-size:40px;margin-bottom:12px;opacity:0.3;">📋</div>
-        <div style="font-size:13px;font-weight:700;color:#8898AA;">Belum ada request</div>
-        <div style="font-size:11px;color:#C0CCDD;margin-top:6px;">Gunakan menu di atas untuk membuat request</div>
+        <div style="font-size:40px;margin-bottom:12px;opacity:0.3;">${_currentOrderTab === 'history' ? '🗂️' : '📋'}</div>
+        <div style="font-size:13px;font-weight:700;color:#8898AA;">${_currentOrderTab === 'history' ? 'Belum ada riwayat order' : 'Tidak ada order aktif'}</div>
+        <div style="font-size:11px;color:#C0CCDD;margin-top:6px;">${_currentOrderTab === 'history' ? 'Order yang selesai akan muncul di sini' : 'Gunakan menu di atas untuk membuat request'}</div>
       </div>`;
     return;
   }
 
   const now = Date.now();
-  container.innerHTML = orders.map(order => {
+
+  // For jet orders, show departure countdown if departureTs set
+  function formatJetDepartureInfo(order) {
+    if (!order.departureTs) return '';
+    const dTs = order.departureTs;
+    const msToDepart = dTs - now;
+    const pad = n => String(n).padStart(2,'0');
+    const departDate = new Date(dTs);
+    const monthsID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const dateStr = departDate.getDate() + ' ' + monthsID[departDate.getMonth()] + ' ' + departDate.getFullYear();
+    const timeStr = pad(departDate.getHours()) + ':' + pad(departDate.getMinutes()) + ' WIB';
+
+    // Real flight info
+    const cityCountry = (order.detail || '').split('|')[0].trim();
+    const flightHrs = getFlightHours(cityCountry);
+    const arrDate = new Date(dTs + flightHrs * 3600000);
+    const arrTimeStr = pad(arrDate.getHours()) + ':' + pad(arrDate.getMinutes()) + ' waktu setempat';
+    const arrDateStr = arrDate.getDate() + ' ' + monthsID[arrDate.getMonth()] + ' ' + arrDate.getFullYear();
+    const totalMin = Math.round(flightHrs * 60);
+    const dh = Math.floor(totalMin / 60);
+    const dm = totalMin % 60;
+    const durStr = dh + 'j' + (dm > 0 ? ' ' + dm + 'm' : '');
+
+    if (msToDepart <= 0) {
+      // Already departed — show arrival countdown
+      const msToArr = (dTs + flightHrs * 3600000) - now;
+      if (msToArr <= 0) {
+        return '<div style="margin-top:8px;background:#E6F7F2;border:1px solid #B3EDD8;border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;"><span style="font-size:14px;">🛬</span><div style="font-size:11px;font-weight:800;color:#007A56;">Sudah Tiba di Tujuan ✓</div></div>';
+      }
+      const remSec = Math.ceil(msToArr / 1000);
+      const rh = Math.floor(remSec / 3600);
+      const rm = Math.floor((remSec % 3600) / 60);
+      return '<div style="margin-top:8px;background:linear-gradient(135deg,#0D1B4B,#0a1a48);border:1px solid rgba(0,102,255,0.3);border-radius:8px;padding:8px 10px;">' +
+        '<div style="font-size:9px;font-weight:800;color:#4D9FFF;letter-spacing:0.08em;margin-bottom:5px;">✈️ DALAM PENERBANGAN</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+        '<div style="font-size:10px;color:rgba(255,255,255,0.6);">ETA: <b style="color:#6FFFCA;">' + arrDateStr + ' · ' + arrTimeStr + '</b></div>' +
+        '<div style="font-family:JetBrains Mono,monospace;font-size:12px;font-weight:900;color:#F5A623;">' + rh + 'j ' + pad(rm) + 'm</div></div></div>';
+    }
+
+    // Not yet departed — show countdown to boarding
+    const totalSec = Math.ceil(msToDepart / 1000);
+    const d = Math.floor(totalSec / 86400);
+    const h = Math.floor((totalSec % 86400) / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    const countdown = d > 0 ? d + 'h ' + pad(h) + 'j ' + pad(m) + 'm' : pad(h) + ':' + pad(m) + ':' + pad(s);
+    return '<div style="margin-top:8px;background:#FFF4E0;border:1px solid #FFE0A0;border-radius:8px;padding:8px 10px;">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">' +
+      '<div><div style="font-size:9px;font-weight:700;color:#C07800;letter-spacing:0.06em;">🕐 KEBERANGKATAN</div>' +
+      '<div style="font-size:11px;font-weight:800;color:#1A1F36;margin-top:1px;">' + dateStr + ' · ' + timeStr + '</div></div>' +
+      '<div style="font-family:JetBrains Mono,monospace;font-size:12px;font-weight:900;color:#F5A623;white-space:nowrap;">' + countdown + '</div></div>' +
+      '<div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;background:rgba(245,166,35,0.1);border-radius:6px;padding:4px 8px;">' +
+      '<span style="font-size:9px;color:#C07800;font-weight:600;">🛬 ETA: ' + arrDateStr + ' · ' + arrTimeStr + '</span>' +
+      '<span style="font-size:9px;font-weight:700;color:#8898AA;">(' + durStr + ')</span></div></div>';
+  }
+
+  container.innerHTML = displayOrders.map(order => {
     const isJet = order.type === 'jet';
     const flow = isJet ? jetStatusFlow : orderStatusFlow;
     const colorMap = isJet ? jetStatusColors : orderStatusColors;
@@ -2848,10 +3358,10 @@ function refreshOrdersPanel() {
         <div style="text-align:right;flex-shrink:0;">
           <div style="display:inline-flex;align-items:center;gap:4px;background:${sc.bg};border-radius:8px;padding:3px 8px;">
             <div style="width:5px;height:5px;border-radius:50%;background:${sc.dot};${!isDone?'animation:orderDotPulse 1.2s infinite;':''}"></div>
-            <span style="font-size:9px;font-weight:800;color:${sc.color};letter-spacing:0.06em;">${isDone?'DEPARTED':status.toUpperCase()}</span>
+            <span style="font-size:9px;font-weight:800;color:${sc.color};letter-spacing:0.06em;">${isDone?(isJet?'DEPARTED':'SELESAI'):status.toUpperCase()}</span>
           </div>
           <div style="font-size:11px;font-weight:700;color:${isDone?'#00B37D':'#1A1F36'};margin-top:4px;font-family:'JetBrains Mono',monospace;">
-            ${isDone ? '✓ Departed' : formatCountdown(msLeft)}
+            ${isDone ? (isJet ? '✓ Landed' : '✓ Tiba') : (isJet && order.departureTs ? (now < order.departureTs ? '⏳ ' + formatCountdown(order.departureTs - now) : '✈️ ' + formatCountdown(msLeft)) : formatCountdown(msLeft))}
           </div>
         </div>
       </div>
@@ -2879,6 +3389,12 @@ function refreshOrdersPanel() {
         <div style="font-size:10px;color:#007A56;font-weight:700;">✅ Request Selesai</div>
         <div style="font-size:10px;color:#00B37D;font-weight:600;">${order.label} telah tiba</div>
       </div>`) : ''}
+
+      <!-- Jet departure info (mission-based) -->
+      ${isJet ? formatJetDepartureInfo(order) : ''}
+
+      <!-- History timestamp -->
+      ${isDone ? `<div style="margin-top:6px;font-size:9px;color:#B0BAD0;font-family:'JetBrains Mono',monospace;text-align:right;">Selesai: ${new Date(order.arrivalAt).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -2908,7 +3424,7 @@ function refreshOrdersPanel() {
     </div>
     <div class="chip">
       <div class="chip-label">Gold</div>
-      <div class="chip-val green" id="chipYield">92.00%</div>
+      <div class="chip-val green" id="chipYield">—</div>
     </div>
     <div class="chip">
       <div class="chip-label">Status</div>
@@ -2916,146 +3432,398 @@ function refreshOrdersPanel() {
     </div>
   </div>
 
-  <!-- WALLET BALANCE -->
-  <div class="card">
-    <div class="card-title"><span class="card-title-dot"></span>Primary Vault — BTC Holdings</div>
-    <div class="wallet-top">
-      <div>
-        <div class="btc-amount"><span class="btc-sym">₿</span>12,336.00</div>
-        <div class="usd-value" id="usdValue">Loading...</div>
-        <div class="usd-sub">Total USD Value <span id="lastUpdate" style="color:var(--blue);margin-left:4px;font-size:9px"></span></div>
-      </div>
-      <div class="btc-price-card">
-        <div class="btc-price-label">BTC / USD</div>
-        <div class="btc-price-val" id="btcPrice">—</div>
-        <div class="btc-change" id="btcChange">—</div>
-      </div>
-    </div>
-    <div class="wallet-accent"></div>
-  </div>
+<style>
+/* ── ACCORDION STACK ─────────────────────────────── */
+.acc-stack {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 100px;
+}
 
-  <!-- KONVERSI KE GOLD -->
-  <div class="card" style="position:relative;overflow:hidden">
-    <!-- gold shimmer accent -->
-    <div style="position:absolute;top:0;right:0;width:110px;height:110px;background:radial-gradient(circle,rgba(245,166,35,0.10) 0%,transparent 70%);border-radius:0 16px 0 100%;pointer-events:none"></div>
-    <div class="card-title"><span class="card-title-dot" style="background:var(--gold)"></span>Konversi ke Gold</div>
-    <div class="yield-top">
-      <div>
-        <div class="yield-pct" id="yieldPct" style="color:var(--gold)">29.00%</div>
-        <div class="yield-sub">PROGRESS KONVERSI GOLD</div>
-      </div>
-      <div class="yield-meta-grid">
-        <div class="yield-meta-row">Gain/hari: <b id="dailyGain" style="color:var(--gold)">+0.10–0.46%</b></div>
-        <div class="yield-meta-row">Update: <b id="nextUpdate" style="color:var(--blue)">--:--:--</b></div>
-        <div class="yield-meta-row">Sisa: <b id="goldRemain" style="color:var(--accent)">71.00%</b></div>
-      </div>
-    </div>
-    <div class="progress-track" style="background:#FFF4E0">
-      <div class="progress-fill" id="progressFill" style="width:29%;background:linear-gradient(90deg,var(--gold),#FFD060)"></div>
-    </div>
-    <div class="progress-labels">
-      <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100% 🏆</span>
-    </div>
-    <div class="yield-badges" style="margin-top:12px">
-      <div class="yield-badge">
-        <div class="yield-badge-label">Gain Hari Ini</div>
-        <div class="yield-badge-val" id="dayGainBadge" style="color:var(--gold)">+0.00%</div>
-      </div>
-      <div class="yield-badge">
-        <div class="yield-badge-label">📅 Est. Selesai</div>
-        <div class="yield-badge-val" id="goldEstDate" style="color:var(--green);font-size:11px">—</div>
-      </div>
-      <div class="yield-badge">
-        <div class="yield-badge-label">🗓 Sisa Hari</div>
-        <div class="yield-badge-val" id="goldEstDays" style="color:var(--accent)">—</div>
-      </div>
-    </div>
-  </div>
+.acc-item {
+  position: relative;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: box-shadow 0.25s, border-color 0.25s;
+}
 
-  <!-- CONVERSION PROGRESS + WALLET STREAM -->
-  <div class="card" style="padding:14px">
-    <!-- Header -->
-    <div class="conv-header">
-      <div class="card-title" style="margin-bottom:0"><span class="card-title-dot"></span>Progress Konversi</div>
-      <div class="conv-total-badge" id="convTotalBadge">1000 Wallets</div>
+/* Remove stacking z-index overrides */
+.acc-item:nth-child(1),
+.acc-item:nth-child(2),
+.acc-item:nth-child(3),
+.acc-item:nth-child(4) { z-index: auto; }
+
+.acc-item:not(.open) {
+  transform: none;
+}
+.acc-item.open {
+  margin-bottom: 0;
+  border-color: #C5D9FF;
+  box-shadow: 0 4px 18px rgba(0,70,180,0.12);
+  z-index: auto !important;
+}
+
+/* Header / trigger row */
+.acc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  gap: 10px;
+  min-height: 60px;
+}
+.acc-header:active { opacity: 0.85; }
+
+.acc-header-left {
+  display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;
+}
+.acc-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+  font-weight: 700;
+}
+.acc-title-wrap { flex: 1; min-width: 0; }
+.acc-title {
+  font-size: 13px; font-weight: 800; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.acc-subtitle {
+  font-size: 10px; color: var(--text3); font-weight: 600; margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.acc-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 8px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.acc-chevron {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--blue-light);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1),
+              background 0.2s;
+}
+.acc-item.open .acc-chevron {
+  background: var(--blue);
+  transform: none;
+}
+.acc-chevron-arrow {
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.acc-item.open .acc-chevron-arrow {
+  transform: rotate(180deg);
+}
+.acc-chevron-arrow path { stroke: #0066FF; }
+.acc-item.open .acc-chevron-arrow path { stroke: #fff; }
+
+/* Body collapse */
+.acc-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1);
+}
+.acc-item.open .acc-body {
+  max-height: 2400px;
+}
+.acc-body-inner {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+</style>
+
+  <!-- ACCORDION STACK: 4 main sections -->
+  <div class="acc-stack">
+
+    <!-- 1. PRIMARY VAULT -->
+    <div class="acc-item open" id="acc-vault">
+      <div class="acc-header" onclick="toggleAcc('acc-vault')">
+        <div class="acc-header-left">
+          <div class="acc-icon" style="background:linear-gradient(135deg,#FFF4E0,#FFE9B3);">₿</div>
+          <div class="acc-title-wrap">
+            <div class="acc-title">Primary Vault — BTC</div>
+            <div class="acc-subtitle" id="acc-vault-sub">Loading…</div>
+          </div>
+        </div>
+        <div class="acc-badge" style="background:var(--gold-bg);color:var(--gold);" id="acc-vault-badge">—</div>
+        <div class="acc-chevron">
+          <svg class="acc-chevron-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <div class="wallet-top">
+            <div>
+              <div class="btc-amount"><span class="btc-sym">₿</span><span id="btcAmtDisplay">0.00</span></div>
+              <div class="usd-value" id="usdValue">$0.00</div>
+              <div class="usd-sub">Total USD Value <span id="lastUpdate" style="color:var(--blue);margin-left:4px;font-size:9px"></span></div>
+            </div>
+            <div class="btc-price-card">
+              <div class="btc-price-label">BTC / USD</div>
+              <div class="btc-price-val" id="btcPrice">—</div>
+              <div class="btc-change" id="btcChange">—</div>
+            </div>
+          </div>
+          <!-- BTC LOCK BANNER — tampil selama konversi belum 100% -->
+          <div id="btcLockBanner" style="display:flex;flex-direction:column;gap:0;margin-top:14px;background:linear-gradient(135deg,#FFF4E0,#FFF8EC);border:1.5px solid #FFE0A0;border-radius:14px;overflow:hidden;">
+            <!-- Top row -->
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 14px 10px;">
+              <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#F5A623,#C07800);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(245,166,35,0.3);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#fff" stroke-width="2.2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:11px;font-weight:800;color:#C07800;">🔒 Saldo Terkunci</div>
+                <div style="font-size:10px;color:#8C5E00;font-weight:600;margin-top:2px;line-height:1.4;">Menunggu proses konversi 1,000 wallet selesai</div>
+              </div>
+              <div style="text-align:right;flex-shrink:0;">
+                <div style="font-size:9px;color:#B07800;font-weight:600;">TERSEDIA</div>
+                <div style="font-size:15px;font-weight:900;color:#C07800;font-family:'JetBrains Mono',monospace;">$0.00</div>
+              </div>
+            </div>
+            <!-- Progress bar row -->
+            <div style="padding:0 14px 10px;">
+              <div style="display:flex;justify-content:space-between;font-size:9px;font-weight:700;color:#B07800;margin-bottom:5px;">
+                <span id="lockBannerProgress">0 / 1,000 wallet selesai</span>
+                <span id="lockBannerEst">Est. selesai: menghitung…</span>
+              </div>
+              <div style="height:6px;background:#FFE0A0;border-radius:6px;overflow:hidden;">
+                <div id="lockProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#F5A623,#FFD060);border-radius:6px;transition:width 1s ease;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="wallet-accent"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Stats row -->
-    <div class="conv-stat-row">
-      <div class="conv-stat">
-        <div class="conv-stat-label">Selesai</div>
-        <div class="conv-stat-val green" id="convDone">0</div>
+    <!-- 2. KONVERSI KE GOLD -->
+    <div class="acc-item" id="acc-gold">
+      <div class="acc-header" onclick="toggleAcc('acc-gold')">
+        <div class="acc-header-left">
+          <div class="acc-icon" style="background:linear-gradient(135deg,#FFF4E0,#FFE9B3);">🏆</div>
+          <div class="acc-title-wrap">
+            <div class="acc-title">Konversi ke Gold</div>
+            <div class="acc-subtitle">Progress Konversi Gold</div>
+          </div>
+        </div>
+        <div class="acc-badge" style="background:var(--gold-bg);color:var(--gold);" id="chipYield2">—%</div>
+        <div class="acc-chevron">
+          <svg class="acc-chevron-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
       </div>
-      <div class="conv-stat">
-        <div class="conv-stat-label">Sisa</div>
-        <div class="conv-stat-val blue" id="convIdle">0</div>
-      </div>
-      <div class="conv-stat">
-        <div class="conv-stat-label">Konversi</div>
-        <div class="conv-stat-val green" id="convPct">0%</div>
-      </div>
-    </div>
-
-    <!-- Progress bar -->
-    <div class="conv-bar-wrap">
-      <div class="conv-bar-labels">
-        <span id="convBarLabel">Konversi: <b style="color:var(--green)">0%</b></span>
-        <span id="convBarRight" style="color:var(--text3)">Sisa: 1000 wallet</span>
-      </div>
-      <div class="conv-bar-track">
-        <div class="conv-bar-fill" id="convBarFill" style="width:0%"></div>
-        <div class="conv-bar-pending" id="convBarPending" style="left:0%;width:0%"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--text3);margin-top:3px">
-        <span>0</span><span>250</span><span>500</span><span>750</span><span>1000</span>
-      </div>
-    </div>
-
-    <!-- Estimasi info row -->
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <div class="conv-stat" style="flex:1.2">
-        <div class="conv-stat-label">⏱ Batch Berikutnya (+5)</div>
-        <div class="conv-stat-val blue" id="convNextBatch" style="font-size:12px;letter-spacing:0.05em">—</div>
-      </div>
-      <div class="conv-stat" style="flex:1">
-        <div class="conv-stat-label">📅 Est. Selesai</div>
-        <div class="conv-stat-val green" id="convEstDate" style="font-size:11px">—</div>
-      </div>
-      <div class="conv-stat">
-        <div class="conv-stat-label">🗓 Sisa Hari</div>
-        <div class="conv-stat-val gold" id="convEstDays">—</div>
-      </div>
-    </div>
-
-    <!-- Stream controls -->
-    <div class="stream-controls">
-      <span class="stream-label">📡 LIVE WALLET STREAM · 1,000 ADDRESSES</span>
-      <div class="stream-toggle" onclick="toggleAutoScroll()">
-        <span id="toggleLabel">AUTO-SCROLL</span>
-        <div class="toggle-pill" id="togglePill"></div>
+      <div class="acc-body">
+        <div class="acc-body-inner" style="position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;right:0;width:110px;height:110px;background:radial-gradient(circle,rgba(245,166,35,0.10) 0%,transparent 70%);border-radius:0 0 0 100%;pointer-events:none"></div>
+          <div class="yield-top">
+            <div>
+              <div class="yield-pct" id="yieldPct" style="color:var(--gold)">29.00%</div>
+              <div class="yield-sub">PROGRESS KONVERSI GOLD</div>
+            </div>
+            <div class="yield-meta-grid">
+              <div class="yield-meta-row">Gain/hari: <b id="dailyGain" style="color:var(--gold)">+0.10–0.46%</b></div>
+              <div class="yield-meta-row">Update: <b id="nextUpdate" style="color:var(--blue)">--:--:--</b></div>
+              <div class="yield-meta-row">Sisa: <b id="goldRemain" style="color:var(--accent)">71.00%</b></div>
+            </div>
+          </div>
+          <div class="progress-track" style="background:#FFF4E0">
+            <div class="progress-fill" id="progressFill" style="width:29%;background:linear-gradient(90deg,var(--gold),#FFD060)"></div>
+          </div>
+          <div class="progress-labels">
+            <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100% 🏆</span>
+          </div>
+          <div class="yield-badges" style="margin-top:12px">
+            <div class="yield-badge">
+              <div class="yield-badge-label">Gain Hari Ini</div>
+              <div class="yield-badge-val" id="dayGainBadge" style="color:var(--gold)">+0.00%</div>
+            </div>
+            <div class="yield-badge">
+              <div class="yield-badge-label">📅 Est. Selesai</div>
+              <div class="yield-badge-val" id="goldEstDate" style="color:var(--green);font-size:11px">—</div>
+            </div>
+            <div class="yield-badge">
+              <div class="yield-badge-label">🗓 Sisa Hari</div>
+              <div class="yield-badge-val" id="goldEstDays" style="color:var(--accent)">—</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Virtual scroll viewport -->
-    <div class="stream-fade-top"></div>
-    <div class="stream-viewport" id="streamViewport">
-      <div id="streamSpacerTop" class="stream-spacer-top"></div>
-      <div id="streamRows" class="stream-rows"></div>
-      <div id="streamSpacerBot" class="stream-spacer-bottom"></div>
+    <!-- 3. PROGRESS KONVERSI + WALLET STREAM -->
+    <div class="acc-item" id="acc-wallets">
+      <div class="acc-header" onclick="toggleAcc('acc-wallets')">
+        <div class="acc-header-left">
+          <div class="acc-icon" style="background:linear-gradient(135deg,#EBF2FF,#D6E8FF);">📡</div>
+          <div class="acc-title-wrap">
+            <div class="acc-title">Progress Konversi</div>
+            <div class="acc-subtitle" id="acc-wallets-sub">1000 Wallets</div>
+          </div>
+        </div>
+        <div class="acc-badge" style="background:var(--blue-light);color:var(--blue2);" id="acc-wallets-badge">—%</div>
+        <div class="acc-chevron">
+          <svg class="acc-chevron-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <!-- Stats row -->
+          <div class="conv-stat-row">
+            <div class="conv-stat">
+              <div class="conv-stat-label">Selesai</div>
+              <div class="conv-stat-val green" id="convDone">0</div>
+            </div>
+            <div class="conv-stat">
+              <div class="conv-stat-label">Sisa</div>
+              <div class="conv-stat-val blue" id="convIdle">0</div>
+            </div>
+            <div class="conv-stat">
+              <div class="conv-stat-label">Konversi</div>
+              <div class="conv-stat-val green" id="convPct">0%</div>
+            </div>
+          </div>
+          <!-- Progress bar -->
+          <div class="conv-bar-wrap">
+            <div class="conv-bar-labels">
+              <span id="convBarLabel">Konversi: <b style="color:var(--green)">0%</b></span>
+              <span id="convBarRight" style="color:var(--text3)">Sisa: 1000 wallet</span>
+            </div>
+            <div class="conv-bar-track">
+              <div class="conv-bar-fill" id="convBarFill" style="width:0%"></div>
+              <div class="conv-bar-pending" id="convBarPending" style="left:0%;width:0%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--text3);margin-top:3px">
+              <span>0</span><span>250</span><span>500</span><span>750</span><span>1000</span>
+            </div>
+          </div>
+          <!-- Estimasi info row -->
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <div class="conv-stat" style="flex:1.2">
+              <div class="conv-stat-label">⏱ Batch Berikutnya (+5)</div>
+              <div class="conv-stat-val blue" id="convNextBatch" style="font-size:12px;letter-spacing:0.05em">—</div>
+            </div>
+            <div class="conv-stat" style="flex:1">
+              <div class="conv-stat-label">📅 Est. Selesai</div>
+              <div class="conv-stat-val green" id="convEstDate" style="font-size:11px">—</div>
+            </div>
+            <div class="conv-stat">
+              <div class="conv-stat-label">🗓 Sisa Hari</div>
+              <div class="conv-stat-val gold" id="convEstDays">—</div>
+            </div>
+          </div>
+          <!-- Stream controls -->
+          <div class="stream-controls">
+            <span class="stream-label">📡 LIVE WALLET STREAM · 1,000 ADDRESSES</span>
+            <div class="stream-toggle" onclick="toggleAutoScroll()">
+              <span id="toggleLabel">AUTO-SCROLL</span>
+              <div class="toggle-pill" id="togglePill"></div>
+            </div>
+          </div>
+          <!-- Virtual scroll viewport -->
+          <div class="stream-fade-top"></div>
+          <div class="stream-viewport" id="streamViewport">
+            <div id="streamSpacerTop" class="stream-spacer-top"></div>
+            <div id="streamRows" class="stream-rows"></div>
+            <div id="streamSpacerBot" class="stream-spacer-bottom"></div>
+          </div>
+          <div class="stream-fade-bot"></div>
+        </div>
+      </div>
     </div>
-    <div class="stream-fade-bot"></div>
-  </div>
 
-
-
-  <!-- LOCATION NODES -->
-  <div class="card" style="padding:14px">
-    <div class="section-label" style="margin-bottom:12px">
-      <div class="card-title" style="margin-bottom:0"><span class="card-title-dot"></span>Network Locations</div>
-      <div class="section-label-count">8 Sites</div>
+    <!-- 4. NETWORK LOCATIONS -->
+    <div class="acc-item" id="acc-nodes">
+      <div class="acc-header" onclick="toggleAcc('acc-nodes')">
+        <div class="acc-header-left">
+          <div class="acc-icon" style="background:linear-gradient(135deg,#E6F7F2,#B3EDD8);">🌐</div>
+          <div class="acc-title-wrap">
+            <div class="acc-title">Network Locations</div>
+            <div class="acc-subtitle">8 Active Nodes</div>
+          </div>
+        </div>
+        <div class="acc-badge" style="background:var(--green-bg);color:var(--green);">8 Sites</div>
+        <div class="acc-chevron">
+          <svg class="acc-chevron-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <div class="nodes-grid" id="nodesGrid"></div>
+        </div>
+      </div>
     </div>
-    <div class="nodes-grid" id="nodesGrid"></div>
-  </div>
+
+  </div><!-- end acc-stack -->
+
+<script>
+// ── ACCORDION TOGGLE ──────────────────────────────
+function toggleAcc(id) {
+  const el = document.getElementById(id);
+  const isOpen = el.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.acc-item').forEach(item => item.classList.remove('open'));
+  // Open target if it was closed
+  if (!isOpen) el.classList.add('open');
+}
+
+// ── SYNC ACC HEADER BADGES with live data ─────────
+setInterval(function syncAccBadges() {
+  // Gold badge
+  const yieldEl = document.getElementById('yieldPct');
+  if (yieldEl) {
+    const v = yieldEl.textContent;
+    const b2 = document.getElementById('chipYield2');
+    if (b2) b2.textContent = v;
+    const chip = document.getElementById('chipYield');
+    if (chip) chip.textContent = v;
+  }
+  // Wallet badge
+  const convPctEl = document.getElementById('convPct');
+  if (convPctEl) {
+    const wb = document.getElementById('acc-wallets-badge');
+    if (wb) wb.textContent = convPctEl.textContent;
+  }
+  const done = document.getElementById('convDone');
+  if (done) {
+    const wsub = document.getElementById('acc-wallets-sub');
+    if (wsub) wsub.textContent = done.textContent + ' / 1000 Wallets selesai';
+  }
+  // BTC vault header sub — show lock state
+  const convDone = parseInt(document.getElementById('convDone')?.textContent) || 0;
+  const isLocked = convDone < 1000;
+  const vsub = document.getElementById('acc-vault-sub');
+  const vbadge = document.getElementById('acc-vault-badge');
+  const usdEl = document.getElementById('usdValue');
+  const priceEl = document.getElementById('btcPrice');
+  if (vsub) {
+    if (isLocked) {
+      vsub.textContent = `🔒 Terkunci — ${convDone}/1.000 wallet selesai`;
+    } else if (usdEl) {
+      vsub.textContent = usdEl.textContent;
+    }
+  }
+  if (vbadge) {
+    if (isLocked) {
+      vbadge.textContent = '$0.00';
+      vbadge.style.background = 'var(--gold-bg)';
+      vbadge.style.color = 'var(--gold)';
+    } else if (priceEl) {
+      vbadge.textContent = priceEl.textContent;
+    }
+  }
+}, 1500);
+</script>
 
 </div>
 
@@ -3092,22 +3860,73 @@ async function fetchBtcPrice() {
 
 function updateBtcUI(price, change) {
   btcPrice = price;
-  const fmt = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
   const fmtDec = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('btcPrice').textContent = fmtDec.format(price);
 
   const chEl = document.getElementById('btcChange');
-
   const sign = change >= 0 ? '+' : '';
   chEl.textContent = `${sign}${change.toFixed(2)}% 24h`;
   chEl.className = `btc-change ${change >= 0 ? 'up' : 'dn'}`;
 
+  updateBtcLockState();
 
-  const total = price * BTC_HOLDINGS;
-  document.getElementById('usdValue').textContent = `$${total.toLocaleString('en-US',{maximumFractionDigits:0})}`;
   const now = new Date();
   document.getElementById('lastUpdate').textContent = `Updated ${now.getUTCHours().toString().padStart(2,'0')}:${now.getUTCMinutes().toString().padStart(2,'0')} UTC`;
+}
 
+function updateBtcLockState() {
+  const convDone = parseInt(document.getElementById('convDone')?.textContent) || 0;
+  const isComplete = convDone >= 1000;
+
+  const usdValEl   = document.getElementById('usdValue');
+  const amtEl      = document.getElementById('btcAmtDisplay');
+  const lockBanner = document.getElementById('btcLockBanner');
+  const lprog      = document.getElementById('lockBannerProgress');
+  const lest       = document.getElementById('lockBannerEst');
+  const lbar       = document.getElementById('lockProgressBar');
+
+  if (!isComplete) {
+    // Tetap tampilkan nominal BTC asli di halaman utama — saldo terkunci hanya di modal
+    if (amtEl)   amtEl.textContent = '12,336.00';
+    if (btcPrice > 0 && usdValEl) {
+      const total = btcPrice * BTC_HOLDINGS;
+      usdValEl.textContent = `$${total.toLocaleString('en-US',{maximumFractionDigits:0})}`;
+    } else if (usdValEl) {
+      usdValEl.textContent = '$0.00';
+    }
+    if (lockBanner) lockBanner.style.display = 'flex';
+
+    // Progress bar fill
+    const pct = Math.min(100, (convDone / 1000) * 100);
+    if (lbar) lbar.style.width = pct.toFixed(1) + '%';
+    if (lprog) lprog.textContent = `${convDone.toLocaleString()} / 1,000 wallet selesai`;
+
+    // Estimasi hari selesai berdasarkan rata-rata batch (5 wallet per batch)
+    // Ambil dari convEstDays jika ada
+    const estDaysEl = document.getElementById('convEstDays');
+    const estDateEl = document.getElementById('convEstDate');
+    if (lest) {
+      const remaining = 1000 - convDone;
+      if (estDateEl && estDateEl.textContent && estDateEl.textContent !== '—') {
+        lest.textContent = `Est. selesai: ${estDateEl.textContent}`;
+      } else if (remaining > 0) {
+        // Estimasi kasar: ~5 wallet/batch, batch tiap ~1 jam
+        const estHours = Math.ceil(remaining / 5);
+        const estDays = Math.ceil(estHours / 24);
+        lest.textContent = `Est. selesai: ±${estDays} hari lagi`;
+      } else {
+        lest.textContent = 'Hampir selesai…';
+      }
+    }
+  } else {
+    if (amtEl) amtEl.textContent = '12,336.00';
+    if (btcPrice > 0 && usdValEl) {
+      const total = btcPrice * BTC_HOLDINGS;
+      usdValEl.textContent = `$${total.toLocaleString('en-US',{maximumFractionDigits:0})}`;
+    }
+    if (lockBanner) lockBanner.style.display = 'none';
+    if (lbar) lbar.style.width = '100%';
+  }
 }
 
 
@@ -3485,9 +4304,10 @@ const countryPasswords = {
   'NODE-AE-DXB-088': 'DUBAI2024',
 };
 
-const failAttempts = {};    // { nodeId: count }
-const lockedNodes  = {};    // { nodeId: true }
-const removedNodes = {};    // { nodeId: true } — asset cleared
+const failAttempts  = {};    // { nodeId: count }
+const lockedNodes   = {};    // { nodeId: true }
+const removedNodes  = {};    // { nodeId: true } — asset cleared
+const unlockedNodes = {};    // { nodeId: true } — successfully verified
 
 let currentModalIdx = null;
 
@@ -3524,6 +4344,14 @@ function openNodeModal(idx) {
   pwSuccess.style.display = 'none';
   assetRemoved.style.display = 'none';
 
+  // Always reset barcode panel and verify button to clean state
+  const barcodePanel = document.getElementById('mBarcodePanel');
+  barcodePanel.style.display = 'none';
+  verifyBtn.disabled = false;
+  verifyBtn.textContent = 'Verifikasi Password';
+  verifyBtn.style.background = 'linear-gradient(135deg,#0066FF,#0044CC)';
+  verifyBtn.style.display = 'block';
+
   if (removedNodes[n.id]) {
     // Asset already removed
     hint.style.display = 'none';
@@ -3534,14 +4362,26 @@ function openNodeModal(idx) {
     hint.style.display = 'none';
     pwSection.style.display = 'none';
     assetRemoved.style.display = 'flex';
+  } else if (unlockedNodes[n.id]) {
+    // Already successfully unlocked before — show verified state directly
+    hint.style.display = 'none';
+    pwSection.style.display = 'block';
+    pwInput.disabled = true;
+    pwInput.value = '';
+    pwInput.placeholder = '••••••••••••';
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = '✓ VERIFIED';
+    verifyBtn.style.background = 'var(--green)';
+    pwSuccess.style.display = 'flex';
+    barcodePanel.style.display = 'flex';
+    generateBarcode(n.id + '-' + countryPasswords[n.id] + '-MYTHOS');
   } else {
-    // Normal country with password
+    // Normal country — prompt for password
     const attempts = failAttempts[n.id] || 0;
     const remaining = 4 - attempts;
     hint.textContent = `🔑 Masukkan password untuk mengakses aset · Sisa percobaan: ${remaining}`;
     hint.style.display = 'flex';
     pwSection.style.display = 'block';
-    verifyBtn.style.display = 'block';
     pwInput.disabled = false;
     pwInput.placeholder = '••••••••••••';
   }
@@ -3568,6 +4408,7 @@ function verifyNodePassword() {
   if (input === correctPw) {
     // SUCCESS
     failAttempts[n.id] = 0;
+    unlockedNodes[n.id] = true;
     pwError.textContent = '';
     pwSuccess.style.display = 'flex';
     document.getElementById('mPwInput').disabled = true;
@@ -3688,6 +4529,11 @@ fetchBtcPrice();
 setInterval(fetchBtcPrice, 30000);
 setInterval(calcYield, 1000);
 setInterval(updateTicker, 5000);
+
+// Sync BTC display saldo tiap 2 detik berdasarkan konversi progress
+setInterval(function syncBtcLockState() {
+  updateBtcLockState();
+}, 2000);
 
 
 // ── ACCESS GATE LOGIC ──────────────────────────────────
@@ -3812,6 +4658,56 @@ document.addEventListener('keydown', (e) => {
   80%{transform:translateX(4px)}
 }
 </style>
+<!-- ══════════ CRYPTO MODAL ══════════ -->
+<div id="cryptoModalOverlay" onclick="if(event.target===this)closeCryptoModal()" style="
+  display:none;position:fixed;inset:0;z-index:3000;
+  background:rgba(10,15,46,0.65);backdrop-filter:blur(8px);
+  align-items:flex-end;justify-content:center;">
+  <div id="cryptoModalSheet" style="
+    background:#fff;border-radius:24px 24px 0 0;
+    width:100%;max-width:480px;
+    max-height:90vh;overflow:hidden;
+    display:flex;flex-direction:column;
+    transform:translateY(100%);transition:transform 0.38s cubic-bezier(0.16,1,0.3,1);
+    box-shadow:0 -8px 40px rgba(0,0,0,0.18);">
+
+    <!-- Modal Header -->
+    <div style="background:linear-gradient(135deg,#7B3FBE,#4A1FA8);padding:20px 20px 0;flex-shrink:0;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none;"></div>
+      <div style="position:absolute;bottom:-20px;left:-20px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:relative;z-index:2;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;">₿</div>
+          <div>
+            <div style="font-size:17px;font-weight:900;color:#fff;letter-spacing:-0.3px;">Crypto</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.6);font-weight:600;margin-top:1px;">MYTHOS Wallet</div>
+          </div>
+        </div>
+        <button onclick="closeCryptoModal()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#x2715;</button>
+      </div>
+      <!-- Tab switcher -->
+      <div style="display:flex;gap:2px;background:rgba(0,0,0,0.2);border-radius:12px;padding:3px;position:relative;z-index:2;">
+        <button id="cryptoTabSend" onclick="switchCryptoTab('send')" style="
+          flex:1;padding:9px 12px;border:none;border-radius:10px;cursor:pointer;
+          font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.02em;
+          background:#fff;color:#7B3FBE;transition:all 0.2s;
+          box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+          &#128640; Transfer
+        </button>
+        <button id="cryptoTabReceive" onclick="switchCryptoTab('receive')" style="
+          flex:1;padding:9px 12px;border:none;border-radius:10px;cursor:pointer;
+          font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.02em;
+          background:transparent;color:rgba(255,255,255,0.7);transition:all 0.2s;">
+          &#128229; Terima
+        </button>
+      </div>
+      <div style="height:16px;"></div>
+    </div>
+    <!-- Modal Body -->
+    <div id="cryptoModalBody" style="overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;"></div>
+  </div>
+</div>
+
 <!-- NODE DETAIL MODAL -->
 <div class="modal-overlay" id="nodeModal" onclick="closeModal(event)">
   <div class="modal-sheet" id="modalSheet">
@@ -3876,38 +4772,58 @@ document.addEventListener('keydown', (e) => {
 </div>
 
 <!-- FLOATING SIDE MENU (center kanan) -->
-<div id="floatingSideMenu" style="position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:4000;display:none;flex-direction:column;gap:0;align-items:flex-end;">
-  <!-- My Orders Button -->
-  <div onclick="openOrdersPanel()" style="position:relative;display:flex;align-items:center;cursor:pointer;margin-bottom:3px;-webkit-tap-highlight-color:transparent;" id="myOrdersBtn">
-    <div style="background:linear-gradient(135deg,#0066FF,#0044CC);width:52px;height:52px;border-radius:14px 0 0 14px;display:flex;align-items:center;justify-content:center;box-shadow:-4px 4px 16px rgba(0,102,255,0.35);transition:all 0.2s;flex-direction:column;gap:2px;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M9 12h6M9 16h4" stroke="white" stroke-width="2" stroke-linecap="round"/>
+<!-- BOTTOM STICKY NAV BAR (tiket.com style) -->
+<div id="floatingSideMenu" style="position:fixed;bottom:0;left:0;right:0;z-index:4000;display:none;flex-direction:row;align-items:stretch;background:#ffffff;border-top:1px solid #E4E9F2;box-shadow:0 -4px 20px rgba(0,50,150,0.10);padding-bottom:env(safe-area-inset-bottom,0px);">
+
+  <!-- My Orders Tab -->
+  <div onclick="openOrdersPanel()" id="myOrdersBtn" style="position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;gap:4px;transition:background 0.15s;">
+    <div style="position:relative;display:inline-flex;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="#0066FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9 12h6M9 16h4" stroke="#0066FF" stroke-width="2" stroke-linecap="round"/>
       </svg>
-      <span style="font-size:7px;font-weight:800;color:rgba(255,255,255,0.85);letter-spacing:0.04em;font-family:'Nunito',sans-serif;">ORDERS</span>
+      <div id="orderBadge" style="display:none;position:absolute;top:-5px;right:-7px;min-width:16px;height:16px;border-radius:8px;background:#E5303A;color:#fff;font-size:9px;font-weight:800;align-items:center;justify-content:center;border:2px solid #fff;font-family:'Nunito',sans-serif;padding:0 3px;"></div>
     </div>
-    <div id="orderBadge" style="display:none;position:absolute;top:-4px;left:-4px;width:18px;height:18px;border-radius:50%;background:#E5303A;color:#fff;font-size:9px;font-weight:800;align-items:center;justify-content:center;border:2px solid #fff;font-family:'Nunito',sans-serif;"></div>
+    <span style="font-size:10px;font-weight:700;color:#0066FF;letter-spacing:0.02em;font-family:'Nunito',sans-serif;">Orders</span>
   </div>
-  <!-- My Card Button -->
-  <div onclick="openCardPanel()" style="display:flex;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent;">
-    <div style="background:linear-gradient(135deg,#1A1F36,#0D1340);width:52px;height:52px;border-radius:14px 0 0 14px;display:flex;align-items:center;justify-content:center;box-shadow:-4px 4px 16px rgba(0,0,60,0.35);transition:all 0.2s;flex-direction:column;gap:2px;border:1px solid rgba(255,215,0,0.2);border-right:none;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="5" width="20" height="14" rx="3" stroke="#FFD700" stroke-width="2"/>
-        <path d="M2 10h20" stroke="#FFD700" stroke-width="2"/>
-        <path d="M6 15h4" stroke="rgba(255,215,0,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Divider -->
+  <div style="width:1px;background:#E4E9F2;margin:10px 0;"></div>
+
+  <!-- Crypto Tab — CENTER, elevated pill style -->
+  <div onclick="openCryptoModal()" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 8px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;gap:3px;position:relative;">
+    <div style="width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#7B3FBE,#4A1FA8);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(123,63,190,0.45);margin-top:-14px;border:2px solid #fff;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="8" stroke="rgba(255,255,255,0.35)" stroke-width="1.2"/>
+        <path d="M9.5 8.5h3.2c1.1 0 2 .7 2 1.8 0 .7-.4 1.3-1 1.6.8.3 1.3 1 1.3 1.8 0 1.2-1 2-2.3 2H9.5V8.5z" fill="rgba(255,255,255,0.95)"/>
+        <path d="M11 8.5V7M11 17v-1M13 8.5V7M13 17v-1" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round"/>
       </svg>
-      <span style="font-size:7px;font-weight:800;color:rgba(255,215,0,0.85);letter-spacing:0.04em;font-family:'Nunito',sans-serif;">MY CARD</span>
     </div>
+    <span style="font-size:10px;font-weight:800;color:#7B3FBE;letter-spacing:0.02em;font-family:'Nunito',sans-serif;">Crypto</span>
   </div>
+
+  <!-- Divider -->
+  <div style="width:1px;background:#E4E9F2;margin:10px 0;"></div>
+
+  <!-- My Card Tab -->
+  <div onclick="openCardPanel()" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;gap:4px;transition:background 0.15s;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="5" width="20" height="14" rx="3" stroke="#1A1F36" stroke-width="2"/>
+      <path d="M2 10h20" stroke="#1A1F36" stroke-width="2"/>
+      <path d="M6 15h4" stroke="#8898AA" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <span style="font-size:10px;font-weight:700;color:#1A1F36;letter-spacing:0.02em;font-family:'Nunito',sans-serif;">My Card</span>
+  </div>
+
 </div>
 
 <!-- MY ORDERS PANEL -->
 <div id="myOrdersPanel" onclick="if(event.target===this)closeOrdersPanel()" style="display:none;position:fixed;inset:0;z-index:4500;background:rgba(10,15,46,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:flex-end;justify-content:center;opacity:0;transition:opacity 0.28s ease;">
-  <div onclick="event.stopPropagation()" style="background:#F4F6FB;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:82vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,50,150,0.18);transform:translateY(20px);transition:transform 0.28s cubic-bezier(0.16,1,0.3,1);" id="myOrdersPanelInner">
+  <div onclick="event.stopPropagation()" style="background:#F4F6FB;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -8px 40px rgba(0,50,150,0.18);transform:translateY(20px);transition:transform 0.28s cubic-bezier(0.16,1,0.3,1);" id="myOrdersPanelInner">
     <!-- Handle -->
     <div style="width:36px;height:4px;background:#D0DCFF;border-radius:2px;margin:14px auto 0;flex-shrink:0;"></div>
     <!-- Header -->
-    <div style="padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid #E4E9F2;">
+    <div style="padding:12px 20px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid #E4E9F2;">
       <div style="display:flex;align-items:center;gap:8px;">
         <div style="width:8px;height:8px;border-radius:50%;background:#0066FF;animation:dotPulse 1.4s infinite;"></div>
         <span style="font-size:15px;font-weight:900;color:#1A1F36;letter-spacing:-0.2px;">My Orders</span>
@@ -3915,8 +4831,13 @@ document.addEventListener('keydown', (e) => {
       </div>
       <div onclick="closeOrdersPanel()" style="width:30px;height:30px;border-radius:50%;background:#F0F4FF;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#8898AA;">✕</div>
     </div>
+    <!-- Tab selector -->
+    <div style="display:flex;gap:0;padding:10px 16px 0;flex-shrink:0;background:#F4F6FB;">
+      <div id="tabActive" onclick="switchOrderTab('active')" style="flex:1;text-align:center;padding:8px 4px;font-size:12px;font-weight:800;color:#0066FF;border-bottom:2px solid #0066FF;cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;">🔄 AKTIF <span id="activeTabCount" style="background:#0066FF;color:#fff;font-size:9px;padding:1px 6px;border-radius:6px;margin-left:3px;">0</span></div>
+      <div id="tabHistory" onclick="switchOrderTab('history')" style="flex:1;text-align:center;padding:8px 4px;font-size:12px;font-weight:800;color:#8898AA;border-bottom:2px solid transparent;cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;">📋 RIWAYAT <span id="historyTabCount" style="background:#E4E9F2;color:#525F7F;font-size:9px;padding:1px 6px;border-radius:6px;margin-left:3px;">0</span></div>
+    </div>
     <!-- Orders list -->
-    <div id="ordersContainer" style="flex:1;overflow-y:auto;padding:14px 16px 24px;-webkit-overflow-scrolling:touch;"></div>
+    <div id="ordersContainer" style="flex:1;overflow-y:auto;padding:12px 16px 24px;-webkit-overflow-scrolling:touch;"></div>
   </div>
 </div>
 
@@ -4642,6 +5563,553 @@ async function sendCapybaraMsg() {
     btn.style.pointerEvents = '';
   }
 }
+</script>
+
+<script>
+// ══════════ CRYPTO MODAL LOGIC ══════════
+let _cryptoTab = 'send';
+let _cryptoPrices = {};
+const CRYPTO_COINS = [
+  { id:'bitcoin',   sym:'BTC', name:'Bitcoin',  icon:'₿',  color:'#F7931A' },
+  { id:'ethereum',  sym:'ETH', name:'Ethereum', icon:'Ξ',  color:'#627EEA' },
+  { id:'tether',    sym:'USDT',name:'Tether',   icon:'₮',  color:'#26A17B' },
+  { id:'solana',    sym:'SOL', name:'Solana',   icon:'◎',  color:'#9945FF' },
+  { id:'binancecoin',sym:'BNB',name:'BNB',      icon:'B',  color:'#F0B90B' },
+];
+
+async function fetchCryptoPrices() {
+  const ids = CRYPTO_COINS.map(c=>c.id).join(',');
+  try {
+    const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`,{cache:'no-store'});
+    const data = await res.json();
+    CRYPTO_COINS.forEach(c => {
+      if (data[c.id]) _cryptoPrices[c.sym] = { usd: data[c.id].usd, change: data[c.id].usd_24h_change || 0 };
+    });
+  } catch(e) {
+    _cryptoPrices = { BTC:{usd:94250,change:1.2}, ETH:{usd:3420,change:-0.8}, USDT:{usd:1.00,change:0.01}, SOL:{usd:185,change:2.3}, BNB:{usd:612,change:-1.1} };
+  }
+  if(document.getElementById('cryptoModalOverlay').style.display==='flex') renderCryptoBody();
+}
+
+function openCryptoModal() {
+  const overlay = document.getElementById('cryptoModalOverlay');
+  overlay.style.display = 'flex';
+  setTimeout(() => { document.getElementById('cryptoModalSheet').style.transform = 'translateY(0)'; }, 10);
+  document.body.style.overflow = 'hidden';
+  _cryptoTab = 'send';
+  updateCryptoTabUI();
+  fetchCryptoPrices();
+  renderCryptoBody();
+}
+
+function closeCryptoModal() {
+  document.getElementById('cryptoModalSheet').style.transform = 'translateY(100%)';
+  setTimeout(() => {
+    document.getElementById('cryptoModalOverlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }, 380);
+}
+
+function switchCryptoTab(tab) {
+  _cryptoTab = tab;
+  updateCryptoTabUI();
+  renderCryptoBody();
+}
+
+function updateCryptoTabUI() {
+  const sendBtn = document.getElementById('cryptoTabSend');
+  const rcvBtn  = document.getElementById('cryptoTabReceive');
+  if (_cryptoTab === 'send') {
+    sendBtn.style.background = '#fff';
+    sendBtn.style.color = '#7B3FBE';
+    sendBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+    rcvBtn.style.background = 'transparent';
+    rcvBtn.style.color = 'rgba(255,255,255,0.7)';
+    rcvBtn.style.boxShadow = 'none';
+  } else {
+    rcvBtn.style.background = '#fff';
+    rcvBtn.style.color = '#7B3FBE';
+    rcvBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+    sendBtn.style.background = 'transparent';
+    sendBtn.style.color = 'rgba(255,255,255,0.7)';
+    sendBtn.style.boxShadow = 'none';
+  }
+}
+
+// ── Wallet addresses for receive ──
+const MY_WALLETS = {
+  BTC:  'bc1qmythos1a2b3c4d5e6f7g8h9j0k1m2n3p4q5r6s',
+  ETH:  '0xMYTH05AbC1234567890dEf1234567890ABCDEF12',
+  USDT: '0xMYTH05AbC1234567890dEf1234567890ABCDEF12',
+  SOL:  'MYTHoSWaLLEt1111111111111111111111111111111',
+  BNB:  '0xMYTH05AbC1234567890dEf1234567890ABCDEF12',
+};
+
+function generateQR(text, size) {
+  // Simple QR-like grid visual using seeded random pattern
+  let hash = 0;
+  for (let i=0;i<text.length;i++) hash = ((hash<<5)-hash+text.charCodeAt(i))|0;
+  const rng = () => { hash = Math.imul(hash^(hash>>>16),0x45d9f3b)|0; return Math.abs(hash); };
+  const cells = 17;
+  let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${cells} ${cells}" style="image-rendering:pixelated;border-radius:8px;background:#fff;padding:1px;" xmlns="http://www.w3.org/2000/svg">`;
+  // Finder patterns
+  const finder = [[0,0],[0,cells-7],[cells-7,0]];
+  const finderSet = new Set();
+  finder.forEach(([r,c]) => {
+    for (let dr=0;dr<7;dr++) for (let dc=0;dc<7;dc++) finderSet.add(`${r+dr},${c+dc}`);
+    svg += `<rect x="${c}" y="${r}" width="7" height="7" fill="#7B3FBE"/>`;
+    svg += `<rect x="${c+1}" y="${r+1}" width="5" height="5" fill="#fff"/>`;
+    svg += `<rect x="${c+2}" y="${r+2}" width="3" height="3" fill="#7B3FBE"/>`;
+  });
+  // Data modules
+  for (let r=0;r<cells;r++) {
+    for (let c=0;c<cells;c++) {
+      if (!finderSet.has(`${r},${c}`)) {
+        if (rng()%2 === 0) svg += `<rect x="${c}" y="${r}" width="1" height="1" fill="#7B3FBE"/>`;
+      }
+    }
+  }
+  svg += '</svg>';
+  return svg;
+}
+
+function renderCryptoBody() {
+  const body = document.getElementById('cryptoModalBody');
+  if (!body) return;
+  if (_cryptoTab === 'send') {
+    body.innerHTML = renderSendTab();
+    // init network grid for default coin
+    updateNetworkGrid('BTC');
+  } else {
+    body.innerHTML = renderReceiveTab();
+  }
+}
+
+function renderSendTab() {
+  const coinOptions = CRYPTO_COINS.map(c => {
+    const p = _cryptoPrices[c.sym];
+    const priceStr = p ? `$${p.usd < 1 ? p.usd.toFixed(4) : p.usd.toLocaleString('en-US',{maximumFractionDigits:2})}` : '—';
+    const chg = p ? p.change : 0;
+    const chgStr = p ? `${chg>=0?'+':''}${chg.toFixed(2)}%` : '';
+    const chgColor = chg>=0 ? '#00B37D' : '#E5303A';
+    return `<option value="${c.sym}">${c.icon} ${c.sym} — ${priceStr}</option>`;
+  }).join('');
+
+  // Cek apakah saldo masih terkunci
+  const convDoneModal = parseInt(document.getElementById('convDone')?.textContent) || 0;
+  const isLockedModal = convDoneModal < 1000;
+
+  return `
+  <div style="padding:20px 20px 100px;">
+
+    <!-- Saldo tersedia di modal -->
+    <div style="background:linear-gradient(135deg,#FFF4E0,#FFF8EC);border:1.5px solid #FFE0A0;border-radius:14px;padding:12px 14px;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:9px;font-weight:800;color:#B07800;letter-spacing:0.1em;text-transform:uppercase;">Saldo Tersedia</div>
+        ${isLockedModal ? '<div style="font-size:9px;font-weight:800;color:#C07800;background:#FFE0A0;padding:2px 8px;border-radius:6px;">🔒 TERKUNCI</div>' : '<div style="font-size:9px;font-weight:800;color:#00B37D;background:#E6F7F2;padding:2px 8px;border-radius:6px;">✓ TERSEDIA</div>'}
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:900;color:${isLockedModal?'#C07800':'#1A1F36'};">${isLockedModal ? '0.00' : '12,336.00'} <span style="font-size:12px;font-weight:700;">BTC</span></div>
+      ${isLockedModal ? `<div style="font-size:10px;color:#8C5E00;font-weight:600;margin-top:4px;line-height:1.5;">Saldo terkunci selama proses konversi wallet berlangsung.<br>Progress: ${convDoneModal}/1,000 wallet selesai</div>` : ''}
+    </div>
+
+    <!-- Network fee info bar -->
+    <div style="background:#F4F0FF;border:1px solid #DDD0FF;border-radius:12px;padding:10px 14px;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:16px;">⚡</span>
+      <div style="font-size:10px;color:#7B3FBE;font-weight:700;line-height:1.5;">Transfer Crypto via jaringan blockchain.<br><span style="color:#9B6FDE;font-weight:600;">Pastikan alamat tujuan sudah benar sebelum konfirmasi.</span></div>
+    </div>
+
+    <!-- Coin selector -->
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:10px;font-weight:800;color:#525F7F;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px;">Pilih Koin</label>
+      <div style="position:relative;">
+        <select id="cryptoSendCoin" onchange="updateSendCoinInfo()" style="
+          width:100%;padding:12px 14px;
+          background:#F8F5FF;border:1.5px solid #DDD0FF;border-radius:12px;
+          font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:#1A1F36;
+          outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;">
+          ${coinOptions}
+        </select>
+        <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:#9B6FDE;pointer-events:none;">▼</span>
+      </div>
+      <div id="cryptoCoinInfoRow" style="margin-top:8px;display:flex;gap:8px;"></div>
+    </div>
+
+    <!-- Amount -->
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:10px;font-weight:800;color:#525F7F;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px;">Jumlah</label>
+      <div style="position:relative;">
+        <input id="cryptoSendAmount" type="number" step="any" placeholder="0.00" oninput="updateSendUSD()" style="
+          width:100%;padding:12px 60px 12px 14px;
+          background:#F8F5FF;border:1.5px solid #DDD0FF;border-radius:12px;
+          font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;color:#1A1F36;
+          outline:none;-webkit-appearance:none;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#7B3FBE'" onblur="this.style.borderColor='#DDD0FF'">
+        <span id="cryptoSendCoinSym" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;color:#7B3FBE;">BTC</span>
+      </div>
+      <div id="cryptoSendUSD" style="font-size:11px;color:#8898AA;font-weight:600;margin-top:5px;padding-left:2px;">\u2248 $0.00 USD</div>
+      <div id="cryptoBalanceWarn" style="display:none;align-items:center;gap:8px;margin-top:8px;background:#FFF4E0;border:1.5px solid #FFE0A0;border-radius:10px;padding:9px 12px;font-size:11px;font-family:'Nunito',sans-serif;line-height:1.5;"></div>
+    </div>
+
+    <!-- Destination address -->
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:10px;font-weight:800;color:#525F7F;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px;">Alamat Tujuan</label>
+      <textarea id="cryptoSendAddr" placeholder="Masukkan wallet address tujuan..." rows="2" style="
+        width:100%;padding:11px 14px;resize:none;
+        background:#F8F5FF;border:1.5px solid #DDD0FF;border-radius:12px;
+        font-family:'JetBrains Mono',monospace;font-size:11px;color:#1A1F36;
+        outline:none;line-height:1.6;transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='#7B3FBE'" onblur="this.style.borderColor='#DDD0FF'"></textarea>
+      <div id="cryptoAddrWarn" style="font-size:10px;color:#E5303A;font-weight:600;min-height:14px;margin-top:4px;display:none;">&#9888; Alamat tidak valid untuk jaringan ini</div>
+    </div>
+
+    <!-- Network selector -->
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:10px;font-weight:800;color:#525F7F;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px;">Jaringan</label>
+      <div id="cryptoNetworkGrid" style="display:flex;flex-wrap:wrap;gap:7px;"></div>
+    </div>
+
+    <!-- Fee estimate -->
+    <div style="background:#F8FAFF;border:1px solid #E4EDFF;border-radius:12px;padding:12px 14px;margin-bottom:20px;">
+      <div style="font-size:9px;font-weight:800;color:#8898AA;letter-spacing:0.1em;margin-bottom:9px;">ESTIMASI BIAYA</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+        <span style="font-size:11px;color:#525F7F;font-weight:600;">Network fee</span>
+        <span id="cryptoFee" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#1A1F36;font-weight:700;">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:11px;color:#525F7F;font-weight:600;">Total yang dikirim</span>
+        <span id="cryptoTotal" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#7B3FBE;font-weight:800;">—</span>
+      </div>
+    </div>
+
+    <!-- Note (optional) -->
+    <div style="margin-bottom:22px;">
+      <label style="display:block;font-size:10px;font-weight:800;color:#525F7F;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px;">Catatan (Opsional)</label>
+      <input id="cryptoSendNote" type="text" placeholder="Memo / catatan transaksi..." maxlength="100" style="
+        width:100%;padding:11px 14px;
+        background:#F8F5FF;border:1.5px solid #DDD0FF;border-radius:12px;
+        font-family:'Nunito',sans-serif;font-size:13px;color:#1A1F36;
+        outline:none;transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='#7B3FBE'" onblur="this.style.borderColor='#DDD0FF'">
+    </div>
+
+    <!-- Submit button -->
+    <button onclick="submitCryptoSend()" style="
+      width:100%;padding:15px;
+      background:linear-gradient(135deg,#7B3FBE,#4A1FA8);
+      color:#fff;border:none;border-radius:14px;
+      font-family:'Nunito',sans-serif;font-size:15px;font-weight:900;letter-spacing:0.06em;
+      cursor:pointer;box-shadow:0 6px 20px rgba(123,63,190,0.4);
+      transition:transform 0.15s,box-shadow 0.15s;"
+      onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+      &#128640; KIRIM SEKARANG
+    </button>
+    <button onclick="closeCryptoModal()" style="width:100%;padding:12px;background:none;border:none;color:#8898AA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;">Batal</button>
+  </div>`;
+}
+
+function renderReceiveTab() {
+  const coinButtons = CRYPTO_COINS.map(c => {
+    const active = (window._cryptoReceiveCoin || 'BTC') === c.sym;
+    return `<button onclick="selectReceiveCoin('${c.sym}')" style="
+      padding:7px 14px;border-radius:20px;border:1.5px solid ${active?'#7B3FBE':'#E4EDFF'};
+      background:${active?'#F4F0FF':'#F8FAFF'};
+      color:${active?'#7B3FBE':'#525F7F'};
+      font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;
+      transition:all 0.15s;flex-shrink:0;">${c.icon} ${c.sym}</button>`;
+  }).join('');
+
+  const coin = CRYPTO_COINS.find(c=>c.sym===(window._cryptoReceiveCoin||'BTC')) || CRYPTO_COINS[0];
+  const addr = MY_WALLETS[coin.sym] || '—';
+  const p = _cryptoPrices[coin.sym];
+  const priceStr = p ? `$${p.usd < 1 ? p.usd.toFixed(4) : p.usd.toLocaleString('en-US',{maximumFractionDigits:2})}` : '—';
+  const chg = p ? p.change : 0;
+  const chgColor = chg>=0?'#00B37D':'#E5303A';
+
+  const convDoneRcv = parseInt(document.getElementById('convDone')?.textContent) || 0;
+  const isLockedRcv = convDoneRcv < 1000;
+
+  return `
+  <div style="padding:20px 20px 100px;">
+
+    <!-- Coin selector pills -->
+    <div style="margin-bottom:20px;">
+      <div style="font-size:10px;font-weight:800;color:#525F7F;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Pilih Koin yang Ingin Diterima</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;">${coinButtons}</div>
+    </div>
+
+    <!-- Coin info bar -->
+    <div style="background:linear-gradient(135deg,#F4F0FF,#EDE8FF);border:1.5px solid #DDD0FF;border-radius:14px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:42px;height:42px;border-radius:12px;background:${coin.color}22;border:1.5px solid ${coin.color}44;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:${coin.color};">${coin.icon}</div>
+        <div>
+          <div style="font-size:14px;font-weight:900;color:#1A1F36;">${coin.name}</div>
+          <div style="font-size:10px;color:#8898AA;font-weight:600;">${coin.sym}</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;color:#7B3FBE;">${priceStr}</div>
+        <div style="font-size:10px;font-weight:700;color:${chgColor};">${chg>=0?'+':''}${chg.toFixed(2)}% 24h</div>
+      </div>
+    </div>
+
+    <!-- BLURRED SECTION (QR + alamat + tombol) saat masih terkunci -->
+    <div style="position:relative;">
+
+      <!-- Konten yang di-blur -->
+      <div style="${isLockedRcv ? 'filter:blur(6px);pointer-events:none;user-select:none;' : ''}">
+
+        <!-- QR Code -->
+        <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:20px;">
+          <div style="font-size:10px;font-weight:800;color:#525F7F;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">Kode QR Wallet</div>
+          <div style="padding:16px;background:#fff;border-radius:16px;border:2px solid #DDD0FF;box-shadow:0 4px 20px rgba(123,63,190,0.12);">
+            ${generateQR(addr, 160)}
+          </div>
+          <div style="margin-top:12px;font-size:10px;color:#8898AA;font-weight:600;text-align:center;">Scan QR untuk menerima ${coin.sym}</div>
+        </div>
+
+        <!-- Address display -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:10px;font-weight:800;color:#525F7F;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Alamat Wallet ${coin.sym}</div>
+          <div style="background:#F4F0FF;border:1.5px solid #DDD0FF;border-radius:12px;padding:12px 14px;position:relative;">
+            <div id="rcvAddrText" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#4A1FA8;font-weight:700;word-break:break-all;line-height:1.7;padding-right:32px;">${addr}</div>
+            <button style="position:absolute;right:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;background:#7B3FBE;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="8" y="8" width="13" height="13" rx="2" stroke="#fff" stroke-width="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" stroke="#fff" stroke-width="2"/></svg>
+            </button>
+          </div>
+          <div id="cryptoCopyMsg" style="font-size:10px;color:#00B37D;font-weight:700;margin-top:5px;min-height:14px;text-align:center;"></div>
+        </div>
+
+        <!-- Warning box -->
+        <div style="background:#FFF4E0;border:1.5px solid #FFE0A0;border-radius:12px;padding:12px 14px;margin-bottom:20px;">
+          <div style="font-size:10px;font-weight:800;color:#C07800;letter-spacing:0.06em;margin-bottom:5px;">&#9888; PERHATIAN</div>
+          <div style="font-size:10px;color:#C07800;font-weight:600;line-height:1.6;">
+            Pastikan pengirim mengirim ke jaringan yang benar. Kirim hanya <b>${coin.sym}</b> ke alamat ini.
+            Mengirim koin lain atau ke jaringan yang salah akan mengakibatkan kehilangan aset permanen.
+          </div>
+        </div>
+
+        <!-- Copy button big -->
+        <button style="
+          width:100%;padding:14px;
+          background:linear-gradient(135deg,#7B3FBE,#4A1FA8);
+          color:#fff;border:none;border-radius:14px;
+          font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;letter-spacing:0.06em;
+          cursor:not-allowed;box-shadow:0 6px 20px rgba(123,63,190,0.4);">
+          &#128203; SALIN ALAMAT WALLET
+        </button>
+
+      </div><!-- end blurred -->
+
+      <!-- Overlay warning saat terkunci -->
+      ${isLockedRcv ? `
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;">
+        <div style="background:#fff;border:2px solid #FFE0A0;border-radius:20px;padding:24px 20px;text-align:center;box-shadow:0 8px 32px rgba(123,63,190,0.18);max-width:280px;">
+          <div style="font-size:40px;margin-bottom:12px;">🔒</div>
+          <div style="font-size:14px;font-weight:900;color:#1A1F36;margin-bottom:8px;">Fitur Belum Aktif</div>
+          <div style="font-size:11px;color:#525F7F;font-weight:600;line-height:1.6;margin-bottom:14px;">Fitur Terima sedang menunggu proses konversi wallet selesai.</div>
+          <div style="background:#FFF4E0;border:1.5px solid #FFE0A0;border-radius:12px;padding:10px 14px;">
+            <div style="font-size:10px;font-weight:800;color:#B07800;margin-bottom:4px;">PROGRESS KONVERSI</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:900;color:#C07800;">${convDoneRcv.toLocaleString()} / 1,000 wallet</div>
+            <div style="height:6px;background:#FFE0A0;border-radius:6px;overflow:hidden;margin-top:8px;">
+              <div style="height:100%;width:${Math.min(100,(convDoneRcv/1000)*100).toFixed(1)}%;background:linear-gradient(90deg,#F5A623,#FFD060);border-radius:6px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>` : ''}
+
+    </div><!-- end relative wrapper -->
+  </div>`;
+}
+
+function selectReceiveCoin(sym) {
+  window._cryptoReceiveCoin = sym;
+  renderCryptoBody();
+}
+
+function copyCryptoAddr(addr) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(addr).catch(()=>{});
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = addr; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  const msg = document.getElementById('cryptoCopyMsg');
+  if (msg) { msg.textContent = '&#10003; Alamat berhasil disalin!'; setTimeout(()=>{ if(msg) msg.textContent=''; }, 2500); }
+}
+
+function updateSendCoinInfo() {
+  const sel = document.getElementById('cryptoSendCoin');
+  if (!sel) return;
+  const sym = sel.value;
+  const symEl = document.getElementById('cryptoSendCoinSym');
+  if (symEl) symEl.textContent = sym;
+  updateSendUSD();
+  updateNetworkGrid(sym);
+  updateFeeEstimate(sym);
+}
+
+const NETWORK_MAP = {
+  BTC:  ['Bitcoin (BTC)','Lightning'],
+  ETH:  ['ERC-20','Arbitrum','Optimism','Base'],
+  USDT: ['ERC-20','TRC-20','BEP-20','Polygon'],
+  SOL:  ['Solana'],
+  BNB:  ['BEP-20','BEP-2'],
+};
+let _selectedNetwork = {};
+
+function updateNetworkGrid(sym) {
+  const grid = document.getElementById('cryptoNetworkGrid');
+  if (!grid) return;
+  const nets = NETWORK_MAP[sym] || [sym];
+  if (!_selectedNetwork[sym]) _selectedNetwork[sym] = nets[0];
+  grid.innerHTML = nets.map(n => {
+    const active = _selectedNetwork[sym] === n;
+    return `<button onclick="selectNetwork('${sym}','${n}')" style="
+      padding:7px 12px;border-radius:8px;border:1.5px solid ${active?'#7B3FBE':'#E4EDFF'};
+      background:${active?'#F4F0FF':'#F8FAFF'};
+      color:${active?'#7B3FBE':'#525F7F'};
+      font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;cursor:pointer;
+      transition:all 0.15s;">${n}</button>`;
+  }).join('');
+  updateFeeEstimate(sym);
+}
+
+function selectNetwork(sym, net) {
+  _selectedNetwork[sym] = net;
+  updateNetworkGrid(sym);
+}
+
+const FEE_MAP = {
+  'Bitcoin (BTC)': { fee:'~0.00005 BTC', usd:'~$4.70' },
+  'Lightning':     { fee:'~1 sat',       usd:'~$0.001' },
+  'ERC-20':        { fee:'~0.0008 ETH',  usd:'~$2.74' },
+  'Arbitrum':      { fee:'~0.0001 ETH',  usd:'~$0.34' },
+  'Optimism':      { fee:'~0.0001 ETH',  usd:'~$0.34' },
+  'Base':          { fee:'~0.00005 ETH', usd:'~$0.17' },
+  'TRC-20':        { fee:'~1 TRX',       usd:'~$0.13' },
+  'BEP-20':        { fee:'~0.0002 BNB',  usd:'~$0.12' },
+  'BEP-2':         { fee:'~0.0002 BNB',  usd:'~$0.12' },
+  'Polygon':       { fee:'~0.01 MATIC',  usd:'~$0.01' },
+  'Solana':        { fee:'~0.000005 SOL',usd:'~$0.001' },
+};
+
+function updateFeeEstimate(sym) {
+  const net = _selectedNetwork[sym] || (NETWORK_MAP[sym]||[])[0] || '';
+  const fee = FEE_MAP[net] || { fee:'—', usd:'—' };
+  const feeEl = document.getElementById('cryptoFee');
+  const totalEl = document.getElementById('cryptoTotal');
+  if (feeEl) feeEl.textContent = `${fee.fee} (${fee.usd})`;
+  if (totalEl) {
+    const amt = parseFloat(document.getElementById('cryptoSendAmount')?.value) || 0;
+    if (amt > 0) {
+      totalEl.textContent = `${amt} ${sym} + fee`;
+    } else {
+      totalEl.textContent = `— ${sym} + fee`;
+    }
+  }
+}
+
+function getAvailableBalance(sym) {
+  const convDone = parseInt(document.getElementById('convDone')?.textContent) || 0;
+  const isLocked = convDone < 1000;
+  if (sym === 'BTC') return isLocked ? 0 : 12336;
+  return 0;
+}
+
+function updateSendUSD() {
+  const sel = document.getElementById('cryptoSendCoin');
+  const amtEl = document.getElementById('cryptoSendAmount');
+  const usdEl = document.getElementById('cryptoSendUSD');
+  const warnEl = document.getElementById('cryptoBalanceWarn');
+  if (!sel || !amtEl || !usdEl) return;
+  const sym = sel.value;
+  const amt = parseFloat(amtEl.value) || 0;
+  const p = _cryptoPrices[sym];
+
+  if (p && amt > 0) {
+    const usd = amt * p.usd;
+    usdEl.textContent = `\u2248 $${usd.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})} USD`;
+  } else {
+    usdEl.textContent = '\u2248 $0.00 USD';
+  }
+
+  if (warnEl) {
+    const available = getAvailableBalance(sym);
+    if (amt > 0 && amt > available) {
+      const convDone = parseInt(document.getElementById('convDone')?.textContent) || 0;
+      const isLocked = convDone < 1000;
+      warnEl.style.display = 'flex';
+      warnEl.innerHTML = isLocked
+        ? '<span style="font-size:16px;">\uD83D\uDD12</span><div><b style="color:#C07800;">Saldo Tidak Cukup</b><br><span style="color:#8C5E00;">Saldo BTC masih terkunci. Tersedia: <b>0.00 BTC</b></span></div>'
+        : '<span style="font-size:16px;">\u26A0\uFE0F</span><div><b style="color:#C04000;">Saldo Tidak Cukup</b><br><span style="color:#8C3000;">Saldo tersedia: <b>' + available.toLocaleString() + ' BTC</b></span></div>';
+      amtEl.style.borderColor = '#E5303A';
+    } else {
+      warnEl.style.display = 'none';
+      amtEl.style.borderColor = '#DDD0FF';
+    }
+  }
+
+  updateFeeEstimate(sym);
+}
+
+function submitCryptoSend() {
+  const sel = document.getElementById('cryptoSendCoin');
+  const amtEl = document.getElementById('cryptoSendAmount');
+  const addrEl = document.getElementById('cryptoSendAddr');
+  if (!sel || !amtEl || !addrEl) return;
+
+  const sym  = sel.value;
+  const amt  = parseFloat(amtEl.value);
+  const addr = addrEl.value.trim();
+
+  if (!amt || amt <= 0) { amtEl.style.borderColor='#E5303A'; setTimeout(()=>amtEl.style.borderColor='#DDD0FF',1500); return; }
+  if (!addr || addr.length < 10) { addrEl.style.borderColor='#E5303A'; setTimeout(()=>addrEl.style.borderColor='#DDD0FF',1500); return; }
+
+  const net = _selectedNetwork[sym] || (NETWORK_MAP[sym]||[])[0] || sym;
+  const txHash = 'MYTH' + Math.random().toString(36).substring(2,12).toUpperCase();
+  const p = _cryptoPrices[sym];
+  const usdVal = p ? `$${(amt*p.usd).toLocaleString('en-US',{maximumFractionDigits:2})}` : '—';
+
+  document.getElementById('cryptoModalBody').innerHTML = `
+  <div style="padding:28px 20px;text-align:center;">
+    <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#7B3FBE,#4A1FA8);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 8px 28px rgba(123,63,190,0.35);font-size:32px;">&#10003;</div>
+    <div style="font-size:20px;font-weight:900;color:#1A1F36;margin-bottom:6px;">Transfer Terkirim!</div>
+    <div style="font-size:12px;color:#8898AA;margin-bottom:24px;">Transaksi sedang diproses di blockchain ${net}</div>
+
+    <div style="background:#F4F0FF;border:1.5px solid #DDD0FF;border-radius:16px;padding:16px 18px;margin-bottom:16px;text-align:left;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #EDE8FF;">
+        <span style="font-size:11px;color:#8898AA;font-weight:600;">Jumlah</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:800;color:#7B3FBE;">${amt} ${sym}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #EDE8FF;">
+        <span style="font-size:11px;color:#8898AA;font-weight:600;">Nilai USD</span>
+        <span style="font-size:12px;font-weight:700;color:#1A1F36;">${usdVal}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #EDE8FF;">
+        <span style="font-size:11px;color:#8898AA;font-weight:600;">Jaringan</span>
+        <span style="font-size:12px;font-weight:700;color:#1A1F36;">${net}</span>
+      </div>
+      <div style="margin-bottom:5px;">
+        <span style="font-size:11px;color:#8898AA;font-weight:600;">Tujuan</span>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#4A1FA8;font-weight:700;margin-top:4px;word-break:break-all;">${addr}</div>
+      </div>
+    </div>
+
+    <div style="background:#F8FAFF;border:1px solid #E4EDFF;border-radius:12px;padding:11px 14px;margin-bottom:22px;">
+      <div style="font-size:9px;color:#8898AA;font-weight:700;letter-spacing:0.08em;margin-bottom:5px;">TX HASH</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#0066FF;font-weight:700;word-break:break-all;">${txHash}</div>
+    </div>
+
+    <button onclick="closeCryptoModal()" style="width:100%;padding:14px;background:linear-gradient(135deg,#7B3FBE,#4A1FA8);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(123,63,190,0.4);">&#10003; SELESAI</button>
+  </div>`;
+}
+
+// Init network grid after first render
+document.addEventListener('DOMContentLoaded', function() {
+  // nothing needed — lazy init via openCryptoModal
+});
 </script>
 
 <script>
