@@ -232,7 +232,7 @@
   }
 
   /* main content hidden until unlocked */
-  #mainContent { display: none; height: 100vh; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  #mainContent { display: none; min-height: 100vh; height: auto; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
   /* ─── HEADER ─── */
   .header {
@@ -296,7 +296,7 @@
     animation: tickerMove 25s linear infinite;
     font-size: 11px; font-weight: 600;
   }
-  @keyframes tickerMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+  @keyframes tickerMove { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
   .ticker-item { display: inline-flex; align-items: center; gap: 6px; }
   .ticker-sym { color: rgba(255,255,255,0.7); letter-spacing: 0.08em; }
   .ticker-val { color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
@@ -1050,6 +1050,435 @@
 
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECURE INBOX
+════════════════════════════════════════════════════ -->
+<style>
+/* ── INBOX SECTION ── */
+.inbox-wrap { padding: 0 16px; margin-bottom: 20px; }
+.inbox-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+  position: relative; z-index: 20;
+}
+.inbox-hdr-left {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 900; color: #1A1F36;
+}
+.ibx-badge {
+  background: #E5303A; color: #fff;
+  font-size: 9px; font-weight: 800;
+  padding: 2px 8px; border-radius: 20px;
+  letter-spacing: 0.05em;
+  animation: ibxPulse 2s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes ibxPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(229,48,58,0.45); }
+  50%      { box-shadow: 0 0 0 5px rgba(229,48,58,0); }
+}
+.ibx-viewall {
+  font-size: 11px; font-weight: 700; color: #0066FF;
+  cursor: pointer;
+  padding: 10px 12px;
+  min-height: 44px;
+  display: flex; align-items: center;
+  position: relative; z-index: 10;
+  -webkit-tap-highlight-color: rgba(0,102,255,0.1);
+  border-radius: 8px;
+}
+.ibx-viewall:active { opacity: 0.6; }
+
+/* ── MESSAGE CARD ── */
+.ibx-card {
+  background: #fff;
+  border: 1.5px solid #E4E9F2;
+  border-radius: 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 10px rgba(0,70,180,0.07);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.12s, box-shadow 0.2s;
+}
+.ibx-card:active { transform: scale(0.982); box-shadow: 0 1px 4px rgba(0,70,180,0.08); }
+.ibx-card::after {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: #E4E9F2;
+  border-radius: 4px 0 0 4px;
+}
+.ibx-card.unread {
+  border-color: #FFD0D3;
+  background: linear-gradient(135deg, #FFF5F5 0%, #fff 80%);
+  box-shadow: 0 4px 18px rgba(229,48,58,0.10);
+}
+.ibx-card.unread::after { background: #E5303A; }
+
+.ibx-inner { padding: 13px 14px 13px 18px; }
+.ibx-row1 { display: flex; align-items: flex-start; gap: 10px; }
+
+.ibx-av {
+  width: 40px; height: 40px; min-width: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+.ibx-av-red  { background: linear-gradient(135deg,#B71C1C,#E5303A); }
+.ibx-av-blue { background: linear-gradient(135deg,#0066FF,#0044CC); }
+.ibx-av-grn  { background: linear-gradient(135deg,#00B37D,#007A56); }
+
+.ibx-body { flex: 1; min-width: 0; }
+.ibx-top  { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; flex-wrap: wrap; }
+.ibx-name { font-size: 11px; font-weight: 900; color: #1A1F36; white-space: nowrap; }
+.ibx-tag  {
+  font-size: 8px; font-weight: 800; padding: 1px 6px;
+  border-radius: 5px; color: #fff; white-space: nowrap; letter-spacing: 0.06em;
+}
+.ibx-tag-dark { background: linear-gradient(135deg,#1A1F36,#2D3561); }
+.ibx-tag-blue { background: linear-gradient(135deg,#0066FF,#0044CC); }
+.ibx-tag-grn  { background: linear-gradient(135deg,#00B37D,#007A56); }
+.ibx-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #E5303A;
+  flex-shrink: 0; margin-left: 2px;
+  box-shadow: 0 0 6px rgba(229,48,58,0.6);
+  animation: dotPulse 1.5s ease-in-out infinite;
+}
+.ibx-subj {
+  font-size: 11px; font-weight: 800; color: #1A1F36;
+  margin-bottom: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ibx-subj.urg { color: #C0001A; }
+.ibx-prev {
+  font-size: 10px; color: #525F7F; font-weight: 500;
+  line-height: 1.45;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ibx-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 9px; }
+.ibx-time { font-size: 9px; color: #8898AA; font-weight: 600; font-family: 'JetBrains Mono',monospace; }
+.ibx-pill {
+  font-size: 9px; font-weight: 800; padding: 2px 8px;
+  border-radius: 6px; display: inline-flex; align-items: center; gap: 3px;
+}
+.ibx-pill-red { background: #FDECEA; color: #C0001A; }
+.ibx-pill-grn { background: #E6F7F2; color: #007A56; }
+
+/* ── "VIEW ALL" PANEL (shown below list) ── */
+.ibx-viewall-panel {
+  display: none;
+  background: linear-gradient(135deg, #EBF2FF, #F4F8FF);
+  border: 1.5px solid #C5D9FF;
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  margin-top: 8px;
+}
+.ibx-viewall-panel.open { display: block; }
+.ibx-viewall-panel p { font-size: 13px; color: #1A1F36; font-weight: 700; line-height: 1.6; }
+.ibx-viewall-panel small { font-size: 10px; color: #8898AA; display: block; margin-top: 6px; }
+
+/* ── MODAL OVERLAY ── */
+.ibx-modal-bg {
+  position: fixed; inset: 0; z-index: 7000;
+  background: rgba(4,8,24,0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+.ibx-modal-bg.open { opacity: 1; pointer-events: all; }
+
+.ibx-modal-sheet {
+  background: #fff;
+  border-radius: 22px 22px 0 0;
+  width: 100%; max-width: 480px;
+  /* KEY FIX: fixed height that scrolls internally */
+  height: 82vh;
+  max-height: 82vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 -8px 48px rgba(0,0,0,0.35);
+  transform: translateY(100%);
+  transition: transform 0.36s cubic-bezier(0.16,1,0.3,1);
+  overflow: hidden;
+}
+.ibx-modal-bg.open .ibx-modal-sheet { transform: translateY(0); }
+
+/* Fixed handle */
+.ibx-modal-handle-wrap {
+  padding: 10px 0 6px; flex-shrink: 0;
+  display: flex; justify-content: center;
+}
+.ibx-modal-handle { width: 38px; height: 4px; border-radius: 2px; background: #DDE5F4; }
+
+/* Fixed header */
+.ibx-modal-hdr {
+  padding: 10px 18px 14px;
+  border-bottom: 1px solid #F0F4FF;
+  flex-shrink: 0;
+}
+.ibx-modal-from { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.ibx-modal-av {
+  width: 46px; height: 46px; min-width: 46px; border-radius: 14px;
+  background: linear-gradient(135deg,#B71C1C,#E5303A);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(229,48,58,0.30);
+}
+.ibx-modal-name { font-size: 14px; font-weight: 900; color: #1A1F36; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ibx-modal-role { font-size: 10px; color: #525F7F; font-weight: 600; margin-top: 2px; }
+.ibx-modal-subj { font-size: 14px; font-weight: 900; color: #C0001A; line-height: 1.35; letter-spacing: -0.2px; }
+.ibx-modal-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.ibx-modal-ts { font-size: 9px; color: #8898AA; font-family: 'JetBrains Mono',monospace; font-weight: 600; }
+
+/* Scrollable body */
+.ibx-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 18px 8px;
+}
+.ibx-modal-body::-webkit-scrollbar { width: 3px; }
+.ibx-modal-body::-webkit-scrollbar-thumb { background: #E4E9F2; border-radius: 2px; }
+
+.ibx-txt { font-size: 13px; color: #1A1F36; line-height: 1.75; font-weight: 500; }
+.ibx-txt p { margin-bottom: 12px; }
+.ibx-txt p:last-child { margin-bottom: 0; }
+
+.ibx-alert {
+  background: linear-gradient(135deg,#FFF0F0,#FFF5F5);
+  border: 1.5px solid #FFCDD0;
+  border-left: 4px solid #E5303A;
+  border-radius: 12px;
+  padding: 13px 15px;
+  margin: 14px 0;
+}
+.ibx-alert-ttl {
+  font-size: 10px; font-weight: 900; color: #C0001A;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 9px; display: flex; align-items: center; gap: 5px;
+}
+.ibx-alert-rows { display: flex; flex-direction: column; gap: 8px; }
+.ibx-alert-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.ibx-alert-lbl { font-size: 10px; color: #8898AA; font-weight: 600; white-space: nowrap; }
+.ibx-alert-val { font-size: 10px; font-weight: 900; font-family: 'JetBrains Mono',monospace; text-align: right; }
+.ibx-alert-val.r { color: #C0001A; }
+.ibx-alert-val.b { color: #0066FF; }
+.ibx-alert-val.d { color: #1A1F36; }
+
+/* Fixed footer button */
+.ibx-modal-foot {
+  padding: 12px 18px 28px;
+  flex-shrink: 0;
+  border-top: 1px solid #F0F4FF;
+  background: #fff;
+}
+.ibx-ack-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg,#1A1F36,#2D3561);
+  color: #fff; border: none; border-radius: 14px;
+  font-family: 'Nunito',sans-serif;
+  font-size: 13px; font-weight: 900; letter-spacing: 0.05em;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(26,31,54,0.28);
+  -webkit-tap-highlight-color: transparent;
+}
+.ibx-ack-btn:active { opacity: 0.85; transform: scale(0.98); }
+
+/* Generic info modal for other messages */
+.ibx-info-sheet .ibx-modal-av { background: linear-gradient(135deg,#0066FF,#0044CC); }
+.ibx-info-sheet .ibx-modal-subj { color: #0066FF; }
+.ibx-info-sheet .ibx-ack-btn { background: linear-gradient(135deg,#0066FF,#0044CC); box-shadow: 0 6px 20px rgba(0,102,255,0.28); }
+</style>
+
+<!-- ═══ INBOX HTML ═══ -->
+<!-- FLIGHT DEPARTURE COUNTDOWN BANNER -->
+<div id="flightCountdownBanner" style="margin:12px 16px 12px;background:linear-gradient(135deg,#B71C1C,#E5303A);border-radius:16px;padding:14px 14px;box-shadow:0 4px 20px rgba(229,48,58,0.35);position:relative;overflow:hidden;box-sizing:border-box;width:calc(100% - 32px);max-width:100%;">
+  <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none;"></div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;min-width:0;">
+    <span style="font-size:20px;flex-shrink:0;">✈️</span>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.75);letter-spacing:0.1em;text-transform:uppercase;">Keberangkatan Budapest</div>
+      <div style="font-size:11px;font-weight:900;color:#fff;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">THU 30 APR · 07:00 AM · Private Jet</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.18);border-radius:8px;padding:3px 8px;font-size:9px;font-weight:800;color:#fff;white-space:nowrap;flex-shrink:0;">🔴 LOCKED</div>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center;" id="flightCdRow">
+    <div style="background:rgba(0,0,0,0.25);border-radius:10px;padding:8px 10px;text-align:center;flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:900;color:#fff;line-height:1;" id="fcdD">--</div>
+      <div style="font-size:8px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.08em;margin-top:2px;">DAYS</div>
+    </div>
+    <div style="background:rgba(0,0,0,0.25);border-radius:10px;padding:8px 10px;text-align:center;flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:900;color:#fff;line-height:1;" id="fcdH">--</div>
+      <div style="font-size:8px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.08em;margin-top:2px;">HRS</div>
+    </div>
+    <div style="background:rgba(0,0,0,0.25);border-radius:10px;padding:8px 10px;text-align:center;flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:900;color:#fff;line-height:1;" id="fcdM">--</div>
+      <div style="font-size:8px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.08em;margin-top:2px;">MIN</div>
+    </div>
+    <div style="background:rgba(0,0,0,0.25);border-radius:10px;padding:8px 10px;text-align:center;flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:900;color:#fff;line-height:1;" id="fcdS">--</div>
+      <div style="font-size:8px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.08em;margin-top:2px;">SEC</div>
+    </div>
+  </div>
+  <div style="margin-top:8px;text-align:center;font-size:9px;color:rgba(255,255,255,0.6);font-weight:600;">Report Time: 06:00 AM · DO NOT BE LATE</div>
+</div>
+<script>
+(function(){
+  // Departure: Thu 30 Apr 2026, 07:00 local (WIB = UTC+7 → UTC 00:00)
+  const depUTC = new Date('2026-04-30T00:00:00Z'); // 07:00 WIB
+  function tickFlight() {
+    const now = new Date();
+    const diff = depUTC - now;
+    if (diff <= 0) {
+      ['fcdD','fcdH','fcdM','fcdS'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '00';
+      });
+      const banner = document.getElementById('flightCountdownBanner');
+      if (banner) banner.style.background = 'linear-gradient(135deg,#007A56,#00B37D)';
+      return;
+    }
+    const totalSec = Math.floor(diff / 1000);
+    const d = Math.floor(totalSec / 86400);
+    const h = Math.floor((totalSec % 86400) / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    const pad = n => String(n).padStart(2,'0');
+    const dEl = document.getElementById('fcdD'); if(dEl) dEl.textContent = d;
+    const hEl = document.getElementById('fcdH'); if(hEl) hEl.textContent = pad(h);
+    const mEl = document.getElementById('fcdM'); if(mEl) mEl.textContent = pad(m);
+    const sEl = document.getElementById('fcdS'); if(sEl) sEl.textContent = pad(s);
+  }
+  tickFlight();
+  setInterval(tickFlight, 1000);
+})();
+</script>
+
+<div class="inbox-wrap" id="inboxSection">
+  <div class="inbox-hdr">
+    <div class="inbox-hdr-left">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#1A1F36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="22,6 12,13 2,6" stroke="#1A1F36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Secure Inbox
+      <span class="ibx-badge" id="ibxBadge">1 UNREAD</span>
+    </div>
+    <div class="ibx-viewall" onclick="toggleViewAll()">View All →</div>
+  </div>
+
+  <!-- MSG 1: UNREAD — ADMINISTRATOR -->
+  <div class="ibx-card unread" id="ibxMsg1" onclick="openIbxModal('admin')">
+    <div class="ibx-inner">
+      <div class="ibx-row1">
+        <div class="ibx-av ibx-av-red">🔴</div>
+        <div class="ibx-body">
+          <div class="ibx-top">
+            <span class="ibx-name">ADMINISTRATOR</span>
+            <span class="ibx-tag ibx-tag-dark">SYS ADMIN</span>
+            <span class="ibx-dot" id="ibxDot1"></span>
+          </div>
+          <div class="ibx-subj urg">⚠ Budapest Flight — Cannot Be Rescheduled</div>
+          <div class="ibx-prev">URGENT: Your flight to Budapest is locked and cannot be rescheduled. Departure has been moved forward — you depart <strong>tomorrow, Thursday 30 Apr at 07:00 AM</strong>.</div>
+        </div>
+      </div>
+      <div class="ibx-foot">
+        <span class="ibx-time">TODAY · 02:47 UTC</span>
+        <span class="ibx-pill ibx-pill-red">🔴 CRITICAL</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MSG 2: OPS CENTER -->
+  <div class="ibx-card" onclick="openIbxModal('ops')">
+    <div class="ibx-inner">
+      <div class="ibx-row1">
+        <div class="ibx-av ibx-av-blue">📋</div>
+        <div class="ibx-body">
+          <div class="ibx-top">
+            <span class="ibx-name">OPS CENTER</span>
+            <span class="ibx-tag ibx-tag-blue">OPS</span>
+          </div>
+          <div class="ibx-subj">Mission #01 — Budapest Briefing Package</div>
+          <div class="ibx-prev">Full operational briefing for OP-VIENNA attached. Review personnel roster and exfil protocol before departure.</div>
+        </div>
+      </div>
+      <div class="ibx-foot">
+        <span class="ibx-time">28 APR · 18:00 UTC</span>
+        <span class="ibx-pill ibx-pill-grn">✓ READ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MSG 3: SECURITY -->
+  <div class="ibx-card" onclick="openIbxModal('sec')">
+    <div class="ibx-inner">
+      <div class="ibx-row1">
+        <div class="ibx-av ibx-av-grn">🔐</div>
+        <div class="ibx-body">
+          <div class="ibx-top">
+            <span class="ibx-name">SECURITY</span>
+            <span class="ibx-tag ibx-tag-grn">SEC</span>
+          </div>
+          <div class="ibx-subj">Access Code Rotation — Cycle 14</div>
+          <div class="ibx-prev">Your MYTHOS access credentials have been rotated per 72-hour security protocol. New codes active immediately.</div>
+        </div>
+      </div>
+      <div class="ibx-foot">
+        <span class="ibx-time">27 APR · 09:12 UTC</span>
+        <span class="ibx-pill ibx-pill-grn">✓ READ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW ALL PANEL -->
+  <div class="ibx-viewall-panel" id="ibxViewAllPanel">
+    <p>📬 You have <strong>3 messages</strong> in your Secure Inbox.<br>All older messages have been archived per MYTHOS protocol.</p>
+    <small>Messages auto-purge after 30 days. Contact OPS CENTER for archive access.</small>
+  </div>
+</div>
+
+<script>
+// Scroll lock target: the mainContent scroller
+function getScroller() { return document.getElementById('mainContent'); }
+
+function openIbxModal(type) {
+  const idMap = { admin:'ibxModalAdmin', ops:'ibxModalOps', sec:'ibxModalSec' };
+  const id = idMap[type]; if (!id) return;
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('open');
+  // Prevent background scroll
+  const sc = getScroller();
+  if (sc) sc.style.overflow = 'hidden';
+}
+function closeIbxModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('open');
+  const sc = getScroller();
+  if (sc) { sc.style.overflow = ''; sc.style.overflowY = 'auto'; sc.style.overflowX = 'hidden'; }
+}
+function ibxBgClick(e, id) {
+  if (e.target === document.getElementById(id)) closeIbxModal(id);
+}
+function markRead() {
+  const card = document.getElementById('ibxMsg1');
+  if (card) { card.classList.remove('unread'); }
+  const dot = document.getElementById('ibxDot1');
+  if (dot) dot.remove();
+  const badge = document.getElementById('ibxBadge');
+  if (badge) { badge.textContent = '0 UNREAD'; badge.style.background = '#8898AA'; badge.style.animation = 'none'; }
+}
+function toggleViewAll() {
+  const panel = document.getElementById('ibxViewAllPanel');
+  if (panel) panel.classList.toggle('open');
+}
+</script>
 
 <!-- ═══════════════════════════════════════════════════
      UPCOMING MISSIONS — ACCORDION STACK
@@ -2183,14 +2612,14 @@ function showDestinationForm(type) {
         <div style="width:52px;height:52px;border-radius:16px;background:#1A1F36;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 4px 16px rgba(26,31,54,0.35);">🚗</div>
         <div>
           <div style="font-size:17px;font-weight:900;color:#1A1F36;">Request Black Parade</div>
-          <div style="font-size:12px;color:#8898AA;margin-top:2px;">Cari tujuan konvoi via OpenStreetMap</div>
+          <div style="font-size:12px;color:#8898AA;margin-top:2px;">Armada menjemput ke lokasi Anda</div>
         </div>
       </div>
 
       <!-- GPS Detect Current Location -->
       <button id="osmGpsBtn" onclick="detectMyLocation()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;background:linear-gradient(135deg,#EBF2FF,#D6E8FF);border:2px solid #B3CFFF;border-radius:12px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:#0044CC;cursor:pointer;margin-bottom:10px;transition:all 0.15s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='linear-gradient(135deg,#D6E8FF,#BDD6FF)'" onmouseout="this.style.background='linear-gradient(135deg,#EBF2FF,#D6E8FF)'">
         <span id="osmGpsIcon" style="font-size:18px;">📡</span>
-        <span id="osmGpsLabel">Deteksi Lokasi Saya Sekarang</span>
+        <span id="osmGpsLabel">Gunakan Lokasi Saya Sekarang</span>
       </button>
 
       <!-- Divider -->
@@ -2201,9 +2630,9 @@ function showDestinationForm(type) {
       </div>
 
       <!-- OSM Search Box -->
-      <div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">📍 Cari Tujuan</div>
+      <div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">📍 Jemput Dimana?</div>
       <div style="position:relative;margin-bottom:6px;">
-        <input id="osmSearchInput" type="text" placeholder="Ketik nama tempat, jalan, kota..."
+        <input id="osmSearchInput" type="text" placeholder="Ketik lokasi penjemputan..."
           autocomplete="off"
           style="width:100%;padding:13px 44px 13px 14px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:#1A1F36;outline:none;transition:border-color 0.2s,background 0.2s;"
           onfocus="this.style.borderColor='#1A1F36';this.style.background='#fff'"
@@ -2245,7 +2674,7 @@ function showDestinationForm(type) {
     document.getElementById('menuBottomBtn').innerHTML = `
       <button id="osmConfirmBtn" onclick="submitDestination()" disabled
         style="width:100%;padding:14px;background:#9AA0B0;color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;cursor:not-allowed;transition:background 0.2s,box-shadow 0.2s;">
-        🗺️ PILIH LOKASI DULU
+        📍 PILIH LOKASI JEMPUT
       </button>
       <button onclick="closeModalMenu()" style="width:100%;padding:12px;background:none;border:none;color:#8898AA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;">Batal</button>
     `;
@@ -2563,8 +2992,30 @@ function selectHeliArea(btn, area) {
   if(err) err.textContent = '';
 }
 
+// ─── JET DATE/TIME OPTIONS ─────────────────────────────
+// Returns array of {label, date, desc} options for H-1 and H departure
+function getJetDepartureOptions(dateRange) {
+  const missionStart = parseMissionStartDate(dateRange);
+  if (!missionStart) return [];
+  const monthsID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const daysID = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  const fmt = (d) => `${daysID[d.getDay()]}, ${d.getDate()} ${monthsID[d.getMonth()]} ${d.getFullYear()}`;
+
+  // H-1 = satu hari sebelum misi
+  const h1Date = new Date(missionStart.getTime() - 86400000);
+  // H = hari misi (sama dengan misi start)
+  const h0Date = new Date(missionStart.getTime());
+
+  return [
+    { key:'h1', label:'H-1 (Sehari Sebelum)', date: h1Date, dateStr: fmt(h1Date), desc:'Tiba sehari sebelum misi dimulai' },
+    { key:'h0', label:'H (Hari Misi)',        date: h0Date, dateStr: fmt(h0Date), desc:'Tiba tepat di hari misi' },
+  ];
+}
+
+// Available departure hours (WIB)
+const JET_HOURS = ['05:00','07:00','09:00','11:00','13:00','15:00','17:00','19:00','21:00'];
+
 function showJetForm() {
-  // Get mission dates from MISSIONS array for display
   const missionDates = MISSIONS.map(m => ({
     num: m.num, date: m.date, flag: m.flag, city: m.city, country: m.country
   }));
@@ -2578,9 +3029,9 @@ function showJetForm() {
       </div>
     </div>
 
-    <!-- Mission selector -->
+    <!-- Step 1: Mission selector -->
     <div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">🎯 Pilih Misi Tujuan</div>
-    <div style="display:flex;flex-direction:column;gap:7px;max-height:200px;overflow-y:auto;padding-right:2px;">
+    <div style="display:flex;flex-direction:column;gap:7px;max-height:180px;overflow-y:auto;padding-right:2px;" id="jetMissionList">
       ${missionDates.map(m=>`
         <button onclick="selectJetMission(this,'${m.country}','${m.city}','${m.date}')" class="jet-mission-btn" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:10px;font-family:'Nunito',sans-serif;cursor:pointer;text-align:left;transition:all 0.15s;-webkit-tap-highlight-color:transparent;width:100%;">
           <span style="font-size:18px;">${m.flag}</span>
@@ -2592,6 +3043,25 @@ function showJetForm() {
         </button>`).join('')}
     </div>
     <input id="jetMissionDest" type="hidden" value="">
+
+    <!-- Step 2: Date option (H-1 / H) — hidden until mission selected -->
+    <div id="jetDateSection" style="display:none;margin-top:14px;">
+      <div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">📅 Pilih Tanggal Keberangkatan</div>
+      <div style="display:flex;gap:8px;" id="jetDateBtns"></div>
+      <input id="jetDepartureDateKey" type="hidden" value="">
+    </div>
+
+    <!-- Step 3: Time selector — hidden until date selected -->
+    <div id="jetTimeSection" style="display:none;margin-top:14px;">
+      <div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">🕐 Pilih Jam Keberangkatan (WIB)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;" id="jetTimeBtns">
+        ${JET_HOURS.map(h=>`
+          <button onclick="selectJetTime(this,'${h}')" class="jet-time-btn" style="padding:7px 12px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:8px;font-family:'JetBrains Mono',sans-serif;font-size:12px;font-weight:700;color:#1A1F36;cursor:pointer;transition:all 0.13s;-webkit-tap-highlight-color:transparent;">${h}</button>
+        `).join('')}
+      </div>
+      <input id="jetDepartureHour" type="hidden" value="">
+    </div>
+
     <div id="jetMissionError" style="font-size:11px;color:#E5303A;font-weight:700;min-height:16px;margin-top:8px;text-align:center;"></div>
   `;
   document.getElementById('menuBottomBtn').innerHTML = `
@@ -2599,6 +3069,32 @@ function showJetForm() {
     <button onclick="closeModalMenu()" style="width:100%;padding:12px;background:none;border:none;color:#8898AA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;">Batal</button>
   `;
   openModal();
+}
+
+function selectJetDateOption(btn, key, dateStr, dateTs) {
+  document.querySelectorAll('.jet-date-btn').forEach(b => {
+    b.style.background='#F4F7FF'; b.style.borderColor='#E4EDFF'; b.style.color='#1A1F36';
+  });
+  btn.style.background='#EBF2FF'; btn.style.borderColor='#0066FF'; btn.style.color='#0044CC';
+  document.getElementById('jetDepartureDateKey').value = key + '|' + dateStr + '|' + dateTs;
+  // Show time section
+  document.getElementById('jetTimeSection').style.display = 'block';
+  document.getElementById('jetDepartureHour').value = '';
+  document.querySelectorAll('.jet-time-btn').forEach(b => {
+    b.style.background='#F4F7FF'; b.style.borderColor='#E4EDFF'; b.style.color='#1A1F36';
+  });
+  const err = document.getElementById('jetMissionError');
+  if(err) err.textContent='';
+}
+
+function selectJetTime(btn, hour) {
+  document.querySelectorAll('.jet-time-btn').forEach(b => {
+    b.style.background='#F4F7FF'; b.style.borderColor='#E4EDFF'; b.style.color='#1A1F36';
+  });
+  btn.style.background='#0066FF'; btn.style.borderColor='#0066FF'; btn.style.color='#fff';
+  document.getElementById('jetDepartureHour').value = hour;
+  const err = document.getElementById('jetMissionError');
+  if(err) err.textContent='';
 }
 
 function selectJetMission(btn, country, city, date) {
@@ -2610,6 +3106,25 @@ function selectJetMission(btn, country, city, date) {
   if(inp) inp.value = city + ', ' + country + ' | ' + date;
   const err = document.getElementById('jetMissionError');
   if(err) err.textContent='';
+
+  // Populate date options (H-1 / H)
+  const dateSection = document.getElementById('jetDateSection');
+  const dateBtns = document.getElementById('jetDateBtns');
+  const timeSection = document.getElementById('jetTimeSection');
+  if (!dateSection || !dateBtns) return;
+  const options = getJetDepartureOptions(date);
+  if (options.length === 0) { dateSection.style.display='none'; return; }
+  dateBtns.innerHTML = options.map(function(opt) {
+    return '<button onclick="selectJetDateOption(this,\'' + opt.key + '\',\'' + opt.dateStr + '\',' + opt.date.getTime() + ')" class="jet-date-btn"' +
+    ' style="flex:1;padding:10px 8px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:10px;font-family:Nunito,sans-serif;cursor:pointer;text-align:center;transition:all 0.15s;-webkit-tap-highlight-color:transparent;">' +
+    '<div style="font-size:11px;font-weight:900;color:#1A1F36;">' + opt.label + '</div>' +
+    '<div style="font-size:9px;color:#0066FF;font-weight:600;margin-top:2px;">' + opt.dateStr + '</div>' +
+    '<div style="font-size:8px;color:#8898AA;margin-top:1px;">' + opt.desc + '</div></button>';
+  }).join('');
+  dateSection.style.display = 'block';
+  if (timeSection) timeSection.style.display = 'none';
+  if (document.getElementById('jetDepartureDateKey')) document.getElementById('jetDepartureDateKey').value = '';
+  if (document.getElementById('jetDepartureHour')) document.getElementById('jetDepartureHour').value = '';
 }
 
 function submitJetRequest() {
@@ -2619,13 +3134,32 @@ function submitJetRequest() {
     if(err) err.textContent = '⚠️ Pilih misi tujuan terlebih dahulu.';
     return;
   }
+  const dateKeyEl = document.getElementById('jetDepartureDateKey');
+  if (!dateKeyEl || !dateKeyEl.value) {
+    const err = document.getElementById('jetMissionError');
+    if(err) err.textContent = '⚠️ Pilih tanggal keberangkatan (H-1 atau H).';
+    return;
+  }
+  const hourEl = document.getElementById('jetDepartureHour');
+  if (!hourEl || !hourEl.value) {
+    const err = document.getElementById('jetMissionError');
+    if(err) err.textContent = '⚠️ Pilih jam keberangkatan.';
+    return;
+  }
+  // Build custom departure timestamp from selected date + hour
+  const [_key, _dateStr, dateTs] = dateKeyEl.value.split('|');
+  const [hh, mm] = hourEl.value.split(':').map(Number);
+  const customDepart = new Date(parseInt(dateTs));
+  customDepart.setHours(hh, mm, 0, 0);
+  window._jetCustomDepartureTs = customDepart.getTime();
+
   const [cityCountry, dateRange] = dest.value.split(' | ');
 
   document.getElementById('menuModalContent').innerHTML = `
     <div style="text-align:center;padding:10px 0 4px;">
       <div style="font-size:54px;margin-bottom:16px;">✈️</div>
       <div style="font-size:16px;font-weight:900;color:#1A1F36;margin-bottom:6px;">Memproses Penerbangan...</div>
-      <div style="font-size:12px;color:#8898AA;margin-bottom:22px;">Menghubungkan ke jaringan MYTHOS</div>
+      <div style="font-size:12px;color:#8898AA;margin-bottom:22px;">Menghubungkan armada ke lokasi Anda</div>
       <div style="display:flex;justify-content:center;gap:9px;margin-bottom:22px;">
         <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.0s ease-in-out infinite alternate;"></div>
         <div style="width:10px;height:10px;border-radius:50%;background:#0066FF;animation:dotBlink 1s 0.2s ease-in-out infinite alternate;"></div>
@@ -2723,7 +3257,9 @@ function formatJetBoardingTime(departDate, cityCountry) {
 }
 
 function showJetConfirmed(dest, dateRange) {
-  const departDate = parseMissionStartDate(dateRange);
+  // Use custom departure if set (from date+time picker), else fall back to mission start date
+  const customTs = window._jetCustomDepartureTs || null;
+  const departDate = customTs ? new Date(customTs) : parseMissionStartDate(dateRange);
   const flightInfo = formatJetBoardingTime(departDate, dest);
   const { boardingStr, departStr, arrivalTimeStr, arrivalDateStr, durationStr } = flightInfo;
 
@@ -2735,7 +3271,7 @@ function showJetConfirmed(dest, dateRange) {
     boardingDateStr = `${days[departDate.getDay()]}, ${departDate.getDate()} ${months[departDate.getMonth()]} ${departDate.getFullYear()}`;
   }
 
-  // Add to My Orders — pass departure timestamp
+  // Add to My Orders — pass departure timestamp (custom or mission start)
   addOrder('jet', menuConfig['jet'], `${dest} | ${dateRange}`, departDate ? departDate.getTime() : null);
   document.getElementById('menuModalContent').innerHTML = `
     <div style="text-align:center;margin-bottom:16px;">
@@ -2819,7 +3355,7 @@ function submitDestination() {
     const osmSel = window._osmSelected;
     if (!osmSel) {
       const errEl = document.getElementById('osmError');
-      if (errEl) errEl.textContent = '⚠️ Pilih lokasi tujuan dari hasil pencarian.';
+      if (errEl) errEl.textContent = '⚠️ Pilih lokasi penjemputan dari hasil pencarian.';
       return;
     }
     const name = osmSel.name || osmSel.display_name.split(',')[0];
@@ -2913,7 +3449,7 @@ function showUnitConnected(dest, type) {
   }
   // Add order if not already added (direct unit connected flow)
   const label = isParade ? 'Black Parade' : 'Helicopter';
-  addOrder(type, menuConfig[type], `${unitLabel} ${unitCode} → ${dest || 'Lokasi Anda'}`);
+  addOrder(type, menuConfig[type], `${unitLabel} ${unitCode} | Jemput: ${dest || 'Lokasi Anda'}`);
 
   document.getElementById('menuModalContent').innerHTML = `
     <div style="text-align:center;margin-bottom:18px;">
@@ -2940,7 +3476,7 @@ function showUnitConnected(dest, type) {
     <div style="background:#F4F7FF;border:1px solid #E4EDFF;border-radius:12px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;">
       <div style="font-size:20px;flex-shrink:0;">🎯</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:10px;font-weight:700;color:#8898AA;letter-spacing:0.08em;">TUJUAN</div>
+        <div style="font-size:10px;font-weight:700;color:#8898AA;letter-spacing:0.08em;">📍 LOKASI JEMPUT</div>
         <div style="font-size:13px;font-weight:700;color:#1A1F36;margin-top:2px;line-height:1.4;">${dest || '—'}</div>
         ${isParade && window._osmSelectedCoord ? `
         <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#8898AA;margin-top:5px;">
@@ -3281,6 +3817,101 @@ function closeOrdersPanel() {
   setTimeout(() => { panel.style.display = 'none'; }, 280);
 }
 
+function openRescheduleModal(orderId) {
+  const order = orders.find(o => o.id === orderId);
+  if (!order || order.type !== 'jet') return;
+  const parts = (order.detail || '').split(' | ');
+  const dateRange = parts[1] || '';
+  const missionName = parts[0] || 'Misi';
+  const depOptions = getJetDepartureOptions(dateRange);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'rescheduleOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:8000;background:rgba(4,8,24,0.82);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px 16px;';
+
+  const dateBtnsHtml = depOptions.map(function(opt) {
+    return '<button onclick="selectRescheduleDate(this,\'' + opt.key + '\',\'' + opt.dateStr + '\',' + opt.date.getTime() + ',\'reschDateKey\')" class="rs-date-btn"' +
+      ' style="flex:1;padding:10px 8px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:10px;font-family:Nunito,sans-serif;cursor:pointer;text-align:center;">' +
+      '<div style="font-size:11px;font-weight:900;color:#1A1F36;">' + opt.label + '</div>' +
+      '<div style="font-size:9px;color:#0066FF;font-weight:600;margin-top:2px;">' + opt.dateStr + '</div>' +
+      '</button>';
+  }).join('');
+
+  const hourBtnsHtml = JET_HOURS.map(function(h) {
+    return '<button onclick="selectRescheduleHour(this,\'' + h + '\',\'reschHour\')" class="rs-hour-btn"' +
+      ' style="padding:7px 11px;background:#F4F7FF;border:2px solid #E4EDFF;border-radius:8px;font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:700;color:#1A1F36;cursor:pointer;">' +
+      h + '</button>';
+  }).join('');
+
+  overlay.innerHTML =
+    '<div style="background:#fff;border-radius:20px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 24px 80px rgba(0,0,0,0.5);">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">' +
+        '<div style="width:44px;height:44px;border-radius:13px;background:#EBF2FF;display:flex;align-items:center;justify-content:center;font-size:22px;">🗓️</div>' +
+        '<div><div style="font-size:15px;font-weight:900;color:#1A1F36;">Reschedule Jet</div>' +
+        '<div style="font-size:11px;color:#8898AA;margin-top:1px;">MYT-' + order.jetCode + ' · ' + missionName.split(',')[0] + '</div></div>' +
+        '<button onclick="document.getElementById(\'rescheduleOverlay\').remove()" style="margin-left:auto;width:30px;height:30px;border-radius:50%;background:#F4F6FB;border:1px solid #E4E9F2;font-size:13px;cursor:pointer;">✕</button>' +
+      '</div>' +
+      '<div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">📅 Tanggal Baru</div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:14px;">' + dateBtnsHtml + '</div>' +
+      '<input id="reschDateKey" type="hidden" value="">' +
+      '<div style="font-size:11px;font-weight:700;color:#8898AA;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">🕐 Jam Baru (WIB)</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">' + hourBtnsHtml + '</div>' +
+      '<input id="reschHour" type="hidden" value="">' +
+      '<div id="reschError" style="font-size:11px;color:#E5303A;font-weight:700;min-height:14px;margin-bottom:10px;text-align:center;"></div>' +
+      '<button onclick="confirmReschedule(' + orderId + ')" style="width:100%;padding:13px;background:linear-gradient(135deg,#0066FF,#0044CC);color:#fff;border:none;border-radius:13px;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 5px 16px rgba(0,102,255,0.3);">🗓️ KONFIRMASI RESCHEDULE</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+}
+
+function selectRescheduleDate(btn, key, dateStr, dateTs, inputId) {
+  document.querySelectorAll('.rs-date-btn').forEach(function(b) { b.style.background='#F4F7FF'; b.style.borderColor='#E4EDFF'; });
+  btn.style.background='#EBF2FF'; btn.style.borderColor='#0066FF';
+  document.getElementById(inputId).value = key + '|' + dateStr + '|' + dateTs;
+}
+function selectRescheduleHour(btn, hour, inputId) {
+  document.querySelectorAll('.rs-hour-btn').forEach(function(b) { b.style.background='#F4F7FF'; b.style.borderColor='#E4EDFF'; b.style.color='#1A1F36'; });
+  btn.style.background='#0066FF'; btn.style.borderColor='#0066FF'; btn.style.color='#fff';
+  document.getElementById(inputId).value = hour;
+}
+
+function confirmReschedule(orderId) {
+  var dateVal = document.getElementById('reschDateKey').value;
+  var hourVal = document.getElementById('reschHour').value;
+  var errEl = document.getElementById('reschError');
+  if (!dateVal) { if(errEl) errEl.textContent='⚠️ Pilih tanggal terlebih dahulu.'; return; }
+  if (!hourVal) { if(errEl) errEl.textContent='⚠️ Pilih jam terlebih dahulu.'; return; }
+
+  var parts3 = dateVal.split('|');
+  var dateTs = parseInt(parts3[2]);
+  var timeParts = hourVal.split(':').map(Number);
+  var newDepart = new Date(dateTs);
+  newDepart.setHours(timeParts[0], timeParts[1], 0, 0);
+  var newDepartTs = newDepart.getTime();
+
+  var order = orders.find(function(o) { return o.id === orderId; });
+  if (!order) return;
+
+  var cityCountry = (order.detail || '').split('|')[0].trim();
+  var flightHrs = getFlightHours(cityCountry);
+  order.departureTs = newDepartTs;
+  order.arrivalAt = newDepartTs + flightHrs * 3600000;
+  order.statusIndex = 0;
+  order.done = false;
+  order.createdAt = Date.now();
+  saveOrders();
+  updateOrderBadge();
+  startOrderProgress(order);
+  document.getElementById('rescheduleOverlay').remove();
+  refreshOrdersPanel();
+
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9998;background:#1A1F36;color:#fff;border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.3);opacity:0;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);font-family:Nunito,sans-serif;';
+  toast.innerHTML = '<span style="font-size:18px;">🗓️</span><div><div style="font-size:12px;font-weight:800;">Reschedule berhasil!</div><div style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px;">Jadwal jet telah diperbarui ✓</div></div>';
+  document.body.appendChild(toast);
+  setTimeout(function() { toast.style.opacity='1'; toast.style.transform='translateX(-50%) translateY(0)'; }, 50);
+  setTimeout(function() { toast.style.opacity='0'; toast.style.transform='translateX(-50%) translateY(10px)'; setTimeout(function(){ toast.remove(); }, 400); }, 3000);
+}
+
 function deleteOrder(id) {
   orders = orders.filter(o => o.id !== id);
   saveOrders();
@@ -3480,6 +4111,7 @@ function refreshOrdersPanel() {
               <div style="width:5px;height:5px;border-radius:50%;background:${sc.dot};${!isDone?'animation:orderDotPulse 1.2s infinite;':''}"></div>
               <span style="font-size:9px;font-weight:800;color:${sc.color};letter-spacing:0.06em;">${isDone?(isJet?'DEPARTED':'SELESAI'):status.toUpperCase()}</span>
             </div>
+            ${isJet && !isDone ? `<button onclick="openRescheduleModal(${order.id})" title="Reschedule" style="width:22px;height:22px;border-radius:50%;background:#EBF2FF;border:1px solid #B3CFFF;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;line-height:1;color:#0066FF;flex-shrink:0;padding:0;-webkit-tap-highlight-color:transparent;margin-right:2px;" onmouseenter="this.style.background='#D6E8FF'" onmouseleave="this.style.background='#EBF2FF'">🗓</button>` : ''}
             <button onclick="deleteOrder(${order.id})" title="Hapus order" style="width:22px;height:22px;border-radius:50%;background:#FFF0F0;border:1px solid #FFD0D0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;line-height:1;color:#E5303A;flex-shrink:0;padding:0;-webkit-tap-highlight-color:transparent;" onmouseenter="this.style.background='#FFE0E0'" onmouseleave="this.style.background='#FFF0F0'">✕</button>
           </div>
           <div style="font-size:11px;font-weight:700;color:${isDone?'#00B37D':'#1A1F36'};font-family:'JetBrains Mono',monospace;">
@@ -3514,6 +4146,20 @@ function refreshOrdersPanel() {
 
       <!-- Jet departure info (mission-based) -->
       ${isJet ? formatJetDepartureInfo(order) : ''}
+
+      <!-- Parade pickup location info -->
+      ${order.type === 'parade' ? (function(){
+        const detail = order.detail || '';
+        const pickupMatch = detail.match(/Jemput:\s*(.+)$/);
+        const pickupLoc = pickupMatch ? pickupMatch[1].trim() : 'Lokasi Anda';
+        const unitMatch = detail.match(/^(BP-\d+)/);
+        const unitCode = unitMatch ? unitMatch[1] : '';
+        return '<div style="margin-top:10px;background:#F4F7FF;border:1.5px solid #D6E8FF;border-radius:12px;padding:11px 13px;">' +
+          '<div style="font-size:9px;font-weight:800;color:#0066FF;letter-spacing:0.1em;margin-bottom:7px;">📍 LOKASI PENJEMPUTAN</div>' +
+          '<div style="font-size:12px;font-weight:700;color:#1A1F36;line-height:1.5;">' + pickupLoc + '</div>' +
+          (unitCode ? '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:#8898AA;margin-top:5px;">Unit: ' + unitCode + '</div>' : '') +
+          '</div>';
+      })() : ''}
 
       <!-- History timestamp -->
       ${isDone ? `<div style="margin-top:6px;font-size:9px;color:#B0BAD0;font-family:'JetBrains Mono',monospace;text-align:right;">Selesai: ${new Date(order.arrivalAt).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>` : ''}
@@ -4711,7 +5357,10 @@ function numOk() {
     setTimeout(() => {
       gate.style.display = 'none';
       const main = document.getElementById('mainContent');
-      main.style.display = 'block';
+      main.style.display = 'flex';
+      main.style.flexDirection = 'column';
+      main.style.height = '100vh';
+      main.style.overflowY = 'auto';
       main.style.animation = 'fadeInMain 0.5s ease both';
       showGreeting(selectedUser);
       // Show floating side menu
@@ -6380,5 +7029,151 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 </div><!-- end #mainContent -->
+
+<!-- ═══ MODAL: ADMINISTRATOR MESSAGE (outside mainContent for correct fixed positioning) ═══ -->
+<div class="ibx-modal-bg" id="ibxModalAdmin" onclick="ibxBgClick(event,'ibxModalAdmin')">
+  <div class="ibx-modal-sheet">
+    <div class="ibx-modal-handle-wrap"><div class="ibx-modal-handle"></div></div>
+    <div class="ibx-modal-hdr">
+      <div class="ibx-modal-from">
+        <div class="ibx-modal-av">🔴</div>
+        <div>
+          <div class="ibx-modal-name">ADMINISTRATOR <span class="ibx-tag ibx-tag-dark">SYS ADMIN</span></div>
+          <div class="ibx-modal-role">MYTHOS Command — Classified Dispatch</div>
+        </div>
+      </div>
+      <div class="ibx-modal-subj">⚠ Budapest Flight — Cannot Be Rescheduled. Departure Accelerated.</div>
+      <div class="ibx-modal-meta">
+        <span class="ibx-modal-ts">📅 29 APR 2026 · 02:47 UTC</span>
+        <span class="ibx-pill ibx-pill-red">🔴 CRITICAL PRIORITY</span>
+      </div>
+    </div>
+    <div class="ibx-modal-body">
+      <div class="ibx-txt">
+        <p>Agent,</p>
+        <p>This is an official notice from MYTHOS Command. Your scheduled flight to <strong>Budapest, Hungary</strong> for Mission <strong>#01 — OP-VIENNA</strong> <u>cannot be rescheduled under any circumstances</u>. The operational window is locked and any delay will compromise the mission.</p>
+        <div class="ibx-alert">
+          <div class="ibx-alert-ttl">🚨 Departure Update — Final</div>
+          <div class="ibx-alert-rows">
+            <div class="ibx-alert-row">
+              <span class="ibx-alert-lbl">Departure Date</span>
+              <span class="ibx-alert-val r">THU, 30 APR 2026</span>
+            </div>
+            <div class="ibx-alert-row">
+              <span class="ibx-alert-lbl">Departure Time</span>
+              <span class="ibx-alert-val r">07:00 AM LOCAL</span>
+            </div>
+            <div class="ibx-alert-row">
+              <span class="ibx-alert-lbl">Destination</span>
+              <span class="ibx-alert-val b">BUDAPEST 🇭🇺</span>
+            </div>
+            <div class="ibx-alert-row">
+              <span class="ibx-alert-lbl">Flight Status</span>
+              <span class="ibx-alert-val r">LOCKED — NO RESCHEDULE</span>
+            </div>
+            <div class="ibx-alert-row">
+              <span class="ibx-alert-lbl">Transport</span>
+              <span class="ibx-alert-val d">Private Jet · Manifest Alpha</span>
+            </div>
+            <div class="ibx-alert-row">
+              <span class="ibx-alert-lbl">Report Time</span>
+              <span class="ibx-alert-val r">06:00 AM — NO LATER</span>
+            </div>
+          </div>
+        </div>
+        <p>You are required to be at the designated departure terminal <strong>no later than 06:00 AM</strong> tomorrow morning. Ensure all mission equipment, documents, and cover identity are ready before boarding.</p>
+        <p>Do <strong>not</strong> attempt to contact the flight coordinator to request a change. All flight parameters are set by HQ and are final. Any unauthorized attempt to reschedule will trigger a <strong>security protocol review</strong>.</p>
+        <p>Mission briefing package for OP-VIENNA has been sent separately. Review it tonight. Your team will rendezvous at the aircraft.</p>
+        <p style="font-size:11px;color:#8898AA;border-top:1px solid #F0F4FF;padding-top:10px;">— MYTHOS COMMAND · AUTH: MYT-4429-ALPHA<br>CLASSIFIED. Unauthorized disclosure is prohibited.</p>
+      </div>
+    </div>
+    <div class="ibx-modal-foot">
+      <button class="ibx-ack-btn" onclick="closeIbxModal('ibxModalAdmin');markRead()">✓ ACKNOWLEDGED — CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: OPS CENTER ═══ -->
+<div class="ibx-modal-bg" id="ibxModalOps" onclick="ibxBgClick(event,'ibxModalOps')">
+  <div class="ibx-modal-sheet ibx-info-sheet">
+    <div class="ibx-modal-handle-wrap"><div class="ibx-modal-handle"></div></div>
+    <div class="ibx-modal-hdr">
+      <div class="ibx-modal-from">
+        <div class="ibx-modal-av" style="background:linear-gradient(135deg,#0066FF,#0044CC);">📋</div>
+        <div>
+          <div class="ibx-modal-name">OPS CENTER <span class="ibx-tag ibx-tag-blue">OPS</span></div>
+          <div class="ibx-modal-role">MYTHOS Operations Division</div>
+        </div>
+      </div>
+      <div class="ibx-modal-subj" style="color:#0066FF;">Mission #01 — Budapest Briefing Package</div>
+      <div class="ibx-modal-meta">
+        <span class="ibx-modal-ts">📅 28 APR 2026 · 18:00 UTC</span>
+        <span class="ibx-pill ibx-pill-grn">✓ READ</span>
+      </div>
+    </div>
+    <div class="ibx-modal-body">
+      <div class="ibx-txt">
+        <p>Agent,</p>
+        <p>Attached to this dispatch is the full operational briefing for <strong>Mission #01 — OP-VIENNA</strong> (Budapest, Hungary). Please review all sections carefully before your departure.</p>
+        <div class="ibx-alert" style="border-left-color:#0066FF;border-color:#C5D9FF;background:linear-gradient(135deg,#F0F7FF,#F8FBFF);">
+          <div class="ibx-alert-ttl" style="color:#0044CC;">📋 Briefing Checklist</div>
+          <div class="ibx-alert-rows">
+            <div class="ibx-alert-row"><span class="ibx-alert-lbl">Mission Code</span><span class="ibx-alert-val b">OP-VIENNA</span></div>
+            <div class="ibx-alert-row"><span class="ibx-alert-lbl">Clearance Level</span><span class="ibx-alert-val b">ALPHA-7</span></div>
+            <div class="ibx-alert-row"><span class="ibx-alert-lbl">Asset Contact</span><span class="ibx-alert-val d">IRON — Kovács András</span></div>
+            <div class="ibx-alert-row"><span class="ibx-alert-lbl">Exfil Point</span><span class="ibx-alert-val d">BUD Airport Gate F · 01 May 22:00L</span></div>
+            <div class="ibx-alert-row"><span class="ibx-alert-lbl">Cover Identity</span><span class="ibx-alert-val d">Gavin Marsh · EU Business Consultant</span></div>
+          </div>
+        </div>
+        <p>Memorise cover identity and legend before departure. Do not carry any materials linking you to MYTHOS. Your team roster is confirmed — meet at aircraft.</p>
+        <p style="font-size:11px;color:#8898AA;border-top:1px solid #F0F4FF;padding-top:10px;">— OPS CENTER · REF: OPS-VIENNA-01<br>CLASSIFIED — For addressee only.</p>
+      </div>
+    </div>
+    <div class="ibx-modal-foot">
+      <button class="ibx-ack-btn" style="background:linear-gradient(135deg,#0066FF,#0044CC);box-shadow:0 6px 20px rgba(0,102,255,0.28);" onclick="closeIbxModal('ibxModalOps')">✓ CLOSE MESSAGE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: SECURITY ═══ -->
+<div class="ibx-modal-bg" id="ibxModalSec" onclick="ibxBgClick(event,'ibxModalSec')">
+  <div class="ibx-modal-sheet">
+    <div class="ibx-modal-handle-wrap"><div class="ibx-modal-handle"></div></div>
+    <div class="ibx-modal-hdr">
+      <div class="ibx-modal-from">
+        <div class="ibx-modal-av" style="background:linear-gradient(135deg,#00B37D,#007A56);">🔐</div>
+        <div>
+          <div class="ibx-modal-name">SECURITY <span class="ibx-tag ibx-tag-grn">SEC</span></div>
+          <div class="ibx-modal-role">MYTHOS Security Division</div>
+        </div>
+      </div>
+      <div class="ibx-modal-subj" style="color:#007A56;">Access Code Rotation — Cycle 14</div>
+      <div class="ibx-modal-meta">
+        <span class="ibx-modal-ts">📅 27 APR 2026 · 09:12 UTC</span>
+        <span class="ibx-pill ibx-pill-grn">✓ READ</span>
+      </div>
+    </div>
+    <div class="ibx-modal-body">
+      <div class="ibx-txt">
+        <p>Agent,</p>
+        <p>As part of MYTHOS standard 72-hour security protocol, your access credentials have been rotated. The new codes are active immediately. Old credentials have been invalidated.</p>
+        <div class="ibx-alert" style="border-left-color:#00B37D;border-color:#A8E6D0;background:linear-gradient(135deg,#F0FBF7,#F8FDFB);">
+          <div class="ibx-alert-ttl" style="color:#007A56;">🔐 Rotation Summary</div>
+          <div class="ibx-alert-rows">
+            <div class="ibx-alert-row"><span class="ibx-alert-lbl">Rotation Cycle</span><span class="ibx-alert-val d">CYCLE 14</span></div>
+            <div class="ibx-alert-row"><span class="ibx-alert-lbl">Effective From</span><span class="ibx-alert-val d">27 APR 2026 · 09:00 UTC</span></div>
+            <div class="ibx-alert-row"><span class="ibx-alert-lbl">Next Rotation</span><span class="ibx-alert-val d">30 APR 2026 · 09:00 UTC</span></div>
+            <div class="ibx-alert-row"><span class="ibx-alert-lbl">Old Code</span><span class="ibx-alert-val r">INVALIDATED</span></div>
+          </div>
+        </div>
+        <p>Do not share your access code with anyone, including team members. If you suspect compromise, contact Security Division immediately via SOS channel.</p>
+        <p style="font-size:11px;color:#8898AA;border-top:1px solid #F0F4FF;padding-top:10px;">— SECURITY DIVISION · CYCLE-14-AUTO<br>This is an automated security notification.</p>
+      </div>
+    </div>
+    <div class="ibx-modal-foot">
+      <button class="ibx-ack-btn" style="background:linear-gradient(135deg,#00B37D,#007A56);box-shadow:0 6px 20px rgba(0,179,125,0.28);" onclick="closeIbxModal('ibxModalSec')">✓ CLOSE MESSAGE</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
